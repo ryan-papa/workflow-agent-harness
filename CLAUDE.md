@@ -64,7 +64,8 @@ claude-projects/
 │       ├── rp-dev.md           # [7] 개발
 │       ├── rp-qa.md            # [8] QA / 콘텐츠 검수
 │       ├── rp-code-review.md   # [9] 코드 리뷰
-│       └── rp-ship.md          # [11] 커밋→PR→배포
+│       ├── rp-ship.md          # [11] 커밋→PR→배포
+│       └── rp-retro.md         # [12] 회고
 ├── templates/                    # 문서 템플릿
 │   ├── readme-opensource.md      # 오픈소스 README 템플릿
 │   └── readme-service.md        # 서비스 README 템플릿
@@ -91,6 +92,7 @@ claude-projects/
 | 9 | `rp-code-review` | 코드 리뷰 (8항목) | [`harness-code-review.md`](docs/harness-code-review.md) |
 | 10 | — | 산출물 보고 → **사용자 승인** | [`harness-ship.md`](docs/harness-ship.md) |
 | 11 | `rp-ship` | 커밋 → PR → CI → 머지 → 배포 | [`harness-ship.md`](docs/harness-ship.md) |
+| 12 | `rp-retro` | 회고 (절차 준수 + 효율성 + 규칙 개선) | [`skills/rp-retro.md`](docs/skills/rp-retro.md) |
 
 **오케스트레이터:** `rp-workflow`가 전체 플로우 관리, 각 스킬을 순서대로 호출
 **스킬 위치:** [`docs/skills/`](docs/skills/)
