@@ -17,6 +17,22 @@ main
 | 태스크 브랜치 | `feat/T-XX-description`, 통합 브랜치에서 생성 |
 | 태스크 머지 | 태스크 → 통합 브랜치로 머지 |
 | 최종 머지 | 통합 브랜치 → main (PR) |
+| **main 직접 push** | **금지** — 반드시 PR 경유 |
+
+## 레포 초기화 체크리스트
+
+신규 레포 생성 시 아래 설정 적용. **기존 CI/보호 설정이 있는 레포는 스킵.**
+
+| 항목 | 내용 | 템플릿 |
+|------|------|--------|
+| 브랜치 프로텍션 | main 직접 push 금지, PR 필수 | `gh api` 설정 |
+| PR CI | 빌드 + 테스트 자동 실행, 실패 시 머지 차단 | [`templates/ci-pr.yml`](templates/ci-pr.yml) |
+| 시크릿 스캔 | GitHub 기본 secret scanning + push protection | 레포 Settings |
+| 머지 조건 | CI 전체 통과 필수 | 브랜치 프로텍션에 포함 |
+
+**적용 판단:**
+- `.github/workflows/` 에 CI 파일이 이미 있으면 → CI 템플릿 스킵
+- 브랜치 프로텍션이 이미 설정되어 있으면 → 프로텍션 스킵
 
 **머지 후 검증 (필수):**
 - `git log [target-branch] --oneline -3`으로 커밋 반영 확인
