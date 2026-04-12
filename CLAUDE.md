@@ -48,7 +48,11 @@ claude-projects/
 │   ├── harness-dev.md          # 개발 + QA + 코드리뷰
 │   ├── harness-code-review.md  # 코드리뷰 상세 기준 (8항목)
 │   ├── harness-design.md       # UI 디자인 원칙
+│   ├── harness-readme.md       # README 작성 규칙
 │   └── prd-template.md         # PRD 템플릿
+├── templates/                    # 문서 템플릿
+│   ├── readme-opensource.md      # 오픈소스 README 템플릿
+│   └── readme-service.md        # 서비스 README 템플릿
 ├── repositories/               # 프로젝트별 레포 (git 제외)
 │   └── [project]/
 │       ├── CLAUDE.md
@@ -81,6 +85,7 @@ claude-projects/
 
 **코드리뷰 상세:** [`harness-code-review.md`](docs/harness-code-review.md)
 **디자인 원칙:** [`harness-design.md`](docs/harness-design.md)
+**README 규칙:** [`harness-readme.md`](docs/harness-readme.md)
 
 ## Token Efficiency
 

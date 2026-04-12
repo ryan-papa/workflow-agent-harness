@@ -38,12 +38,17 @@
 
 **프로젝트 초기화 (자동 생성):**
 
-| 항목 | 경로 |
-|------|------|
-| 프로젝트 설정 | `repositories/[project]/CLAUDE.md` |
-| 리드미 | `repositories/[project]/README.md` |
-| PRD 디렉토리 | `repositories/[project]/docs/prd/` |
-| 리서치 디렉토리 | `repositories/[project]/docs/research/` |
+| 항목 | 경로 | 비고 |
+|------|------|------|
+| 프로젝트 설정 | `repositories/[project]/CLAUDE.md` | |
+| 리드미 | `repositories/[project]/README.md` | 유형별 템플릿 적용 |
+| PRD 디렉토리 | `repositories/[project]/docs/prd/` | |
+| 리서치 디렉토리 | `repositories/[project]/docs/research/` | |
+
+**README 템플릿:** 프로젝트 유형에 따라 선택 적용
+- 오픈소스/라이브러리 → [`templates/readme-opensource.md`](templates/readme-opensource.md)
+- 사내 서비스/API → [`templates/readme-service.md`](templates/readme-service.md)
+- 작성 규칙: [`harness-readme.md`](harness-readme.md)
 
 **에이전트 컨텍스트 표준 (필수 전달 항목):**
 

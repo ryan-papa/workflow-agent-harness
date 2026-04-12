@@ -1,0 +1,22 @@
+# 공통 PR CI 템플릿
+# 프로젝트 초기화 시 .github/workflows/ci.yml 로 복사
+# 이미 CI 설정이 있는 프로젝트에는 적용하지 않음
+
+name: PR Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test --if-present
