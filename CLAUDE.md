@@ -70,7 +70,7 @@ claude-projects/
 
 | 단계 | 내용 | 상세 |
 |------|------|------|
-| 1~5 | 초기화 → 구체화(도메인→기술) → PRD → 기획리뷰 → 엔지니어링리뷰 | [`harness-prd.md`](docs/harness-prd.md) |
+| 1~5 | 초기화 → 구체화(도메인→기술→**외부API인증점검**) → PRD → 기획리뷰 → 엔지니어링리뷰 | [`harness-prd.md`](docs/harness-prd.md) |
 | 6~10 | 태스크 분해 → 개발 → QA → 코드리뷰(8항목) → 산출물 | [`harness-dev.md`](docs/harness-dev.md) |
 
 **리뷰 통과 시 사용자 승인 없이 바로 개발 진입**
