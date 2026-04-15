@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check markdown files exist
+        run: |
+          echo "Checking required files..."
+          for f in CLAUDE.md README.md docs/harness-workflow.md docs/harness-dev.md docs/harness-qa.md docs/harness-ship.md docs/harness-code-review.md; do
+            if [ ! -f "$f" ]; then
+              echo "❌ Missing: $f"
+              exit 1
+            fi
+            echo "✅ $f"
+          done
+
+      - name: Check line limits (200 lines max)
+        run: |
+          echo "Checking line limits..."
+          failed=0
+          for f in $(find docs/ CLAUDE.md -name '*.md' -not -path '*/node_modules/*' -not -path '*/templates/*'); do
+            lines=$(wc -l < "$f")
+            if [ "$lines" -gt 200 ]; then
+              echo "❌ $f: ${lines} lines (max 200)"
+              failed=1
+            else
+              echo "✅ $f: ${lines} lines"
+            fi
+          done
+          if [ "$failed" -eq 1 ]; then exit 1; fi
+
+      - name: Check for broken internal links
+        run: |
+          echo "Checking internal links..."
+          failed=0
+          for f in $(find docs/ CLAUDE.md -name '*.md' -not -path '*/templates/*'); do
+            links=$(grep -oP '\[.*?\]\(\K[^)]+' "$f" 2>/dev/null | grep -v '^http' | grep -v '^#' || true)
+            dir=$(dirname "$f")
+            for link in $links; do
+              target="$dir/$link"
+              if [ ! -f "$target" ] && [ ! -d "$target" ]; then
+                echo "❌ $f → $link (not found)"
+                failed=1
+              fi
+            done
+          done
+          if [ "$failed" -eq 1 ]; then exit 1; fi
+          echo "✅ All internal links valid"

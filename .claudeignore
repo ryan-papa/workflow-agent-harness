@@ -1,0 +1,118 @@
+# ============================================
+# 공통 .claudeignore
+# 프로젝트별 추가 규칙: repositories/[project]/.claudeignore
+# 공통 + 프로젝트 규칙 합산 적용
+# ============================================
+
+# === Node.js / Frontend ===
+node_modules/
+.next/
+.nuxt/
+dist/
+build/
+out/
+.cache/
+.parcel-cache/
+.turbo/
+.vercel/
+.netlify/
+coverage/
+.nyc_output/
+*.tsbuildinfo
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+.eggs/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+
+# === Java / Kotlin ===
+.gradle/
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+
+# === Go ===
+vendor/
+
+# === Rust ===
+target/
+Cargo.lock
+
+# === .NET / C# ===
+bin/
+obj/
+*.dll
+*.exe
+packages/
+
+# === Ruby ===
+.bundle/
+vendor/bundle/
+Gemfile.lock
+
+# === iOS / Swift ===
+Pods/
+.build/
+DerivedData/
+*.xcworkspace/xcuserdata/
+
+# === Android ===
+local.properties
+*.apk
+*.aab
+
+# === IDE / Editor ===
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# === 빌드 산출물 ===
+*.min.js
+*.min.css
+*.map
+*.chunk.js
+*.bundle.js
+
+# === 테스트 결과 ===
+test-results/
+playwright-report/
+allure-results/
+
+# === 로그 ===
+logs/
+*.log
+
+# === 환경변수 ===
+.env
+.env.*
+!.env.example
+
+# === 미디어 (대용량) ===
+*.mp4
+*.mov
+*.avi
+*.mp3
+*.wav
+*.zip
+*.tar.gz
+*.rar

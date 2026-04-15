@@ -1,0 +1,1 @@
+../../docs/skills/rp-prd.md
