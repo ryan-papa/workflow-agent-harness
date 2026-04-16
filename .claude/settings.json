@@ -134,7 +134,13 @@
       "Bash(pip uninstall *)",
       "Bash(pip3 uninstall *)",
       "Bash(colima *)",
-      "Bash(PYTHONPATH=* *)"
+      "Bash(PYTHONPATH=* *)",
+      "Bash(cd *)",
+      "Bash(pgrep *)",
+      "Bash(sudo cp *)",
+      "Bash(sudo nginx *)",
+      "Bash(*/. venv/bin/python *)",
+      "Bash(*/.venv/bin/python *)"
     ]
   }
 }

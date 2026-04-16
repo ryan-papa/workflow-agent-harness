@@ -89,7 +89,7 @@ claude-projects/
 | 6~7 | `rp-task`, `rp-dev` | 태스크 분해 → 개발 | [`harness-dev.md`](docs/harness-dev.md) |
 | 8 | `rp-qa` | QA / 콘텐츠 검수 | [`harness-qa.md`](docs/harness-qa.md) |
 | 9 | `rp-code-review` | 코드 리뷰 (7항목, 최저 점수제) | [`harness-code-review.md`](docs/harness-code-review.md) |
-| 10 | — | 산출물 보고 → **사용자 승인** | [`harness-ship.md`](docs/harness-ship.md) |
+| 10 | — | 산출물 보고 → 커밋·PR 자동 진행 | [`harness-ship.md`](docs/harness-ship.md) |
 | 11 | `rp-ship` | 커밋 → PR → CI → 머지 → 배포 | [`harness-ship.md`](docs/harness-ship.md) |
 | 12 | `rp-retro` | 회고 (절차 준수 + 효율성 + 규칙 개선) | [`skills/rp-retro.md`](docs/skills/rp-retro.md) |
 
