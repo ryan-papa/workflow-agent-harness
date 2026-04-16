@@ -86,7 +86,6 @@
       "Bash(cp *)",
       "Bash(mv *)",
       "Bash(chmod *)",
-      "Bash(rm *)",
       "Bash(ln *)",
       "Bash(find *)",
       "Bash(grep *)",
