@@ -139,7 +139,12 @@
       "Bash(sudo cp *)",
       "Bash(sudo nginx *)",
       "Bash(*/. venv/bin/python *)",
-      "Bash(*/.venv/bin/python *)"
+      "Bash(*/.venv/bin/python *)",
+      "Bash(git add * && git commit *)",
+      "Bash(git add * && git commit * && git push *)",
+      "Bash(git commit * && git push *)",
+      "Bash(cd * && npm *)",
+      "Bash(cd * && git *)"
     ]
   }
 }
