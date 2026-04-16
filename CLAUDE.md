@@ -38,15 +38,19 @@
 ```
 claude-projects/
 ├── docs/                       # 공통 문서·규칙
-│   ├── harness-workflow.md     # 전체 플로우 (11단계)
+│   ├── harness-workflow.md     # 전체 플로우 (12단계)
 │   ├── harness-prd.md          # PRD 작성 + 2단계 리뷰
 │   ├── harness-dev.md          # 개발 (브랜치·태스크·테스트)
 │   ├── harness-qa.md           # QA + 콘텐츠 검수
-│   ├── harness-code-review.md  # 코드리뷰 상세 기준 (8항목)
+│   ├── harness-code-review.md  # 코드리뷰 상세 기준 (7항목)
 │   ├── harness-ship.md         # 산출물 보고 + 배포
 │   ├── harness-design.md       # UI 디자인 원칙
 │   ├── harness-readme.md       # README 작성 규칙
 │   ├── prd-template.md         # PRD 템플릿
+│   ├── templates/              # 문서·CI 템플릿
+│   │   ├── readme-opensource.md
+│   │   ├── readme-service.md
+│   │   └── ci-pr.yml
 │   └── skills/                 # 하네스 스킬 (rp-*)
 │       ├── rp-workflow.md      # 오케스트레이터
 │       ├── rp-init.md          # [1] 프로젝트 초기화
@@ -60,9 +64,6 @@ claude-projects/
 │       ├── rp-code-review.md   # [9] 코드 리뷰
 │       ├── rp-ship.md          # [11] 커밋→PR→배포
 │       └── rp-retro.md         # [12] 회고
-├── templates/                    # 문서 템플릿
-│   ├── readme-opensource.md      # 오픈소스 README 템플릿
-│   └── readme-service.md        # 서비스 README 템플릿
 ├── repositories/               # 프로젝트별 레포 (git 제외)
 │   └── [project]/
 │       ├── CLAUDE.md

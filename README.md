@@ -17,9 +17,9 @@ PRD 작성부터 코드리뷰까지 10단계 워크플로우를 규칙으로 정
 
 ### 핵심 특징
 
-- **10단계 전체 플로우** — 프로젝트 초기화부터 최종 산출물까지 단계별 가이드
+- **12단계 전체 플로우** — 프로젝트 초기화부터 배포·회고까지 단계별 가이드
 - **2단계 리뷰** — 기획 리뷰 + 엔지니어링 리뷰로 PRD 품질 확보
-- **8항목 코드리뷰** — 구조적 코드리뷰 체크리스트로 일관성 유지
+- **7항목 코드리뷰** — 구조적 코드리뷰 체크리스트로 일관성 유지
 
 ---
 
@@ -28,10 +28,10 @@ PRD 작성부터 코드리뷰까지 10단계 워크플로우를 규칙으로 정
 ```
 claude-projects/
 ├── docs/                          # 공통 규칙 문서
-│   ├── harness-workflow.md        # 10단계 전체 플로우
+│   ├── harness-workflow.md        # 12단계 전체 플로우
 │   ├── harness-prd.md             # PRD 작성 + 2단계 리뷰
 │   ├── harness-dev.md             # 개발 + QA + 코드리뷰
-│   ├── harness-code-review.md     # 8항목 코드리뷰
+│   ├── harness-code-review.md     # 7항목 코드리뷰
 │   ├── harness-design.md          # UI 디자인 원칙
 │   ├── harness-readme.md          # README 작성 규칙
 │   └── templates/                 # PRD, README, CI 템플릿
@@ -64,9 +64,13 @@ claude-projects/
  ↓
 [8] QA (사전 검증 → 시나리오 테스트)
  ↓
-[9] 코드 리뷰 (8항목) → 개선 ← 최대 3회
+[9] 코드 리뷰 (7항목) → 개선 ← 최대 3회
  ↓
-[10] 최종 산출물 전달
+[10] 산출물 보고
+ ↓
+[11] 커밋 → PR → CI → 머지 → 배포
+ ↓
+[12] 회고
 ```
 
 전체 흐름은 [`docs/harness-workflow.md`](docs/harness-workflow.md) 참고.
@@ -77,10 +81,10 @@ claude-projects/
 
 | 문서 | 역할 |
 |------|------|
-| [`harness-workflow.md`](docs/harness-workflow.md) | 10단계 전체 플로우 정의 |
+| [`harness-workflow.md`](docs/harness-workflow.md) | 12단계 전체 플로우 정의 |
 | [`harness-prd.md`](docs/harness-prd.md) | PRD 작성 가이드 + 기획/엔지니어링 리뷰 |
 | [`harness-dev.md`](docs/harness-dev.md) | 개발 절차 + QA + 코드리뷰 통합 |
-| [`harness-code-review.md`](docs/harness-code-review.md) | 8항목 코드리뷰 체크리스트 |
+| [`harness-code-review.md`](docs/harness-code-review.md) | 7항목 코드리뷰 체크리스트 |
 | [`harness-design.md`](docs/harness-design.md) | UI 디자인 원칙 |
 | [`harness-readme.md`](docs/harness-readme.md) | README 작성 규칙 + 체크리스트 |
 
