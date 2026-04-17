@@ -112,10 +112,12 @@ claude-projects/
 - 기능 변경 시 코드 전에 PRD 문서 먼저 업데이트 + 리뷰
 - 테스트 코드 없이 커밋/머지 절대 금지
 - 테스트·빌드 미통과 시 다음 단계 진행 금지
-- QA·코드 리뷰 단계 생략 금지
+- **QA·코드 리뷰 단계 생략 금지 (게이트 강화)**: 두 단계 모두 완료 여부를 배포 전 체크하고, 하나라도 미수행이면 배포 차단. "단위 테스트 통과 = QA 대체 불가"
 - 산출물 보고 없이 배포 진행 금지 (커밋·PR은 산출물 보고 후 자동)
 - **push 전 README 검증 필수** (5항목 평균 8.0+, 최대 3회 재시도, 미통과 시 push 차단)
 - **CI 통과 전 머지 금지** (예외 없음)
+- **feat 브랜치 직행 배포 금지**: 모든 배포는 `rp-ship` 경유 (PR → CI → main 머지 → 배포). feat/통합 브랜치 상태로 프로덕션 프로세스 기동·노출 금지. 단, 로컬 개발 서버(`uvicorn --reload`) 는 예외.
+- **프런트엔드 변경 시 Playwright E2E + axe(접근성) 검사 필수**: `rp-qa` 단계에서 둘 다 실행, 실패 시 진행 차단. E2E 테스트가 없는 UI 태스크는 완료 불가.
 - "급해서", "간단해서", "나중에" 등 어떤 이유로도 단계 스킵 불가
 - **배포 완료 직후 회고(`/rp-retro`) 자동 시작** — 생략 불가
 - 워크플로우 위반 발견 시 즉시 중단하고 빠진 단계부터 재진행
@@ -125,6 +127,7 @@ claude-projects/
 **디자인 원칙:** [`harness-design.md`](docs/harness-design.md)
 **README 규칙:** [`harness-readme.md`](docs/harness-readme.md)
 **시크릿 관리:** [`security-guide.md`](docs/security-guide.md) / [`security/secrets-management.md`](docs/security/secrets-management.md)
+**DB 스타일:** [`harness-db.md`](docs/harness-db.md) — 테이블/컬럼/인덱스/ENUM COMMENT 규칙
 
 ## Token Efficiency
 
