@@ -1,2 +1,10 @@
 repositories/
 .claude/settings.local.json
+
+# 로컬 전용 공개키 레지스트리 (공개 저장소 노출 방지)
+docs/security/recipients.local.md
+
+# 평문 시크릿 일반 금지 (.env.enc는 허용)
+.env
+*.env
+!*.env.enc

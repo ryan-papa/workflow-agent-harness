@@ -46,11 +46,17 @@ claude-projects/
 │   ├── harness-ship.md         # 산출물 보고 + 배포
 │   ├── harness-design.md       # UI 디자인 원칙
 │   ├── harness-readme.md       # README 작성 규칙
+│   ├── security-guide.md       # 시크릿·자격증명 원칙 (sops+age)
+│   ├── security/
+│   │   ├── secrets-management.md       # sops+age 세팅·운영·rotation
+│   │   └── recipients.local.md         # (git 제외) 공개키 레지스트리
 │   ├── prd-template.md         # PRD 템플릿
-│   ├── templates/              # 문서·CI 템플릿
+│   ├── templates/              # 문서·CI·시크릿 템플릿
 │   │   ├── readme-opensource.md
 │   │   ├── readme-service.md
-│   │   └── ci-pr.yml
+│   │   ├── ci-pr.yml
+│   │   ├── sops.yaml.template          # .sops.yaml 초안 (플레이스홀더)
+│   │   └── env.example.template        # .env.example 초안
 │   └── skills/                 # 하네스 스킬 (rp-*)
 │       ├── rp-workflow.md      # 오케스트레이터
 │       ├── rp-init.md          # [1] 프로젝트 초기화
@@ -118,6 +124,7 @@ claude-projects/
 **코드리뷰 상세:** [`harness-code-review.md`](docs/harness-code-review.md)
 **디자인 원칙:** [`harness-design.md`](docs/harness-design.md)
 **README 규칙:** [`harness-readme.md`](docs/harness-readme.md)
+**시크릿 관리:** [`security-guide.md`](docs/security-guide.md) / [`security/secrets-management.md`](docs/security/secrets-management.md)
 
 ## Token Efficiency
 

@@ -34,10 +34,15 @@ claude-projects/
 │   ├── harness-code-review.md     # 7항목 코드리뷰
 │   ├── harness-design.md          # UI 디자인 원칙
 │   ├── harness-readme.md          # README 작성 규칙
-│   └── templates/                 # PRD, README, CI 템플릿
+│   ├── security-guide.md          # 시크릿 관리 원칙 (sops+age)
+│   ├── security/                  # 시크릿 상세 절차
+│   │   └── secrets-management.md
+│   └── templates/                 # PRD, README, CI, 시크릿 템플릿
 │       ├── readme-opensource.md
 │       ├── readme-service.md
-│       └── ci-pr.yml
+│       ├── ci-pr.yml
+│       ├── sops.yaml.template
+│       └── env.example.template
 ├── .claudeignore                  # 토큰 절약용 공통 ignore
 ├── CLAUDE.md
 └── README.md
@@ -87,6 +92,7 @@ claude-projects/
 | [`harness-code-review.md`](docs/harness-code-review.md) | 7항목 코드리뷰 체크리스트 |
 | [`harness-design.md`](docs/harness-design.md) | UI 디자인 원칙 |
 | [`harness-readme.md`](docs/harness-readme.md) | README 작성 규칙 + 체크리스트 |
+| [`security-guide.md`](docs/security-guide.md) | 시크릿·자격증명 관리 원칙 (sops+age) |
 
 ---
 

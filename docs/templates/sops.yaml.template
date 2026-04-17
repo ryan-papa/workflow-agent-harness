@@ -1,0 +1,12 @@
+# 사용법:
+# 1. 프로젝트 루트에 .sops.yaml로 복사
+# 2. docs/security/recipients.local.md의 공개키 목록을 아래 age: 리스트에 채움
+# 3. 플레이스홀더(age1PLACEHOLDER...) 전부 삭제
+
+creation_rules:
+  - path_regex: (^|/)\.env(\.enc)?$
+    key_groups:
+      - age:
+          # 기기별 공개키 — recipients.local.md에서 복사
+          - age1PLACEHOLDER_REPLACE_WITH_DEVICE_PUBKEY_1
+          - age1PLACEHOLDER_REPLACE_WITH_DEVICE_PUBKEY_2
