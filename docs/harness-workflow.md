@@ -11,9 +11,9 @@
   ↓
 ▶ [3] PRD 작성                     → /rp-prd
   ↓
-▶ [4] 기획 리뷰 ← 최대 3회         → /rp-plan-review
+▶ [4] 기획 리뷰 ← 최대 3회         → /rp-plan-review  → /codex:review --wait (1회)
   ↓
-▶ [5] 엔지니어링 리뷰 ← 최대 3회   → /rp-eng-review
+▶ [5] 엔지니어링 리뷰 ← 최대 3회   → /rp-eng-review   → /codex:review --wait (1회)
   ↓ 점수 만족 시 바로 개발 진입 (사용자 승인 생략)
 ▶ [6] 태스크 분해                   → /rp-task
   ↓
@@ -21,7 +21,7 @@
   ↓
 ▶ [8] QA / 콘텐츠 검수              → /rp-qa
   ↓
-▶ [9] 코드 리뷰 (7항목)             → /rp-code-review
+▶ [9] 코드 리뷰 (7항목)             → /rp-code-review  → /codex:review --wait --base main (1회)
   ↓
 ▶ [10] 산출물 보고 → 사용자 승인
   ↓
@@ -40,6 +40,7 @@
 → 개발 상세: [`harness-dev.md`](harness-dev.md)
 → QA + 콘텐츠 검수: [`harness-qa.md`](harness-qa.md)
 → 코드리뷰 상세: [`harness-code-review.md`](harness-code-review.md)
+→ Codex 추가 리뷰: [`harness-codex-review.md`](harness-codex-review.md)
 → 산출물 + 배포: [`harness-ship.md`](harness-ship.md)
 → 스킬 목록: [`skills/`](skills/)
 
@@ -47,10 +48,10 @@
 
 | 구간 | 자동 진행 조건 | 중단 조건 |
 |------|--------------|----------|
-| [4]→[5] 리뷰 | 점수 통과 시 자동 | 3회 실패 시 사용자 보고 |
+| [4]→[5] 리뷰 | Claude 점수 통과 + Codex High/Critical 반영 완료 시 자동 | Claude 3회 실패 시 사용자 보고 |
 | [7]→[8] 개발→QA | 전체 태스크 완료+빌드 통과 시 자동 | 빌드/테스트 실패 |
 | [8]→[9] QA→코드리뷰 | QA 통과 시 자동 | QA 3회 실패 |
-| [9]→[10] 코드리뷰→산출물 | 코드리뷰 통과 시 자동 | 3회 실패 |
+| [9]→[10] 코드리뷰→산출물 | Claude 통과 + Codex High/Critical 반영 완료 시 자동 | 3회 실패 |
 | [10]→[11] 산출물→커밋·PR | 산출물 보고 후 자동 ("산출물 보고 완료, 커밋·PR 자동 진행합니다" 출력) | — |
 | [11] 커밋·PR→배포 | **배포만 사용자 승인 필수** | 사용자 거부 |
 | [11]→[12] 배포→회고 | 배포 완료 시 자동 | — |

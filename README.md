@@ -20,6 +20,7 @@ PRD 작성부터 코드리뷰까지 10단계 워크플로우를 규칙으로 정
 - **12단계 전체 플로우** — 프로젝트 초기화부터 배포·회고까지 단계별 가이드
 - **2단계 리뷰** — 기획 리뷰 + 엔지니어링 리뷰로 PRD 품질 확보
 - **7항목 코드리뷰** — 구조적 코드리뷰 체크리스트로 일관성 유지
+- **Codex 추가 리뷰** — 기획·엔지·코드 리뷰 3단계 모두 Claude 완료 후 `/codex:review` 포그라운드 1회 실행, High/Critical 지적 반영
 
 ---
 
@@ -32,6 +33,7 @@ claude-projects/
 │   ├── harness-prd.md             # PRD 작성 + 2단계 리뷰
 │   ├── harness-dev.md             # 개발 + QA + 코드리뷰
 │   ├── harness-code-review.md     # 7항목 코드리뷰
+│   ├── harness-codex-review.md    # Codex 추가 리뷰 규칙 (4·5·9, 1회)
 │   ├── harness-design.md          # UI 디자인 원칙
 │   ├── harness-readme.md          # README 작성 규칙
 │   ├── security-guide.md          # 시크릿 관리 원칙 (sops+age)
@@ -59,9 +61,9 @@ claude-projects/
  ↓
 [3] PRD 작성
  ↓
-[4] 기획 리뷰 ← 최대 3회
+[4] 기획 리뷰 ← 최대 3회 → /codex:review --wait (1회)
  ↓
-[5] 엔지니어링 리뷰 ← 최대 3회
+[5] 엔지니어링 리뷰 ← 최대 3회 → /codex:review --wait (1회)
  ↓
 [6] 태스크 분해
  ↓
@@ -69,7 +71,7 @@ claude-projects/
  ↓
 [8] QA (사전 검증 → 시나리오 테스트)
  ↓
-[9] 코드 리뷰 (7항목) → 개선 ← 최대 3회
+[9] 코드 리뷰 (7항목) → 개선 ← 최대 3회 → /codex:review --wait --base main (1회)
  ↓
 [10] 산출물 보고
  ↓
@@ -90,6 +92,7 @@ claude-projects/
 | [`harness-prd.md`](docs/harness-prd.md) | PRD 작성 가이드 + 기획/엔지니어링 리뷰 |
 | [`harness-dev.md`](docs/harness-dev.md) | 개발 절차 + QA + 코드리뷰 통합 |
 | [`harness-code-review.md`](docs/harness-code-review.md) | 7항목 코드리뷰 체크리스트 |
+| [`harness-codex-review.md`](docs/harness-codex-review.md) | Codex 추가 리뷰 규칙 (4·5·9, 1회, High/Critical 반영) |
 | [`harness-design.md`](docs/harness-design.md) | UI 디자인 원칙 |
 | [`harness-readme.md`](docs/harness-readme.md) | README 작성 규칙 + 체크리스트 |
 | [`security-guide.md`](docs/security-guide.md) | 시크릿·자격증명 관리 원칙 (sops+age) |
@@ -103,21 +106,40 @@ claude-projects/
 | 도구 | 용도 | 확인 명령어 |
 |------|------|-----------|
 | Claude Code | AI 코딩 에이전트 | `claude --version` |
-| Node.js | 일부 프로젝트 런타임 | `node --version` |
+| Node.js 18.18+ | Codex 플러그인 런타임 | `node --version` |
 | Git | 버전 관리 | `git --version` |
+| ChatGPT 구독 또는 OpenAI API 키 | Codex 리뷰 인증 | — |
 
 ### 사용법
 
 1. 이 레포를 클론한다.
 2. Claude Code에서 `claude-projects/` 디렉토리를 워킹 디렉토리로 설정한다.
 3. `CLAUDE.md`가 자동 로드되어 하네스 규칙이 에이전트에 적용된다.
-4. 하위 프로젝트 작업 시 `repositories/{프로젝트명}/`으로 이동한다.
+4. `.claude/settings.json`에 선언된 Codex 플러그인 설치 프롬프트가 뜨면 승인한다.
+5. 최초 1회 `/codex:setup` + `!codex login`으로 Codex CLI 설치·인증.
+6. 하위 프로젝트 작업 시 `repositories/{프로젝트명}/`으로 이동한다.
 
 ```bash
 git clone <repo-url> claude-projects
 cd claude-projects
-claude  # Claude Code 실행 — CLAUDE.md 자동 적용
+claude  # Claude Code 실행 — CLAUDE.md + Codex 플러그인 자동 제안
 ```
+
+### Codex 플러그인 자동 활성화
+
+`.claude/settings.json`에 선언되어 있어 clone 후 폴더 trust 시 자동 설치 프롬프트가 뜬다.
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "openai-codex": { "source": { "source": "github", "repo": "openai/codex-plugin-cc" } }
+  },
+  "enabledPlugins": { "codex@openai-codex": true }
+}
+```
+
+제공 명령: `/codex:review`, `/codex:adversarial-review`, `/codex:rescue`, `/codex:status`, `/codex:result`.
+기획(4)·엔지(5)·코드(9) 리뷰 단계에서 Claude 완료 후 **`/codex:review --wait` 포그라운드 1회 실행**, High/Critical 지적 반영 후 다음 단계 진입.
 
 ---
 
