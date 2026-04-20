@@ -14,7 +14,8 @@
 3. 기술적 리스크, 대안 제시
 4. 평균 >= 8.0 + 각 항목 >= 7 → Claude 통과, 미달 → PRD 수정 후 재검토 (최대 3회)
 5. **Claude 통과 후 Codex 추가 리뷰 (1회)**:
-   - **해당 PRD가 있는 프로젝트 루트 cwd**에서 `/codex:review --wait` 실행 (하위 기능은 `repositories/[project]/`, 하네스 메타 변경은 `claude-projects/`)
+   - **Codex 실행 전 `pwd` 확인 필수**: 출력이 해당 PRD 프로젝트 루트와 일치하지 않으면 `cd`로 이동 후 재확인
+   - `/codex:review --wait` 실행
    - stdout을 `<project-root>/docs/prd/[feature]/review-codex-eng.md`에 저장
    - High / Critical 지적만 PRD에 반영, 반영 내역을 같은 파일 `## 반영` 섹션에 기록
 6. 반영 완료 후 다음 단계 진입

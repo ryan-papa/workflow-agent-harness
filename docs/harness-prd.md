@@ -98,6 +98,19 @@ repositories/[project]/docs/prd/YYYYMMDD_HHMMSS_[feature]_[8자리랜덤].md
 - `YYYYMMDD_HHMMSS`: `date +%Y%m%d_%H%M%S` 실행값
 - 랜덤 문자열: 세션 시작 시 1회 생성 후 유지
 
+### 간소 PRD (하네스 메타 변경용)
+
+하네스 자체 문서(`docs/`, `CLAUDE.md`, 스킬, `.claude/settings.json`) 변경은 **간소 PRD** 허용 (완전 생략 금지).
+
+| 필수 섹션 | 내용 |
+|---------|------|
+| 변경 이유 | 왜 이 메타 변경이 필요한가 |
+| 영향 파일 | 변경되는 파일 목록과 역할 |
+| 롤백 전략 | 문제 발생 시 원복 방법 |
+| 검증 | CI·Claude 자체 점검·Codex 1회 리뷰 |
+
+**파일명:** `docs/prd/[feature]/prd.md` (하네스 루트 기준)
+
 ## PRD 리뷰 (2단계 순차 실행)
 
 ```

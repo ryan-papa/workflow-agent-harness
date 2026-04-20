@@ -25,6 +25,7 @@ Claude 리뷰 이후 Codex 플러그인(`openai/codex-plugin-cc`)으로 **추가
 | 반영 규칙 | 지적 심각도 **High / Critical**만 수동 반영. Medium 이하는 참고용 |
 | 결과 저장 | Codex stdout 전체를 경로에 그대로 기록 |
 | cwd | **해당 기능의 PRD가 있는 프로젝트 루트**에서 실행. 하위 feature는 `repositories/[project]/`에서, 하네스 메타 변경은 `claude-projects/` 루트에서 실행. cwd 오인 시 Codex가 상위 레포를 리뷰해 결과 무효 |
+| 실행 전 체크 | `pwd` 출력이 PRD 프로젝트 루트와 일치하는지 검증. 불일치 시 `cd` 후 재확인. 체크 생략 금지 |
 
 ## 직렬 실행 패턴
 
