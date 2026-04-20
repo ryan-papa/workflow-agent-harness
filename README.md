@@ -82,6 +82,10 @@ claude-projects/
 
 전체 흐름은 [`docs/harness-workflow.md`](docs/harness-workflow.md) 참고.
 
+**진입 스킬:**
+- `/rp-workflow` — 신규 프로젝트·기능 (init부터 전 단계)
+- `/rp-amend` — 기존 프로젝트 기능 수정·추가 (init 스킵, specify부터)
+
 ---
 
 ## 규칙 문서

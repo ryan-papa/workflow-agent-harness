@@ -1,3 +1,8 @@
+---
+description: '[11] 커밋·PR·CI·머지·배포. 수동 git/gh 우회 금지, 반드시 이 스킬 경유'
+argument-hint: '[브랜치명] [변경 요약]'
+---
+
 # rp-ship
 
 커밋 → PR → CI 확인 → 머지 → 배포.

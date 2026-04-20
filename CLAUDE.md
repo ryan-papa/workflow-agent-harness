@@ -59,7 +59,8 @@ claude-projects/
 │   │   ├── sops.yaml.template          # .sops.yaml 초안 (플레이스홀더)
 │   │   └── env.example.template        # .env.example 초안
 │   └── skills/                 # 하네스 스킬 (rp-*)
-│       ├── rp-workflow.md      # 오케스트레이터
+│       ├── rp-workflow.md      # 오케스트레이터 (신규 프로젝트·기능)
+│       ├── rp-amend.md         # 오케스트레이터 (기존 프로젝트 수정·추가, init 스킵)
 │       ├── rp-init.md          # [1] 프로젝트 초기화
 │       ├── rp-specify.md       # [2] 구체화
 │       ├── rp-prd.md           # [3] PRD 작성
@@ -102,7 +103,9 @@ claude-projects/
 | 11 | `rp-ship` | 커밋 → PR → CI → 머지 → 배포 | [`harness-ship.md`](docs/harness-ship.md) |
 | 12 | `rp-retro` | 회고 (절차 준수 + 효율성 + 규칙 개선) | [`skills/rp-retro.md`](docs/skills/rp-retro.md) |
 
-**오케스트레이터:** `rp-workflow`가 전체 플로우 관리, 각 스킬을 순서대로 호출
+**오케스트레이터:**
+- `rp-workflow` — 신규 프로젝트·기능 (init부터 전 단계)
+- `rp-amend` — 기존 프로젝트 기능 수정·추가 (init 스킵, specify부터 전 단계 Full PRD)
 **자동 전환:** 모든 단계 완료 시 다음 단계 자동 진입. 사용자 확인 없이 즉시 진행. 커밋·PR까지 자동. **배포[11]만 사용자 승인 대기.**
 - 구체화 완료 → PRD 작성 자동 진입 (확인 질문 금지)
 - PRD 완료 → 기획 리뷰 자동 진입
