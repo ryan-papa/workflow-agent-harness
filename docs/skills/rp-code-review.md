@@ -59,10 +59,11 @@ git diff --cached | grep -iE \
 
 Claude 코드 리뷰 통과 후 수행:
 
-1. **해당 PRD가 있는 프로젝트 루트 cwd**에서 `/codex:review --wait --base main` 실행 (하위 기능은 `repositories/[project]/`, 하네스 메타 변경은 `claude-projects/`)
-2. stdout을 `<project-root>/docs/prd/[feature]/review-codex-code.md`에 저장
-3. High / Critical 지적만 코드에 반영, 반영 내역을 같은 파일 `## 반영` 섹션에 기록
-4. 반영 완료 후 산출물 보고[10] 진입
+1. **Codex 실행 전 `pwd` 확인 필수**: 출력이 해당 PRD 프로젝트 루트와 일치하지 않으면 `cd`로 이동 후 재확인
+2. `/codex:review --wait --base main` 실행
+3. stdout을 `<project-root>/docs/prd/[feature]/review-codex-code.md`에 저장
+4. High / Critical 지적만 코드에 반영, 반영 내역을 같은 파일 `## 반영` 섹션에 기록
+5. 반영 완료 후 산출물 보고[10] 진입
 
 ## 이슈 처리
 

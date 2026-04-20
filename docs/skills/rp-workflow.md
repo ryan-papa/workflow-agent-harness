@@ -32,7 +32,7 @@
 | 8 | `/rp-qa` | → [9] | 3회 실패 → 사용자 보고 |
 | 9 | `/rp-code-review` → `/codex:review --wait --base main` (1회) | → [10] | Claude 3회 실패 |
 | 10 | 산출물 보고 | → [11] 커밋·PR | — |
-| 11 | `/rp-ship` | 커밋·PR 자동 → **⏸ 배포 승인 대기** | CI 실패 |
+| 11 | `/rp-ship` (**필수 호출**, 수동 git/gh 우회 금지) | 커밋·PR 자동 → **⏸ 배포 승인 대기** | CI 실패 |
 | 12 | `/rp-retro` | 종료 | — |
 
 ## 상태 메시지
@@ -44,6 +44,7 @@
 
 ## 규칙
 
+- **메타 변경 단축 경로** — 하네스 문서(`docs/`, `CLAUDE.md`, 스킬, `.claude/settings.json`) 변경은 `rp-init`·`rp-specify`·`rp-task`·`rp-dev` **스킵** + feat 브랜치 + `rp-prd` 간소 경로 + `rp-plan-review` + `rp-code-review` + `rp-ship`으로 진행. `main` 직접 수정 금지
 - **전 단계 자동 연결** — 각 스킬 완료 시 다음 스킬 자동 호출
 - **유일한 멈춤 지점** — 배포[11]에서만 사용자 승인 대기 (커밋·PR까지는 자동)
 - QA([8]), 코드리뷰([9]) **생략 불가**

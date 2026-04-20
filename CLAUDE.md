@@ -123,6 +123,9 @@ claude-projects/
 - "급해서", "간단해서", "나중에" 등 어떤 이유로도 단계 스킵 불가
 - **배포 완료 직후 회고(`/rp-retro`) 자동 시작** — 생략 불가
 - 워크플로우 위반 발견 시 즉시 중단하고 빠진 단계부터 재진행
+- **하네스 메타 변경 단축 경로**: `rp-init`·`rp-specify`·`rp-task`·`rp-dev` 스킵 + feat 브랜치 + `rp-prd` 간소(변경 이유·영향 파일·롤백·검증 4섹션) + 리뷰 + `rp-ship`. 완전 생략은 금지
+- **`main` 직접 수정 금지**: `main` 브랜치에서 docs·CLAUDE.md·스킬·settings 수정 감지 시 즉시 중단 + feat 브랜치 전환 요구
+- **`rp-ship` 스킬 호출 필수**: 커밋·PR·머지·배포는 수동 `git`/`gh` 우회 없이 `rp-ship` 스킬 경유. 단, `rp-ship` 스킬 내부 절차로 명시된 명령은 예외
 
 
 **코드리뷰 상세:** [`harness-code-review.md`](docs/harness-code-review.md)

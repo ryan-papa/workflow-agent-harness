@@ -9,10 +9,24 @@ PRD(Product Requirements Document) 작성.
 
 ## 절차
 
+### 분기 — 변경 유형 판별
+
+1. **하네스 메타 변경** (`docs/`, `CLAUDE.md`, 스킬, `.claude/settings.json`) → **간소 PRD 경로**
+2. **일반 기능 변경** (`repositories/[project]/`) → **Full PRD 경로**
+
+### Full PRD (일반 기능)
+
 1. 구체화 결과 + 리서치 자료를 컨텍스트로 수집
 2. PRD 템플릿 기반으로 문서 작성
-3. 파일명: `docs/prd/YYYYMMDD_HHMMSS_[project]_[random].md`
+3. 파일명: `repositories/[project]/docs/prd/YYYYMMDD_HHMMSS_[feature]_[random].md`
 4. 기능 요구사항은 F-XX ID 부여
+
+### 간소 PRD (하네스 메타 변경)
+
+1. 변경 이유·영향 파일·롤백 전략·검증 방법 4섹션 작성
+2. 파일명: `docs/prd/[feature]/prd.md` (하네스 루트 기준)
+3. 완전 생략 금지 — 4섹션 모두 작성 필수
+4. 상세 규격: [`../harness-prd.md`](../harness-prd.md) "간소 PRD" 섹션 참조
 
 ## 필수 포함 항목
 
