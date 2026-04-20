@@ -23,7 +23,9 @@ README 검증 (5항목, 평균 8.0+)
   ↓
 git push -u origin [branch]
   ↓
-gh pr create (제목 + 변경 요약 + 테스트 계획)
+기존 PR 상태 확인 (gh pr list --head [branch] --state all)
+  ├── OPEN PR 있음 → 해당 PR 재사용 (신규 생성 금지)
+  └── OPEN PR 없음 (MERGED/CLOSED만 존재하거나 없음) → gh pr create (신규 PR)
   ↓
 CI 통과 대기
   ↓
@@ -43,6 +45,7 @@ CI 통과 대기
 | 강제 머지 | `--admin` 플래그 사용 **금지** |
 | **머지 조건** | **CI 통과 전 머지 금지** (예외 없음) |
 | CI 없이 머지 | 사용자에게 수동 머지 안내 |
+| **동일 브랜치 재작업** | 기존 PR이 MERGED/CLOSED면 **신규 PR 생성** (OPEN PR만 재사용) |
 
 ## 머지 후 검증
 
