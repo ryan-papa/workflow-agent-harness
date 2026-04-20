@@ -43,6 +43,7 @@ claude-projects/
 │   ├── harness-dev.md          # 개발 (브랜치·태스크·테스트)
 │   ├── harness-qa.md           # QA + 콘텐츠 검수
 │   ├── harness-code-review.md  # 코드리뷰 상세 기준 (7항목)
+│   ├── harness-codex-review.md # Codex 추가 리뷰 규칙 (4·5·9, 1회, High/Critical 반영)
 │   ├── harness-ship.md         # 산출물 보고 + 배포
 │   ├── harness-design.md       # UI 디자인 원칙
 │   ├── harness-readme.md       # README 작성 규칙
@@ -93,10 +94,10 @@ claude-projects/
 
 | 단계 | 스킬 | 내용 |
 |:----:|------|------|
-| 1~5 | `rp-init` ~ `rp-eng-review` | 초기화 → 구체화 → PRD → 기획리뷰 → 엔지니어링리뷰 | [`harness-prd.md`](docs/harness-prd.md) |
+| 1~5 | `rp-init` ~ `rp-eng-review` | 초기화 → 구체화 → PRD → 기획리뷰 → 엔지니어링리뷰 (**4·5 Codex 추가 리뷰 1회**) | [`harness-prd.md`](docs/harness-prd.md) |
 | 6~7 | `rp-task`, `rp-dev` | 태스크 분해 → 개발 | [`harness-dev.md`](docs/harness-dev.md) |
 | 8 | `rp-qa` | QA / 콘텐츠 검수 | [`harness-qa.md`](docs/harness-qa.md) |
-| 9 | `rp-code-review` | 코드 리뷰 (7항목, 최저 점수제) | [`harness-code-review.md`](docs/harness-code-review.md) |
+| 9 | `rp-code-review` | 코드 리뷰 (7항목, 최저 점수제, **Codex 추가 리뷰 1회**) | [`harness-code-review.md`](docs/harness-code-review.md) |
 | 10 | — | 산출물 보고 → 커밋·PR 자동 진행 | [`harness-ship.md`](docs/harness-ship.md) |
 | 11 | `rp-ship` | 커밋 → PR → CI → 머지 → 배포 | [`harness-ship.md`](docs/harness-ship.md) |
 | 12 | `rp-retro` | 회고 (절차 준수 + 효율성 + 규칙 개선) | [`skills/rp-retro.md`](docs/skills/rp-retro.md) |
@@ -113,6 +114,7 @@ claude-projects/
 - 테스트 코드 없이 커밋/머지 절대 금지
 - 테스트·빌드 미통과 시 다음 단계 진행 금지
 - **QA·코드 리뷰 단계 생략 금지 (게이트 강화)**: 두 단계 모두 완료 여부를 배포 전 체크하고, 하나라도 미수행이면 배포 차단. "단위 테스트 통과 = QA 대체 불가"
+- **[4][5][9] Codex 추가 리뷰 필수**: Claude 리뷰 통과 후 `/codex:review --wait` 1회 포그라운드 실행. cwd는 **해당 PRD 프로젝트 루트** (일반 기능 `repositories/[project]/`, 하네스 메타 변경 `claude-projects/`). 점수화 없음. High/Critical 지적은 반영 후 다음 단계 진입. 결과는 `<project-root>/docs/prd/[feature]/review-codex-{plan,eng,code}.md`에 저장
 - 산출물 보고 없이 배포 진행 금지 (커밋·PR은 산출물 보고 후 자동)
 - **push 전 README 검증 필수** (5항목 평균 8.0+, 최대 3회 재시도, 미통과 시 push 차단)
 - **CI 통과 전 머지 금지** (예외 없음)
@@ -124,6 +126,7 @@ claude-projects/
 
 
 **코드리뷰 상세:** [`harness-code-review.md`](docs/harness-code-review.md)
+**Codex 추가 리뷰:** [`harness-codex-review.md`](docs/harness-codex-review.md) — 플러그인 `openai/codex-plugin-cc` (루트에 1회 설치, settings.json 선언)
 **디자인 원칙:** [`harness-design.md`](docs/harness-design.md)
 **README 규칙:** [`harness-readme.md`](docs/harness-readme.md)
 **시크릿 관리:** [`security-guide.md`](docs/security-guide.md) / [`security/secrets-management.md`](docs/security/secrets-management.md)

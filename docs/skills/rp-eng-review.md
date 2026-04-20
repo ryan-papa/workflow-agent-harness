@@ -9,10 +9,15 @@
 
 ## 절차
 
-1. PRD를 엔지니어링 관점에서 검토
+1. Claude 엔지 리뷰 서브에이전트가 PRD를 엔지니어링 관점에서 검토
 2. 평가 항목별 10점 만점 채점
 3. 기술적 리스크, 대안 제시
-4. 평균 >= 8.0 + 각 항목 >= 7 → 통과, 미달 → PRD 수정 후 재검토 (최대 3회)
+4. 평균 >= 8.0 + 각 항목 >= 7 → Claude 통과, 미달 → PRD 수정 후 재검토 (최대 3회)
+5. **Claude 통과 후 Codex 추가 리뷰 (1회)**:
+   - **해당 PRD가 있는 프로젝트 루트 cwd**에서 `/codex:review --wait` 실행 (하위 기능은 `repositories/[project]/`, 하네스 메타 변경은 `claude-projects/`)
+   - stdout을 `<project-root>/docs/prd/[feature]/review-codex-eng.md`에 저장
+   - High / Critical 지적만 PRD에 반영, 반영 내역을 같은 파일 `## 반영` 섹션에 기록
+6. 반영 완료 후 다음 단계 진입
 
 ## 평가 항목
 
@@ -32,6 +37,7 @@
 
 ## ▶ 자동 전환
 
-통과 즉시 `✓ [5] 엔지니어링 리뷰 통과` 출력 후 **`/rp-task` 자동 진입**.
+Claude 통과 + Codex High/Critical 반영 완료 시 `✓ [5] 엔지니어링 리뷰 통과 (Claude+Codex)` 출력 후 **`/rp-task` 자동 진입**.
 
 → PRD 상세: [`../harness-prd.md`](../harness-prd.md)
+→ Codex 리뷰 규칙: [`../harness-codex-review.md`](../harness-codex-review.md)

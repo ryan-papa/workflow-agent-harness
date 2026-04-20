@@ -55,6 +55,15 @@ git diff --cached | grep -iE \
 - 3회 후 < 7.0 → 사용자에게 추가 사이클 여부 확인
 - 3회 후 7.0~8.0 → 통과 처리
 
+## Codex 추가 리뷰 (Claude 통과 후 1회)
+
+Claude 코드 리뷰 통과 후 수행:
+
+1. **해당 PRD가 있는 프로젝트 루트 cwd**에서 `/codex:review --wait --base main` 실행 (하위 기능은 `repositories/[project]/`, 하네스 메타 변경은 `claude-projects/`)
+2. stdout을 `<project-root>/docs/prd/[feature]/review-codex-code.md`에 저장
+3. High / Critical 지적만 코드에 반영, 반영 내역을 같은 파일 `## 반영` 섹션에 기록
+4. 반영 완료 후 산출물 보고[10] 진입
+
 ## 이슈 처리
 
 | 심각도 | 처리 |
@@ -76,7 +85,8 @@ git diff --cached | grep -iE \
 
 ## ▶ 자동 전환
 
-통과 즉시 `✓ [9] 코드리뷰 통과` 출력 후 **산출물 보고[10] 자동 진입**.
+Claude 통과 + Codex High/Critical 반영 완료 시 `✓ [9] 코드리뷰 통과 (Claude+Codex)` 출력 후 **산출물 보고[10] 자동 진입**.
 산출물 보고 후 **커밋·PR까지 자동 진행**. 배포[11]에서 사용자 승인 대기.
 
 → 리뷰 기준 상세: [`../harness-code-review.md`](../harness-code-review.md)
+→ Codex 리뷰 규칙: [`../harness-codex-review.md`](../harness-codex-review.md)
