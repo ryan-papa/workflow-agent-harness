@@ -1,3 +1,8 @@
+---
+description: '[6] 태스크 분해. PRD F-XX 기능 요구사항을 실행 단위 태스크로 분리'
+argument-hint: '[PRD 경로]'
+---
+
 # rp-task
 
 PRD 기능 요구사항 기반 태스크 분해.

@@ -1,3 +1,8 @@
+---
+description: '[4] 기획 리뷰. Claude 9항목 점수제 + Codex /codex:review 1회. AND 진행'
+argument-hint: '[대상 PRD 경로]'
+---
+
 # rp-plan-review
 
 기획 리뷰. PRD의 기능 완전성, 사용자 관점 적합성을 검증한다.

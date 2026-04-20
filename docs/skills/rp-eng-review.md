@@ -1,3 +1,8 @@
+---
+description: '[5] 엔지 리뷰. Claude 5항목 점수제 + Codex /codex:review 1회. AND 진행'
+argument-hint: '[대상 PRD 경로]'
+---
+
 # rp-eng-review
 
 엔지니어링 리뷰. PRD의 기술적 실현 가능성, 아키텍처 적합성을 검증한다.

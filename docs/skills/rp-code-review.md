@@ -1,3 +1,8 @@
+---
+description: '[9] 코드 리뷰. 7항목 최저 점수제 + Codex /codex:review 1회. High/Critical 반영'
+argument-hint: '[대상 PR·브랜치]'
+---
+
 # rp-code-review
 
 코드 리뷰 (7항목 평가).
