@@ -45,6 +45,14 @@ argument-hint: '[프로젝트명] [유형: 코드|콘텐츠]'
 - [ ] 시크릿 스캔 (GitHub push protection)
 - [ ] 기존 CI/보호 설정 있으면 스킵
 
+## 신규 rp-* 스킬 추가 체크리스트
+
+새 하네스 스킬(`rp-*.md`)을 만들 때:
+- [ ] `docs/skills/rp-<이름>.md` 생성 (YAML frontmatter `description` + `argument-hint` 포함)
+- [ ] `.claude/commands/rp-<이름>.md` 심링크 확인 — `PostToolUse` 훅이 자동 생성. 미생성 시 수동 fallback: `cd .claude/commands && ln -s ../../docs/skills/rp-<이름>.md rp-<이름>.md`
+- [ ] `CLAUDE.md`·`docs/harness-workflow.md`·`docs/skills/rp-workflow.md` 트리·링크 갱신
+- [ ] `/reload-plugins` 후 자동완성에서 노출 확인
+
 ## 시크릿 세팅
 
 [`../security-guide.md`](../security-guide.md) 원칙을 따른다. 상세 절차: [`../security/secrets-management.md`](../security/secrets-management.md)
