@@ -16,10 +16,10 @@ argument-hint: '[대상 PRD 경로]'
 
 1. **⛔ Claude 엔지 리뷰는 반드시 Agent 툴의 서브에이전트로 실행** (`subagent_type=general-purpose`). 메인 에이전트의 셀프 채점 **금지**. 서브에이전트 프롬프트: (a) PRD + 상위 CLAUDE.md·harness-db.md 참고 파일 경로, (b) 5항목 채점 기준, (c) 독립 판정 지시, (d) **역할 경계: Claude 채점만. Codex 실행·저장 금지**
 2. 서브에이전트 응답(점수+기술 리스크+대안)을 메인 에이전트가 수신
-3. 메인 에이전트: **결과를 `<project-root>/docs/prd/[feature]/review-claude-eng.md`로 저장** 후 판정
+3. 메인 에이전트: **결과를 `<project-root>/docs/prd/[feature]/review-claude-eng-r{N}.md`로 저장** (N=회차, 덮어쓰기 금지) 후 판정
 4. 평균 >= 8.0 + 각 항목 >= 7 → Claude 통과, 미달 → PRD 수정 후 **새 서브에이전트로 재검토** (최대 3회, 매 회차 새 에이전트)
 5. **기술 실패 Fallback**: Agent 툴 오류·토큰 초과·형식 오류 시 최대 2회 재호출. 지속 실패 시 사용자에게 즉시 보고 + 중단. 메인 셀프 채점 우회 금지
-5. **Claude 통과 후 Codex 추가 리뷰 (1회)**:
+6. **Claude 통과 후 Codex 추가 리뷰 (1회)**:
    - **Codex 실행 전 `pwd` 확인 필수**: 출력이 해당 PRD 프로젝트 루트와 일치하지 않으면 `cd`로 이동 후 재확인
    - `/codex:review --wait` 실행
    - stdout을 `<project-root>/docs/prd/[feature]/review-codex-eng.md`에 저장
