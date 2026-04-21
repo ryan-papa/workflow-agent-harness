@@ -116,14 +116,16 @@ repositories/[project]/docs/prd/YYYYMMDD_HHMMSS_[feature]_[8자리랜덤].md
 ```
 Doc Agent 작성 완료
   ↓
-[1단계] 기획 리뷰 (Planning Review Agent)
+[1단계] 기획 리뷰 (Planning Review Sub-Agent, Agent 툴)
   ↓ 통과 (평균 ≥ 8.0)
-[2단계] 엔지니어링 리뷰 (Engineering Review Agent)
+[2단계] 엔지니어링 리뷰 (Engineering Review Sub-Agent, Agent 툴)
   ↓ 통과 (평균 ≥ 8.0)
 사용자 최종 확인
 ```
 
-각 단계: 미달 시 Doc Agent 재작성, 최대 3회 반복
+**⛔ 실행 주체**: 각 리뷰 단계는 **반드시 Agent 툴로 분리된 서브에이전트**가 수행한다. 메인 에이전트의 셀프 채점 금지. CLAUDE.md 하네스 절대 규칙.
+
+각 단계: 미달 시 Doc Agent 재작성, 최대 3회 반복 (매 회차 새 서브에이전트)
 
 ---
 
