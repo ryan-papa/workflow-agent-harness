@@ -49,19 +49,48 @@ ls "$FEATURE"/review-claude-meta-r*.md >/dev/null 2>&1 || exit 1
 하나라도 누락 시 "리뷰 증거 부족 — 해당 리뷰 단계로 복귀" 메시지 출력 후 ship 중단.
 
 ### 자동 수행 (게이트 통과 시)
+0. **PR base 결정 (fail-closed)**: 아래 "PR base 자동 감지" 섹션에 따라 감지. 비정상 상태는 ship 중단 후 사용자 확인 요구.
 1. **커밋**: 변경 파일만 `git add` + `git commit`
 2. **README 검증**: 푸시 전 README.md 점검 (아래 참조)
 3. **푸시**: `git push -u origin [branch]`
-4. **PR 상태 확인**: `gh pr list --head [branch] --state all --json number,state`
-   - OPEN PR 존재 → 해당 PR 재사용 (신규 생성 금지)
+4. **PR 상태 확인**: `gh pr list --head [branch] --state all --json number,state,baseRefName`
+   - OPEN PR 존재 + base 일치 → 해당 PR 재사용
+   - OPEN PR 존재 + base 불일치 → `gh pr edit <num> --base <detected-base>` 로 보정 후 **CI 재실행 대기 + 사용자 재승인 체크포인트** (base 변경은 diff 범위 재정의)
    - MERGED/CLOSED만 존재하거나 PR 없음 → 신규 PR 생성
-5. **PR 생성/재사용**: `gh pr create` (제목 + 변경 요약 + 테스트 계획)
+5. **PR 생성/재사용**: `gh pr create --base <detected-base> ...` (제목 + 변경 요약 + 테스트 계획)
 6. **CI 확인**: CI 통과 대기
 
 ### ⏸ 사용자 승인 대기
 7. **배포 승인 요청**: PR URL + CI 결과를 사용자에게 보고, 배포 승인 대기
 8. **머지**: 승인 후 `gh pr merge --merge`
 9. **배포 확인**: 배포 워크플로우 완료 대기 + 결과 보고
+
+## PR base 자동 감지
+
+PR 생성/리타깃 전 **통합 브랜치 선언을 감지**해 `--base` 에 주입. `gh pr create` 기본값(레포 default branch)에 의존 금지.
+
+### 감지 순서 (엄격)
+
+| # | 소스 | 규칙 | 실패 시 |
+|:-:|------|------|--------|
+| 1 | 프로젝트 `docs/tasks.md` | 라인 시작 앵커 정규식 `^[\s\-\*|]*통합 브랜치:\s*`?([A-Za-z0-9/_\-]+)`?` 로 **정확히 1건** 매칭 | 2건 이상 → fail-closed / 0건 → 다음 소스 |
+| 2 | 프로젝트 `CLAUDE.md` | 동일 정규식 정확히 1건 매칭 | 2건 이상 → fail-closed / 0건 → 다음 소스 |
+| 3 | 레포 default branch | `gh repo view --json defaultBranchRef` | 결정 불가 → fail-closed |
+
+**예시 (museum-finder `docs/tasks.md`)**: `- 통합 브랜치: \`feat/mvp-v1\` · 태스크 브랜치 \`feat/T-NN-{slug}\`` → `feat/mvp-v1` 1건 매칭 → `--base feat/mvp-v1`.
+
+### 수동 오버라이드
+
+사용자가 `rp-ship --base <X>` 로 명시 전달 시 자동 감지 **비활성화**하고 `<X>` 사용. 감지 로직을 거치지 않는 유일한 우회 경로.
+
+### Fail-closed 조건 (ship 중단, 사용자 확인 요구)
+
+- 감지된 브랜치 값에 공백/`\n` 포함
+- 감지 정규식이 2건 이상 매칭 (모호성)
+- 감지된 브랜치가 원격에 부재 (`git ls-remote --exit-code origin refs/heads/<base>` 실패)
+- `HEAD` 가 detached 상태
+- 프로젝트 루트(`.git` 디렉터리)를 찾지 못함
+- 느슨한 브랜치명 추론(`feat/mvp-*` 등) 금지 — 반드시 `통합 브랜치:` 앵커 필드만 권위
 
 ## README 검증
 
@@ -99,6 +128,7 @@ PR 생성 시점에 .github/workflows/ 확인
 - **feat·통합 브랜치 직접 배포 금지**: 프로덕션 프로세스(서버 재기동, 트래픽 수신) 는 **main 머지 이후**에만. 로컬 개발 서버(dev/`--reload`)는 예외.
 - **QA·코드리뷰 이수 확인 게이트**: PR 생성 직전 `rp-qa` 와 `rp-code-review` 가 모두 완료 상태인지 체크. 하나라도 미완이면 ship 중단하고 해당 단계로 복귀.
 - **리뷰 증거 파일 게이트**: 위 "사전 체크 게이트" 통과 없이 커밋 금지. 생략·우회 금지.
+- **PR base 자동 감지 게이트**: 위 "PR base 자동 감지" 순서·fail-closed 조건을 모두 적용. 감지 생략·느슨한 브랜치 추론 금지. 수동 오버라이드(`--base <X>`)만 예외. base 리타깃 후에는 CI 재실행 + 사용자 재승인 필수.
 
 ## 머지 후 검증
 

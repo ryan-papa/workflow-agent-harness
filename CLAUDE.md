@@ -130,6 +130,7 @@ claude-projects/
 - **하네스 메타 변경 단축 경로**: `rp-init`·`rp-specify`·`rp-task`·`rp-dev` 스킵 + feat 브랜치 + `rp-prd` 간소(변경 이유·영향 파일·롤백·검증 4섹션) + 리뷰 + `rp-ship`. 완전 생략은 금지
 - **`main` 직접 수정 금지**: `main` 브랜치에서 docs·CLAUDE.md·스킬·settings 수정 감지 시 즉시 중단 + feat 브랜치 전환 요구
 - **`rp-ship` 스킬 호출 필수**: 커밋·PR·머지·배포는 수동 `git`/`gh` 우회 없이 `rp-ship` 스킬 경유. 단, `rp-ship` 스킬 내부 절차로 명시된 명령은 예외
+- **`rp-ship` PR base 자동 감지 게이트**: PR 생성/리타깃 시 프로젝트 `docs/tasks.md` → 프로젝트 `CLAUDE.md` 의 `^[\s\-\*|]*통합 브랜치:\s*`?([A-Za-z0-9/_\-]+)`?` 앵커를 순차 감지해 정확히 1건 매칭되는 값을 `--base` 로 주입. 전부 0건이면 레포 default branch. **Fail-closed**: 2건+ 매칭·공백 포함·원격 부재·detached HEAD·프로젝트 루트 미확인 시 중단. 느슨한 `feat/*` 추론 금지. 수동 오버라이드 `--base <X>` 만 감지 우회 허용. base 리타깃 시 CI 재실행 + 사용자 재승인 필수
 
 
 **코드리뷰 상세:** [`harness-code-review.md`](docs/harness-code-review.md)

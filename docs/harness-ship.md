@@ -21,15 +21,23 @@ QA + 코드리뷰(또는 콘텐츠 검수) 통과 후 사용자에게 결과 보
   ├── 누락 → ship 중단, 해당 리뷰 단계 복귀
   └── 전부 존재 → 다음 진행
   ↓
+PR base 결정 (fail-closed)
+  ├── 수동 오버라이드 `--base <X>` → <X> 사용
+  ├── tasks.md `통합 브랜치:` 앵커 1건 매칭 → 사용
+  ├── CLAUDE.md `통합 브랜치:` 앵커 1건 매칭 → 사용
+  ├── 전부 0건 → 레포 default branch 폴백
+  └── 2건+ 매칭 · 원격 부재 · detached HEAD · 프로젝트 루트 미확인 → ship 중단
+  ↓
 git add + commit (변경 파일만)
   ↓
 README 검증 (5항목, 평균 8.0+)
   ↓
 git push -u origin [branch]
   ↓
-기존 PR 상태 확인 (gh pr list --head [branch] --state all)
-  ├── OPEN PR 있음 → 해당 PR 재사용 (신규 생성 금지)
-  └── OPEN PR 없음 (MERGED/CLOSED만 존재하거나 없음) → gh pr create (신규 PR)
+기존 PR 상태 확인 (gh pr list --head [branch] --state all --json number,state,baseRefName)
+  ├── OPEN PR + base 일치 → 재사용
+  ├── OPEN PR + base 불일치 → gh pr edit --base <detected> + CI 재실행 + 사용자 재승인
+  └── OPEN PR 없음 → gh pr create --base <detected> (신규 PR)
   ↓
 CI 통과 대기
   ↓
@@ -51,6 +59,7 @@ CI 통과 대기
 | CI 없이 머지 | 사용자에게 수동 머지 안내 |
 | **동일 브랜치 재작업** | 기존 PR이 MERGED/CLOSED면 **신규 PR 생성** (OPEN PR만 재사용) |
 | **리뷰 증거 파일 게이트** | `rp-ship` 사전 체크에서 `review-claude-*-r*.md` · `review-codex-*.md` 전부 존재 확인. 하나라도 누락 시 ship 중단 |
+| **PR base 자동 감지** | 감지 우선순위: (1) `--base <X>` 수동 오버라이드 (2) 프로젝트 `docs/tasks.md` 의 앵커 `^[\s\-\*|]*통합 브랜치:` 1건 (3) 프로젝트 `CLAUDE.md` 의 동일 앵커 1건 (4) 레포 default branch. Fail-closed: 2건+ 매칭·원격 부재·detached HEAD·프로젝트 루트 미확인. 느슨한 `feat/*` 추론 금지. base 리타깃 시 CI 재실행 + 재승인 필수 |
 
 ## 머지 후 검증
 
