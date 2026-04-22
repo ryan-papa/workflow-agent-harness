@@ -9,6 +9,7 @@ Claude 리뷰 이후 Codex 플러그인(`openai/codex-plugin-cc`)으로 **추가
 | 4 | 기획 리뷰 | `/codex:review --wait` | `<project-root>/docs/prd/[feature]/review-codex-plan.md` |
 | 5 | 엔지니어링 리뷰 | `/codex:review --wait` | `<project-root>/docs/prd/[feature]/review-codex-eng.md` |
 | 9 | 코드 리뷰 | `/codex:review --wait --base main` | `<project-root>/docs/prd/[feature]/review-codex-code.md` |
+| meta | 하네스 메타 변경(간소 PRD 단일 리뷰) | `/codex:review --wait` | `claude-projects/docs/prd/[feature]/review-codex-meta.md` |
 
 `<project-root>` 정의:
 - 일반 기능 변경 → `repositories/[project]/`
@@ -73,7 +74,7 @@ High / Critical 지적 확인
 
 ## ⛔ 절대 규칙
 
-- 단계 4 · 5 · 9에서 Codex 리뷰 **생략 불가**
+- 단계 4 · 5 · 9 및 **메타 변경 단일 리뷰**에서 Codex 리뷰 **생략 불가**
 - Codex 결과 **저장 필수** (감사용)
 - High / Critical 지적은 반영 **필수**. 미반영 시 다음 단계 진입 금지
 - Codex는 점수화·재시도 **하지 않음** (1회 원칙)

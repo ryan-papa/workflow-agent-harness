@@ -17,6 +17,10 @@ QA + 코드리뷰(또는 콘텐츠 검수) 통과 후 사용자에게 결과 보
 산출물 보고 후 `/rp-ship` 자동 진입:
 
 ```
+⛔ 사전 체크 게이트: docs/prd/[feature]/review-claude-*-r*.md + review-codex-*.md 존재 검증
+  ├── 누락 → ship 중단, 해당 리뷰 단계 복귀
+  └── 전부 존재 → 다음 진행
+  ↓
 git add + commit (변경 파일만)
   ↓
 README 검증 (5항목, 평균 8.0+)
@@ -46,6 +50,7 @@ CI 통과 대기
 | **머지 조건** | **CI 통과 전 머지 금지** (예외 없음) |
 | CI 없이 머지 | 사용자에게 수동 머지 안내 |
 | **동일 브랜치 재작업** | 기존 PR이 MERGED/CLOSED면 **신규 PR 생성** (OPEN PR만 재사용) |
+| **리뷰 증거 파일 게이트** | `rp-ship` 사전 체크에서 `review-claude-*-r*.md` · `review-codex-*.md` 전부 존재 확인. 하나라도 누락 시 ship 중단 |
 
 ## 머지 후 검증
 

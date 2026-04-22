@@ -22,6 +22,7 @@ PRD 작성부터 코드리뷰까지 10단계 워크플로우를 규칙으로 정
 - **7항목 코드리뷰** — 구조적 코드리뷰 체크리스트로 일관성 유지
 - **Codex 추가 리뷰** — 기획·엔지·코드 리뷰 3단계 모두 Claude 완료 후 `/codex:review` 포그라운드 1회 실행, High/Critical 지적 반영
 - **서브에이전트 리뷰 강제** — Claude 리뷰는 메인 에이전트가 아닌 Agent 툴 서브에이전트가 독립 수행 (이해충돌 방지). 결과는 `review-claude-{plan,eng,code,meta}-r{N}.md`로 회차별 보존
+- **배포 사전 체크 게이트** — `rp-ship` 진입 시 PRD 유형별 필수 리뷰 증거(`review-claude-*-r*.md`, `review-codex-*.md`) 존재를 개별 검증. 하나라도 누락 시 ship 중단 + 해당 리뷰 단계로 복귀
 
 ---
 

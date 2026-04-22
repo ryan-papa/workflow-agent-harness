@@ -46,6 +46,8 @@ Claude 코드 리뷰는 **반드시 Agent 툴의 서브에이전트로 실행** 
 
 **증거 저장**: 서브에이전트 결과를 메인 에이전트가 `<project-root>/docs/prd/[feature]/review-claude-code-r{N}.md`로 저장 (N=회차, 덮어쓰기 금지).
 
+> **하네스 메타 변경(간소 PRD)일 경우**: 코드 리뷰까지 내려올 경우 파일명은 `review-claude-meta-r{N}.md` 단일 리뷰로 대체. Codex 저장도 `review-codex-meta.md`.
+
 **재시도**: 매 회차 새 서브에이전트.
 
 **기술 실패 Fallback**: Agent 툴 오류·토큰 초과·형식 오류 시 최대 2회 재호출. 지속 실패 시 사용자에게 즉시 보고 + 중단. 메인 셀프 채점 우회 금지.
@@ -78,7 +80,7 @@ Claude 코드 리뷰 통과 후 수행:
 
 1. **Codex 실행 전 `pwd` 확인 필수**: 출력이 해당 PRD 프로젝트 루트와 일치하지 않으면 `cd`로 이동 후 재확인
 2. `/codex:review --wait --base main` 실행
-3. stdout을 `<project-root>/docs/prd/[feature]/review-codex-code.md`에 저장
+3. stdout을 `<project-root>/docs/prd/[feature]/review-codex-code.md`에 저장 (하네스 메타 변경일 경우 `review-codex-meta.md`)
 4. High / Critical 지적만 코드에 반영, 반영 내역을 같은 파일 `## 반영` 섹션에 기록
 5. 반영 완료 후 산출물 보고[10] 진입
 

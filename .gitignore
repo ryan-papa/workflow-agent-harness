@@ -1,6 +1,11 @@
 repositories/
 .claude/settings.local.json
 
+# 런타임·빌드 산출물·잠금 파일 (레포 위생 — retro r1 H3)
+node_modules/
+.astro/
+.claude/*.lock
+
 # 로컬 전용 공개키 레지스트리 (공개 저장소 노출 방지)
 docs/security/recipients.local.md
 

@@ -14,7 +14,41 @@ argument-hint: '[브랜치명] [변경 요약]'
 
 ## 절차
 
-### 자동 수행 (산출물 보고 후 즉시)
+### ⛔ 사전 체크 게이트 (커밋 전 필수)
+
+커밋 직전 `<project-root>/docs/prd/[feature]/` 디렉터리에서 리뷰 증거 파일 존재를 검증. 누락 시 ship **중단**하고 해당 리뷰 단계로 복귀.
+
+| PRD 유형 | 필수 파일 |
+|---------|----------|
+| 일반 기능 | `review-claude-plan-r{N}.md` + `review-codex-plan.md` + `review-claude-eng-r{N}.md` + `review-codex-eng.md` + `review-claude-code-r{N}.md` + `review-codex-code.md` |
+| 하네스 메타 변경 | `review-claude-meta-r{N}.md` + `review-codex-meta.md` |
+| 회고 반영 사이클 | 상기 조건 + `retro-r{N}.md`(반영 근거) |
+
+검증 방식: **PRD 유형별 필수 파일을 개별적으로 존재 확인**. 부분 존재는 통과 불가.
+
+```bash
+# 일반 기능 — 6개 전부 존재해야 통과 (단, review-claude-*-r*.md는 최소 1개 이상 회차)
+FEATURE=docs/prd/[feature]
+for f in \
+  "$FEATURE"/review-codex-plan.md \
+  "$FEATURE"/review-codex-eng.md \
+  "$FEATURE"/review-codex-code.md; do
+  [ -f "$f" ] || { echo "MISSING: $f"; exit 1; }
+done
+# Claude 회차 파일은 단계별로 최소 1개
+for stage in plan eng code; do
+  ls "$FEATURE"/review-claude-${stage}-r*.md >/dev/null 2>&1 \
+    || { echo "MISSING: review-claude-${stage}-r*.md"; exit 1; }
+done
+
+# 하네스 메타 변경 — 2종 존재 필수
+ls "$FEATURE"/review-claude-meta-r*.md >/dev/null 2>&1 || exit 1
+[ -f "$FEATURE"/review-codex-meta.md ] || exit 1
+```
+
+하나라도 누락 시 "리뷰 증거 부족 — 해당 리뷰 단계로 복귀" 메시지 출력 후 ship 중단.
+
+### 자동 수행 (게이트 통과 시)
 1. **커밋**: 변경 파일만 `git add` + `git commit`
 2. **README 검증**: 푸시 전 README.md 점검 (아래 참조)
 3. **푸시**: `git push -u origin [branch]`
@@ -64,6 +98,7 @@ PR 생성 시점에 .github/workflows/ 확인
 - **동일 브랜치 재PR**: MERGED/CLOSED된 PR이 있어도 신규 PR을 생성 (OPEN PR이 있을 때만 재사용)
 - **feat·통합 브랜치 직접 배포 금지**: 프로덕션 프로세스(서버 재기동, 트래픽 수신) 는 **main 머지 이후**에만. 로컬 개발 서버(dev/`--reload`)는 예외.
 - **QA·코드리뷰 이수 확인 게이트**: PR 생성 직전 `rp-qa` 와 `rp-code-review` 가 모두 완료 상태인지 체크. 하나라도 미완이면 ship 중단하고 해당 단계로 복귀.
+- **리뷰 증거 파일 게이트**: 위 "사전 체크 게이트" 통과 없이 커밋 금지. 생략·우회 금지.
 
 ## 머지 후 검증
 
