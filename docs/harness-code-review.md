@@ -18,6 +18,60 @@
 
 > **8점 질문:** null이면? 동시 요청이면? 외부 API 5초 무응답이면? → 답이 코드에 있으면 8+
 
+#### 1a. 동시성 필수 체크리스트 (read-decide-write 경로)
+
+**적용 범위**: 스택 독립 원칙. 표의 방어책은 Spring/PostgreSQL 기본 예시 — 타 스택(Python·Node·Go 등)은 동치 기법으로 치환 (락 → advisory lock·Redis Redlock·`sync.Mutex`·DB row lock / atomic update → Redis `INCR`·`UPDATE … WHERE` / 멱등성 키·outbox 는 스택 무관).
+
+아래 패턴 감지 시 **정확성 최대 7점 상한** — 동시성 방지 수단(락·atomic SQL·원자 연산·이벤트 큐) 또는 **명시적 포기 메모**(후술) 중 하나가 코드에 있어야 7점 초과.
+
+| 패턴 | 예시 | 필수 방어 (개념 · (Spring 예)) |
+|------|------|-----------|
+| 집계 후 상태 전이 | 카운트 ≥ N 이면 플래그 ON, 아니면 OFF | 집계 대상 row 락 또는 단일 SQL UPDATE 에서 집계+판정 (`SELECT … FOR UPDATE` / `UPDATE … WHERE (SELECT COUNT…) >= N`) |
+| 중복 방지 insert | "먼저 조회 후 없으면 insert" | UNIQUE 제약 + 충돌 조항 / advisory lock (`ON CONFLICT DO NOTHING`) |
+| 잔고/재고 차감 | 읽고 빼고 쓰기 | 원자 UPDATE (`UPDATE … SET x = x - 1 WHERE x >= 1`) |
+| 외부 API 호출 + 상태 저장 | 호출 성공 후 DB 저장 | 멱등성 키 · afterCommit 훅 · 트랜잭션 outbox |
+| in-memory counter / quota + DB 트랜잭션 | DB 저장 전 `counter++`, 롤백 시 누수 | counter 증가를 DB commit 이후로 이동 (afterCommit) |
+
+> **8점 질문:** 동일 입력이 **2개 쓰레드**에서 동시에 들어와도 최종 상태가 직렬 실행과 같은가? → 답이 코드에 있으면 8+
+
+**명시적 포기 메모 옵션**: 코드 내 방어가 불가능·부적합하고 "일시적 불일치 허용 + 보정 메커니즘(스케줄러·배치·재조회)" 이 설계 의도인 경우에만 7점 상한 해제. **자가 승인 불가** — 다음 3요소 모두 충족해야 한다.
+
+| 요구 요소 | 내용 |
+|-----------|------|
+| 승인 근거 | 이슈 번호·PRD 섹션·retro 문서 중 하나의 영구 참조 링크 |
+| 보정 메커니즘 식별자 | 배치 이름·스케줄러 클래스·재조회 경로 등 코드에 존재하는 식별자 |
+| 검증 증거 | 보정 메커니즘이 실제 호출되는 테스트·로그·대시보드 지점 링크 |
+
+`RACE-ACCEPTED: <승인근거> + <보정메커니즘> + <검증증거>` 형식으로 **대상 클래스 JavaDoc 또는 PR 본문**에 기록. 리뷰어는 리뷰 본문에 "확인한 위치(파일·줄·링크)"를 인용해야 7점 초과 부여 가능. 보정 메커니즘 미존재 또는 승인 근거 링크 부재 시 포기 불가.
+
+#### 1b. 프록시 기반 self-invocation 금지 (Spring AOP 예)
+
+**정의**: 본 규칙은 "**프록시/데코레이터/인터셉터 경유 메서드 어드바이스**가 같은 객체 내부 직접 호출(`this.xxx()`)로 인해 적용되지 않는 경우"만 대상으로 한다. 단순 의존성 주입·context 전달·설정 상속은 포함하지 않는다.
+
+**적용 범위**: Spring `@Transactional`·`@Cacheable`·`@CacheEvict`·`@Async` 기본. 타 스택 동치 예:
+- Python: `@cached_property` (같은 인스턴스 내부 호출은 해당 없음), **Celery task** — task 를 함수로 직접 호출 시 queue 우회 (`task.delay()` 누락), **FastAPI** 의 `Depends` 는 핸들러에서만 해석 → 내부 함수가 `Depends` 대상 함수를 직접 호출하면 주입 우회
+- Node: **Nest** `@UseInterceptors`/`@UseGuards` 는 컨트롤러 진입점에서만 작동 — 서비스 내부 self-call 이면 미적용
+- Go: **gRPC interceptor** 는 transport 경계에서만 — 구조체 내부 메서드 self-call 이면 미적용
+
+**N/A 선언**: 해당 스택에 "메서드 경유 프록시 어드바이스" 개념이 없으면 1b 는 N/A — 리뷰 본문에 "1b N/A: <스택 이유>" 1줄 기록 후 skip.
+
+프록시 기반 어드바이스가 붙은 메서드를 **같은 객체 내부에서 `this.xxx()` 로 호출**하면 프록시를 우회해 어드바이스가 적용되지 않는다. **피호출자에 어드바이스가 있으면 호출자 어노테이션 유무와 무관하게 FAIL** — 전체 FAIL 고정, 통과 조건(최저 ≥7) 자동 미달.
+
+| 안티 패턴 | 올바른 패턴 |
+|-----------|------------|
+| `evaluateAll()` 내부에서 `this.evaluate(id)` 호출 (evaluate 에 `@Transactional`) | 호출자(스케줄러·컨트롤러) 에서 주입된 프록시 빈 경유 직접 호출 |
+| 같은 클래스의 `@Cacheable` 메서드를 내부 helper 에서 호출 | 별도 빈으로 분리 |
+| `@Async` 메서드를 같은 빈에서 self-call | 호출 분기를 다른 빈으로 이동 |
+
+`AopContext.currentProxy()` 는 지양 — 테스트 이중성(프록시 의존 테스트)·AOP 컨텍스트 누수·Spring 공식 문서 비권장. 부득이 사용 시 PR 본문에 근거 명시 요구.
+
+**인접 프록시 미적용 패턴 주의** (self-invocation 외 리뷰어 자주 누락):
+- **private/final 메서드에 어드바이스** — CGLIB 프록시가 override 불가, 어드바이스 미적용. `public` + non-final 로 전환 필요
+- **`@PostConstruct` / 생성자 내부에서 어드바이스 메서드 호출** — 프록시 생성 **전** 호출이므로 어드바이스 미적용
+- **`@Configuration` 클래스 내 `@Bean` 메서드 self-call** — `@Bean` 의 싱글턴 보장은 프록시 경유 — proxyBeanMethods=false 면 깨짐
+
+> **8점 질문:** 같은 빈 내 `this.xxx()` 로 **어드바이스가 붙은** 메서드를 호출하는 곳이 있는가? (호출자에 어드바이스 여부 무관, **피호출자 기준**) → 있으면 전체 FAIL
+
 ### 2. 설계 및 구조 (Design & Architecture)
 
 | 점수 | 기준 |
@@ -98,8 +152,16 @@
 |------|------|
 | 평균 | ≥ 8.0 |
 | 각 항목 최저 | ≥ 7 |
+| 1b FAIL 조건 (self-invocation) | 미적중 |
 
-최저 미달 시 평균 8.0 이상이어도 **미통과**.
+최저 미달 시 평균 8.0 이상이어도 **미통과**. **1b 적중 시 점수와 무관하게 전체 FAIL (우회 불가)** — 재시도 카운트는 소비.
+
+**특수 규칙 (1a · 1b):**
+
+| 서브섹션 | 유형 | 효과 |
+|----------|------|------|
+| 1a 동시성 체크리스트 | 감점형 | 방어책 + 명시적 포기 메모 모두 없으면 정확성 **최대 7점 상한** (통과 경계) |
+| 1b self-invocation 금지 | FAIL형 | 피호출자 어드바이스 보유 + 같은 빈 `this.xxx()` 호출 1건이라도 발견 → **전체 FAIL 고정** |
 
 **재시도:** 미통과 → Dev Agent 재투입 (최대 3회). 3회 후 < 7.0 → 사용자 판단, 7.0~8.0 → 통과 처리.
 
