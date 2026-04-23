@@ -78,7 +78,7 @@
   - `review-claude-{plan,eng,code,meta}-r{N}.md` · `review-codex-{plan,eng,code}.md`
   - `subagent_type=general-purpose`
   - 절대 규칙 목록 각 항목의 핵심 키워드(예: "main 직접 수정 금지", "CI 통과 전 머지 금지", "feat 브랜치 직행 배포 금지")
-- [ ] 상대 경로 링크 유효성: `[text](path)` 형태 링크 전수 점검, 깨진 링크 0건
+- [ ] 상대 경로 링크 유효성: Markdown 링크 문법 전수 점검, 깨진 링크 0건
 - [ ] 섹션 제목 레벨 일관성: 각 파일 최상단 `#` 1개 + 이후 `##`·`###` 레벨 스킵 없음
 - [ ] 표기 일관성: 주 본문 한글, 전문 용어는 필요 시 괄호 영어 병기 (예: "포그라운드(foreground)")
 - [ ] 파일 신설·삭제·이동 0건 (`git status` 로 `renamed`/`deleted`/신규 파일 없음 확인, PRD 디렉터리·리뷰 증거 제외)
