@@ -30,7 +30,7 @@ git diff --cached | grep -iE \
 ```
 
 발견 시 머지 차단 → Dev Agent 수정 후 재스캔.
-개인 식별 정보(실명·개인 이메일 등)는 정적 패턴으로 못 잡는 경우가 있으므로 커밋 메시지·문서 제목에 대해 별도 수동 검토 필요.
+개인 식별 정보(실명·개인 이메일 등)는 정적 패턴으로 검출이 어려우므로, 커밋 메시지·문서 제목은 별도 수동 검토 필요.
 
 ## 평가 항목 (코드 프로젝트, 각 10점)
 
@@ -44,9 +44,9 @@ Claude 코드 리뷰는 **반드시 Agent 툴의 서브에이전트로 실행** 
 
 **서브에이전트 프롬프트**: (a) 리뷰 대상 diff·브랜치·파일 경로, (b) 7항목 채점 기준 + PR 유형별 포커스, (c) 독립 판정 지시, (d) **역할 경계**: Claude 채점만. Codex 실행·저장 금지.
 
-**증거 저장**: 서브에이전트 결과를 메인 에이전트가 `<project-root>/docs/prd/[feature]/review-claude-code-r{N}.md`로 저장 (N=회차, 덮어쓰기 금지).
+**증거 저장**: 메인 에이전트가 서브에이전트 결과를 `<project-root>/docs/prd/[feature]/review-claude-code-r{N}.md`로 저장 (N=회차, 덮어쓰기 금지).
 
-> **하네스 메타 변경(간소 PRD)일 경우**: 코드 리뷰까지 내려올 경우 파일명은 `review-claude-meta-r{N}.md` 단일 리뷰로 대체. Codex 저장도 `review-codex-meta.md`.
+> **하네스 메타 변경(간소 PRD)**: 코드 리뷰까지 내려올 경우 파일명은 `review-claude-meta-r{N}.md` 단일 리뷰로 대체. Codex 저장도 `review-codex-meta.md`.
 
 **재시도**: 매 회차 새 서브에이전트.
 
@@ -78,10 +78,10 @@ Claude 코드 리뷰는 **반드시 Agent 툴의 서브에이전트로 실행** 
 
 Claude 코드 리뷰 통과 후 수행:
 
-1. **Codex 실행 전 `pwd` 확인 필수**: 출력이 해당 PRD 프로젝트 루트와 일치하지 않으면 `cd`로 이동 후 재확인
+1. **Codex 실행 전 `pwd` 확인 필수**: 출력이 해당 PRD 프로젝트 루트와 다르면 `cd`로 이동 후 재확인
 2. `/codex:review --wait --base main` 실행
-3. stdout을 `<project-root>/docs/prd/[feature]/review-codex-code.md`에 저장 (하네스 메타 변경일 경우 `review-codex-meta.md`)
-4. High / Critical 지적만 코드에 반영, 반영 내역을 같은 파일 `## 반영` 섹션에 기록
+3. stdout을 `<project-root>/docs/prd/[feature]/review-codex-code.md`에 저장 (하네스 메타 변경은 `review-codex-meta.md`)
+4. High / Critical 지적만 코드에 반영, 반영 내역을 동일 파일 `## 반영` 섹션에 기록
 5. 반영 완료 후 산출물 보고[10] 진입
 
 ## 이슈 처리

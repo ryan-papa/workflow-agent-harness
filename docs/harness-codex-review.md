@@ -1,6 +1,6 @@
 # Harness Codex Review
 
-Claude 리뷰 이후 Codex 플러그인(`openai/codex-plugin-cc`)으로 **추가 리뷰 1회**를 포그라운드 순차 실행한다.
+Claude 리뷰 이후 Codex 플러그인(`openai/codex-plugin-cc`)으로 **추가 리뷰 1회**를 포그라운드에서 순차 실행한다.
 
 ## 적용 단계
 

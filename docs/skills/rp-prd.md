@@ -22,14 +22,14 @@ PRD(Product Requirements Document) 작성.
 ### Full PRD (일반 기능)
 
 1. 구체화 결과 + 리서치 자료를 컨텍스트로 수집
-2. PRD 템플릿 기반으로 문서 작성
+2. PRD 템플릿 기반 문서 작성
 3. 파일명: `repositories/[project]/docs/prd/YYYYMMDD_HHMMSS_[feature]_[random].md`
-4. 기능 요구사항은 F-XX ID 부여
+4. 기능 요구사항에 F-XX ID 부여
 
 ### 간소 PRD (하네스 메타 변경)
 
 1. 변경 이유·영향 파일·롤백 전략·검증 방법 4섹션 작성
-2. 파일명: `docs/prd/[feature]/prd.md` (하네스 루트 기준)
+2. 파일명: `docs/prd/[feature]/prd.md`(하네스 루트 기준)
 3. 완전 생략 금지 — 4섹션 모두 작성 필수
 4. **리뷰 파일명 규약**: plan/eng/code 구분 없이 `review-claude-meta-r{N}.md` 단일 리뷰 + Codex는 `review-codex-meta.md`. 회차 보존(덮어쓰기 금지)
 5. 상세 규격: [`../harness-prd.md`](../harness-prd.md) "간소 PRD" 섹션 참조
@@ -43,7 +43,7 @@ PRD(Product Requirements Document) 작성.
 | 대안 탐색 | A/B/C/D + 판단 근거 유형 + 선택 근거 |
 | 톤·정체성 | 톤·어투·금칙어·레퍼런스·샘플 카피 |
 | 기능 요구사항 | F-01 ~ F-XX, 우선순위 |
-| AI 기능 검증 | AI 포함 시 정답 샘플셋·채점 기준·주입 방어·합격선 (해당 시만) |
+| AI 기능 검증 | AI 포함 시 정답 샘플셋·채점 기준·주입 방어·합격선(해당 시만) |
 | 기술 스택 | 언어, 프레임워크, 인프라 |
 | 제약사항 | 성능, 보안, 호환성 |
 | **공개 전환 시나리오** | **보안·시크릿 관련 기능에 한해 필수.** 레포가 공개로 전환되거나 산출물이 외부에 노출될 때 추가 리스크가 생기는 요소가 있는지 검토. (예: 공개키 하드코딩, 인프라 식별자, 개인 식별 정보) |

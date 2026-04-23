@@ -15,11 +15,11 @@ argument-hint: '[프로젝트명] [유형: 코드|콘텐츠]'
 ## 절차
 
 1. `repositories/[project]/` 디렉토리 생성
-2. `CLAUDE.md` 생성 (프로젝트별 규칙, 아래 템플릿 적용)
-3. `README.md` 생성 (유형별 템플릿 적용)
+2. `CLAUDE.md` 생성(프로젝트별 규칙, 아래 템플릿 적용)
+3. `README.md` 생성(유형별 템플릿 적용)
 4. `docs/prd/`, `docs/research/` 디렉토리 생성
 5. Git 레포 초기화 또는 기존 레포 확인
-6. 브랜치 프로텍션 설정 (기존 설정 있으면 스킵)
+6. 브랜치 프로텍션 설정(기존 설정 있으면 스킵)
 7. **시크릿 관리 세팅** — 아래 "시크릿 세팅" 블록 수행
 
 ## README 템플릿 선택
@@ -31,7 +31,7 @@ argument-hint: '[프로젝트명] [유형: 코드|콘텐츠]'
 
 ## CLAUDE.md 템플릿
 
-서브 레포의 CLAUDE.md 최상단에 반드시 아래 문구를 포함한다:
+서브 레포 CLAUDE.md 최상단에 반드시 아래 문구 포함:
 
 ```markdown
 > 이 문서는 프로젝트 로컬 규칙이며 최우선 적용된다.
@@ -41,14 +41,14 @@ argument-hint: '[프로젝트명] [유형: 코드|콘텐츠]'
 
 ## 레포 초기화 체크리스트
 
-- [ ] 브랜치 프로텍션 (main 직접 push 금지, PR 필수)
-- [ ] 시크릿 스캔 (GitHub push protection)
-- [ ] 기존 CI/보호 설정 있으면 스킵
+- [ ] 브랜치 프로텍션(main 직접 push 금지, PR 필수)
+- [ ] 시크릿 스캔(GitHub push protection)
+- [ ] 기존 CI·보호 설정 있으면 스킵
 
 ## 신규 rp-* 스킬 추가 체크리스트
 
 새 하네스 스킬(`rp-*.md`)을 만들 때:
-- [ ] `docs/skills/rp-<이름>.md` 생성 (YAML frontmatter `description` + `argument-hint` 포함)
+- [ ] `docs/skills/rp-<이름>.md` 생성(YAML frontmatter `description` + `argument-hint` 포함)
 - [ ] `.claude/commands/rp-<이름>.md` 심링크 확인 — `PostToolUse` 훅이 자동 생성. 미생성 시 수동 fallback: `cd .claude/commands && ln -s ../../docs/skills/rp-<이름>.md rp-<이름>.md`
 - [ ] `CLAUDE.md`·`docs/harness-workflow.md`·`docs/skills/rp-workflow.md` 트리·링크 갱신
 - [ ] `/reload-plugins` 후 자동완성에서 노출 확인
@@ -60,8 +60,8 @@ argument-hint: '[프로젝트명] [유형: 코드|콘텐츠]'
 에이전트 실행 순서:
 
 1. 전제조건 확인
-   - sops, age 설치 여부 (`command -v sops age`) — 미설치면 [`../security/secrets-management.md`](../security/secrets-management.md) "기기 초기 세팅" 안내하고 대기
-   - `claude-projects/docs/security/recipients.local.md` 존재 여부 — 없으면 `recipients.local.md.example`을 복사해서 사용자에게 공개키 입력 요청
+   - sops·age 설치 여부(`command -v sops age`) — 미설치면 [`../security/secrets-management.md`](../security/secrets-management.md) "기기 초기 세팅" 안내 후 대기
+   - `claude-projects/docs/security/recipients.local.md` 존재 여부 — 없으면 `recipients.local.md.example` 복사 후 사용자에게 공개키 입력 요청
 
 2. 템플릿 복사 + 공개키 치환
    ```bash
@@ -70,9 +70,9 @@ argument-hint: '[프로젝트명] [유형: 코드|콘텐츠]'
    ```
    → `.sops.yaml`의 `age1PLACEHOLDER_...` 라인을 `recipients.local.md`의 실제 공개키로 치환 후 플레이스홀더 전부 삭제
 
-3. `.gitignore`에 `.env` 없으면 추가 (`.env.enc`는 제외 금지)
+3. `.gitignore`에 `.env` 없으면 추가(`.env.enc`는 제외 금지)
 
-4. 사용자에게 `.env.example` 기반으로 `.env` 작성 요청 → 사용자 응답 대기
+4. 사용자에게 `.env.example` 기반 `.env` 작성 요청 → 응답 대기
 
 5. 사용자 응답 후 암호화
    ```bash
