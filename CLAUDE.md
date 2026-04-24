@@ -78,6 +78,7 @@ claude-projects/
 │       ├── README.md
 │       └── docs/prd/
 ├── .gitignore
+├── AGENTS.md                  # Codex용 하네스 어댑터
 └── CLAUDE.md
 ```
 
