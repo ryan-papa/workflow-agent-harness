@@ -31,6 +31,24 @@
             "command": "bash .claude/hooks/sync-rp-commands.sh"
           }
         ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/sync-rp-commands.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/sync-rp-commands.sh"
+          }
+        ]
       }
     ]
   },

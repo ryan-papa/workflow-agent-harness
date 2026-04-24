@@ -48,7 +48,10 @@ claude-projects/
 │       ├── sops.yaml.template
 │       └── env.example.template
 ├── .claudeignore                  # 토큰 절약용 공통 ignore
+├── .codex/skills/                 # Codex용 프로젝트 로컬 rp-* 스킬
+├── AGENTS.md                      # Codex용 하네스 어댑터
 ├── CLAUDE.md
+├── scripts/sync-codex-skills.py   # Claude 스킬 → Codex 스킬 변환
 └── README.md
 ```
 
@@ -124,6 +127,10 @@ claude-projects/
 4. `.claude/settings.json`에 선언된 Codex 플러그인 설치 프롬프트가 뜨면 승인한다.
 5. 최초 1회 `/codex:setup` + `!codex login`으로 Codex CLI 설치·인증.
 6. 하위 프로젝트 작업 시 `repositories/{프로젝트명}/`으로 이동한다.
+
+Codex에서 직접 열 경우 루트 [`AGENTS.md`](AGENTS.md)가 Claude 중심 규칙을 Codex 실행 규칙으로 번역한다.
+프로젝트 로컬 Codex 스킬은 [`.codex/skills/`](.codex/skills/)에 있으며, 원본 `docs/skills/rp-*.md` 변경 후 `rtk python3 scripts/sync-codex-skills.py`로 갱신한다.
+로컬 Codex discovery가 필요하면 `rtk python3 scripts/sync-codex-skills.py --install-user`로 `$CODEX_HOME/skills`에 심링크를 설치한다.
 
 ```bash
 git clone <repo-url> claude-projects

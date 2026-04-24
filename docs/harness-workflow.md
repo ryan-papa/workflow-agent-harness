@@ -129,6 +129,7 @@
 **문서 정합성:**
 - docs/ 파일 변경 시 CLAUDE.md 트리·링크 자동 동기화
 - `docs/skills/rp-*.md` 신규 생성 시 `.claude/commands/rp-*.md` 심링크 `PostToolUse` 훅이 자동 생성 (`.claude/hooks/sync-rp-commands.sh`)
+- `docs/skills/rp-*.md` 변경 시 `.codex/skills/rp-*/SKILL.md`도 `scripts/sync-codex-skills.py`로 동기화
 
 **스펙 변경 시 문서 우선 원칙:**
 - 기능 추가/변경/삭제 시 코드 작업 전에 반드시 PRD 문서 먼저 업데이트

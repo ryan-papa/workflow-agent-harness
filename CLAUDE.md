@@ -78,6 +78,8 @@ claude-projects/
 │       ├── README.md
 │       └── docs/prd/
 ├── .gitignore
+├── .codex/skills/             # Codex용 프로젝트 로컬 rp-* 스킬
+├── AGENTS.md                  # Codex용 하네스 어댑터
 └── CLAUDE.md
 ```
 
@@ -112,6 +114,8 @@ claude-projects/
 - 각 단계 완료 시 "다음 단계로 갈까요?" 질문 금지 — 바로 진행
 
 **스킬 위치:** [`docs/skills/`](docs/skills/)
+
+**Codex 스킬 동기화:** `docs/skills/rp-*.md`가 원본이다. 변경 후 `.claude/commands/` 심링크와 `.codex/skills/rp-*/SKILL.md` 변환본을 함께 갱신한다. 수동 확인은 `rtk python3 scripts/sync-codex-skills.py --check`, 로컬 설치는 `rtk python3 scripts/sync-codex-skills.py --install-user`.
 
 **⛔ 하네스 절대 규칙 (예외 없음):**
 - **[리뷰 단계 서브에이전트 필수]** `/rp-plan-review` · `/rp-eng-review` · `/rp-code-review` 의 Claude 리뷰는 **반드시 Agent 툴로 분리된 서브에이전트(`subagent_type=general-purpose`)가 실행**한다. 메인 에이전트가 본인이 작성한 PRD·코드를 자체 채점하는 행위 **전면 금지**. 이해충돌·관성 편향 방지. 서브에이전트는 메인 대화 컨텍스트 없이 대상 파일만 읽고 독립 판정. **역할 분리**: 서브에이전트는 Claude 채점만, `/codex:review` 실행·결과 저장은 메인 에이전트. **Fallback**: 서브에이전트 호출 기술적 실패(Agent 툴 오류·토큰 초과·형식 오류) 최대 2회 재호출 → 실패 지속 시 사용자에게 즉시 보고, **메인 셀프 채점 우회 금지**. 채점 결과 "미달"은 PRD 재작성 후 새 서브에이전트 재실행 (평가 미달과 기술 실패 구분). **증거 저장**: 매 회차 결과를 `<project-root>/docs/prd/[feature]/review-claude-{plan,eng,code,meta}-r{N}.md` 로 저장 (N=1,2,3 회차). `{meta}`는 간소 PRD(하네스 메타 변경) 단일 리뷰 전용. 파일 덮어쓰기 금지, 매 회차 새 파일로 보존 (감사·회고용).
