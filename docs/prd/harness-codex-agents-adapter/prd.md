@@ -10,6 +10,24 @@
 - Codex-led Mode에서 plan / engineering / code review를 세 단계로 분리
 - README와 CLAUDE.md 구조 설명에 신규 파일 반영
 
+## 대안 탐색
+
+| 대안 | 판단 |
+|---|---|
+| `AGENTS.md` 신규 추가 | 선택. Codex가 자동 인식하는 루트 지침 파일로 쓰기 적합 |
+| `CODEX.md` 신규 추가 | 미선택. 명시성은 높지만 Codex 런타임 표준 진입점으로 보기 어려움 |
+| `CLAUDE.md`에 Codex 규칙 병합 | 미선택. Claude 전용 규칙과 Codex 변환 규칙이 섞여 주 오케스트레이터 규칙이 흐려짐 |
+| README 안내만 추가 | 미선택. 실행 규칙·리뷰 산출물·모드 분기를 담기 부족 |
+
+판단 근거: Codex 런타임 호환성과 기존 Claude 하네스 분리 유지.
+
+## 사용자 검증 게이트
+
+검증 기준:
+- Codex 세션에서 루트 `AGENTS.md`만 읽어도 Claude-led Mode와 Codex-led Mode 차이를 설명할 수 있음
+- "리뷰 3"을 같은 리뷰 3회가 아니라 plan / engineering / code 세 단계로 해석함
+- 실제 수행하지 않은 Claude 명령을 완료로 기록하지 않음
+
 ## 영향 파일
 
 | 파일 | 역할 |

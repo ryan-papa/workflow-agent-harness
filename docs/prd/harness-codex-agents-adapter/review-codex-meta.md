@@ -21,6 +21,7 @@ No High or Critical findings.
 
 - Claude subagent 리뷰는 현재 Codex 런타임에서 호출할 수 없으므로 수행했다고 기록하지 않는다.
 - 추후 Claude에서 동일 변경을 열 경우 Claude meta review를 추가 독립 검토로 붙일 수 있다.
+- 초기 커밋에서는 meta review 1건만 남겼으나, Codex-led Mode의 stage separation 원칙에 따라 `review-codex-plan.md`, `review-codex-eng.md`, `review-codex-code.md`를 추가 증거로 보강했다.
 
 ## 반영
 
