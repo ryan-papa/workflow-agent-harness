@@ -154,3 +154,71 @@ scratch/
 *.dump
 *.csv.gz
 *.parquet
+
+# === ML 모델·웨이트 (지뢰급, GB 단위) ===
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.pkl
+*.pickle
+*.ckpt
+
+# === Python 추가 캐시·락 ===
+.tox/
+.nox/
+.ipynb_checkpoints/
+Pipfile.lock
+poetry.lock
+uv.lock
+pdm.lock
+
+# === 회전·압축 로그 ===
+*.log.*
+*.log.gz
+
+# === 힙·코어 덤프 ===
+*.hprof
+core.[0-9]*
+heapdump-*
+
+# === DB 백업 ===
+dump.rdb
+*.bak
+
+# === Cypress / Playwright 산출물 ===
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+playwright/.cache/
+.playwright/
+
+# === 브라우저 드라이버 바이너리 ===
+chromedriver
+geckodriver
+msedgedriver
+
+# === IDE 추가 ===
+.fleet/
+.zed/
+.history/
+*.suo
+*.sln.docstates
+
+# === 커버리지 추가 ===
+lcov.info
+*.lcov
+coverage-final.json
+
+# === Archive / 패키지 바이너리 ===
+*.tar
+*.tgz
+*.iso
+*.dmg
+*.deb
+*.rpm
