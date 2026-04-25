@@ -9,7 +9,7 @@ PR #29 회고 채택(2건) + 사용자 추가 지시(2건). 배경: [retro-r1.md
 | # | 문제 | 영향 |
 |---|------|------|
 | 1 | 메타 변경 단축 경로에서 `rp-ship` PR base 자동 감지가 `docs/tasks.md`의 다른 feature 통합 브랜치(예: `feat/security-guide`)를 잘못 매칭. 매번 수동 오버라이드 `--base main` 필요 | 메타 변경 ship 사이클마다 추가 인지 부담, 실수 시 잘못된 base로 PR 생성 위험 |
-| 2 | CI lint-docs `Check for broken internal links` 단계가 `[text](path.md#section)` 형식 링크의 fragment를 파일 경로로 해석해 오탐 | PR #29 1차 CI 실패. 모든 anchor 포함 내부 링크가 영향받음 |
+| 2 | CI lint-docs `Check for broken internal links` 단계가 마크다운 링크의 fragment(샵 뒤 섹션 anchor) 부분까지 파일 경로로 해석해 오탐 | PR #29 1차 CI 실패. 모든 anchor 포함 내부 링크가 영향받음 |
 | 3 | rp-ship 머지 단계가 항상 사용자 승인 대기. 메타 변경·일반 기능 모두 CI·게이트 통과 후에도 인지 부담·대기 시간 발생 | 자동화 흐름 단절. 한 사이클당 추가 round-trip 1회 |
 | 4 | rp-ship 완료 시 `/rp-retro` 자동 진입 강제. 단순 메타 변경·소규모 PR에도 회고 강제로 노이즈 | 회고 가치 < 진행 비용 케이스에서 흐름 둔화 |
 
