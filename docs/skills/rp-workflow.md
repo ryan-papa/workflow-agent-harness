@@ -1,6 +1,7 @@
 ---
 description: 하네스 전체 워크플로우 오케스트레이터. 신규 프로젝트·기능을 init부터 회고까지 12단계로 진행
 argument-hint: '[프로젝트·기능 설명]'
+model: sonnet
 ---
 
 # rp-workflow

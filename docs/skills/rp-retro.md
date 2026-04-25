@@ -1,6 +1,7 @@
 ---
 description: '[12] 회고. 단계별 평가 + 규칙 개선 제안. 사용자 명령 시에만 실행 (자동 진입 없음)'
 argument-hint: '[대상 PR·배포]'
+model: sonnet
 ---
 
 # rp-retro

@@ -1,6 +1,7 @@
 ---
 description: '[2] 구체화. 존재 이유·사용자·핵심 장면·경계·성공 기준 5단계 질문'
 argument-hint: '[요구사항 설명]'
+model: opus
 ---
 
 # rp-specify

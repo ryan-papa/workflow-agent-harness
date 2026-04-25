@@ -1,6 +1,7 @@
 ---
 description: '[11] 커밋·PR·CI·자동머지·배포. 수동 git/gh 우회 금지, 반드시 이 스킬 경유'
 argument-hint: '[브랜치명] [변경 요약]'
+model: sonnet
 ---
 
 # rp-ship

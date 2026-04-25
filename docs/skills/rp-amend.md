@@ -1,6 +1,7 @@
 ---
 description: 기존 프로젝트에 기능 수정·추가. rp-init 스킵, rp-specify부터 rp-retro까지 전 단계 실행
 argument-hint: '[프로젝트명] [기능 수정·추가 설명]'
+model: sonnet
 ---
 
 # rp-amend

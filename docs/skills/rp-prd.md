@@ -1,6 +1,7 @@
 ---
 description: '[3] PRD 작성. 일반 기능은 Full PRD, 하네스 메타 변경은 간소 PRD 자동 분기'
 argument-hint: '[기능·변경 컨텍스트]'
+model: opus
 ---
 
 # rp-prd

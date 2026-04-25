@@ -1,6 +1,7 @@
 ---
 description: '[7] 개발. 태스크별 반복 사이클. 통합 브랜치에서 태스크 단위 구현·테스트'
 argument-hint: '[태스크 ID 또는 범위]'
+model: sonnet
 ---
 
 # rp-dev
