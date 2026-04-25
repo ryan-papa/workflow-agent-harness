@@ -123,7 +123,7 @@ claude-projects/
 - 테스트 코드 없이 커밋/머지 절대 금지
 - 테스트·빌드 미통과 시 다음 단계 진행 금지
 - **QA·코드 리뷰 단계 생략 금지 (게이트 강화)**: 두 단계 모두 완료 여부를 배포 전 체크하고, 하나라도 미수행이면 배포 차단. "단위 테스트 통과 = QA 대체 불가"
-- **[4][5][9] Codex 추가 리뷰 필수**: Claude 리뷰 통과 후 `/codex:review --wait` 1회 포그라운드 실행. cwd는 **해당 PRD 프로젝트 루트** (일반 기능 `repositories/[project]/`, 하네스 메타 변경 `claude-projects/`). 점수화 없음. High/Critical 지적은 반영 후 다음 단계 진입. 결과는 `<project-root>/docs/prd/[feature]/review-codex-{plan,eng,code}.md`에 저장
+- **[4][5][9] Codex 추가 리뷰 필수**: Claude 리뷰 통과 후 `/codex:review --wait` 1회 포그라운드 실행 (wall-clock 300초 타임아웃). cwd는 **해당 PRD 프로젝트 루트** (일반 기능 `repositories/[project]/`, 하네스 메타 변경 `claude-projects/`). 점수화 없음. High/Critical 지적은 반영 후 다음 단계 진입. 결과는 `<project-root>/docs/prd/[feature]/review-codex-{plan,eng,code,meta}.md`에 저장. **단, Codex CLI가 토큰/기능 신호 패턴**([`docs/harness-codex-review.md`](docs/harness-codex-review.md) "토큰·기능 신호 패턴" 섹션 SSOT)을 명시적으로 출력하면 1회 스킵 후 다음 단계 진입(SKIPPED 헤더 + 7항목 증거 저장 필수). 그 외 비정상 종료(네트워크·login·플러그인·hang·매칭 0건)는 **기존대로 중단 + 사용자 보고**, 자동 재시도 금지
 - 산출물 보고 없이 배포 진행 금지 (커밋·PR은 산출물 보고 후 자동)
 - **push 전 README 검증 필수** (5항목 평균 8.0+, 최대 3회 재시도, 미통과 시 push 차단)
 - **CI 통과 전 머지 금지** (예외 없음)

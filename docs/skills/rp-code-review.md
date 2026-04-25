@@ -79,10 +79,12 @@ Claude 코드 리뷰는 **반드시 Agent 툴의 서브에이전트로 실행** 
 Claude 코드 리뷰 통과 후 수행:
 
 1. **Codex 실행 전 `pwd` 확인 필수**: 출력이 해당 PRD 프로젝트 루트와 다르면 `cd`로 이동 후 재확인
-2. `/codex:review --wait --base main` 실행
-3. stdout을 `<project-root>/docs/prd/[feature]/review-codex-code.md`에 저장 (하네스 메타 변경은 `review-codex-meta.md`)
-4. High / Critical 지적만 코드에 반영, 반영 내역을 동일 파일 `## 반영` 섹션에 기록
-5. 반영 완료 후 산출물 보고[10] 진입
+2. `/codex:review --wait --base main` 실행 (wall-clock 300초 타임아웃)
+3. **종료 분기**:
+   - 정상 종료 → stdout을 `<project-root>/docs/prd/[feature]/review-codex-code.md`에 저장 (하네스 메타 변경은 `review-codex-meta.md`). High/Critical 반영 후 동일 파일 `## 반영` 섹션 기록
+   - **토큰/기능 신호 매칭 (AND 조건 충족)** → SKIPPED 헤더 + 7항목으로 동일 경로 저장. 반영 대상 없음. 패턴 표·판정 규칙은 [`../harness-codex-review.md`](../harness-codex-review.md) "토큰/기능 이슈 스킵" 섹션 SSOT 참조
+   - 그 외 비정상 종료 (네트워크·login·플러그인·hang·매칭 0건) → 워크플로우 중단 + 사용자 보고. 자동 재시도 금지
+4. 반영 완료(또는 SKIPPED 저장) 후 산출물 보고[10] 진입
 
 ## 이슈 처리
 
@@ -105,7 +107,7 @@ Claude 코드 리뷰 통과 후 수행:
 
 ## ▶ 자동 전환
 
-Claude 통과 + Codex High/Critical 반영 완료 시 `✓ [9] 코드리뷰 통과 (Claude+Codex)` 출력 후 **산출물 보고[10] 자동 진입**.
+Claude 통과 + (Codex High/Critical 반영 완료 OR Codex 토큰/기능 SKIPPED) 시 `✓ [9] 코드리뷰 통과 (Claude+Codex)` (스킵 시 `(Claude+Codex SKIPPED)`) 출력 후 **산출물 보고[10] 자동 진입**.
 산출물 보고 후 **커밋·PR까지 자동 진행**. 배포[11]에서 사용자 승인 대기.
 
 → 리뷰 기준 상세: [`../harness-code-review.md`](../harness-code-review.md)

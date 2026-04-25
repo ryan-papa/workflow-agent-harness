@@ -33,10 +33,12 @@ description: "[4] 기획 리뷰. Codex-led 9항목 점수제 독립 리뷰. Use 
 5. **기술 실패 Fallback**: spawn_agent 오류·토큰 초과·형식 오류 시 최대 2회 재호출. 지속 실패 시 사용자에게 즉시 보고 + 중단. 메인 셀프 채점 우회 금지
 6. **Codex-led 리뷰 통과 후 Codex 추가 리뷰 (1회)**:
    - **Codex 실행 전 `pwd` 확인 필수**: 출력이 해당 PRD 프로젝트 루트와 다르면 `cd`로 이동 후 재확인. 일반 기능 `repositories/[project]/`, 하네스 메타 변경 `claude-projects/`
-   - `Codex-led findings-first review` 실행
-   - stdout을 `<project-root>/docs/prd/[feature]/review-codex-plan.md`에 저장 (하네스 메타 변경은 `review-codex-meta.md`)
-   - High / Critical 지적만 PRD에 반영, 반영 내역을 동일 파일 `## 반영` 섹션에 기록
-6. 반영 완료 후 다음 단계 진입
+   - `Codex-led findings-first review` 실행 (wall-clock 300초 타임아웃)
+   - **종료 분기**:
+     - 정상 종료 → stdout을 `<project-root>/docs/prd/[feature]/review-codex-plan.md`에 저장 (하네스 메타 변경은 `review-codex-meta.md`). High/Critical 반영 후 동일 파일 `## 반영` 섹션 기록
+     - **토큰/기능 신호 매칭 (AND 조건 충족)** → SKIPPED 헤더 + 7항목으로 동일 경로 저장. 반영 대상 없음. 패턴 표·판정 규칙은 [`../harness-codex-review.md`](../harness-codex-review.md) "토큰/기능 이슈 스킵" 섹션 SSOT 참조
+     - 그 외 비정상 종료 (네트워크·login·플러그인·hang·매칭 0건) → 워크플로우 중단 + 사용자 보고. 자동 재시도 금지
+7. 반영 완료(또는 SKIPPED 저장) 후 다음 단계 진입
 
 ## 평가 항목
 
@@ -60,7 +62,7 @@ description: "[4] 기획 리뷰. Codex-led 9항목 점수제 독립 리뷰. Use 
 
 ## ▶ 자동 전환
 
-Codex-led 리뷰 통과 + High/Critical 반영 완료 시 `✓ [4] 기획 리뷰 통과 (Codex-led)` 출력 후 **`/rp-eng-review` 자동 진입**.
+Codex-led 리뷰 통과 + (Codex High/Critical 반영 완료 OR Codex 토큰/기능 SKIPPED) 시 `✓ [4] 기획 리뷰 통과 (Codex-led)` (스킵 시 `(Codex-led SKIPPED)`) 출력 후 **`/rp-eng-review` 자동 진입**.
 
 → PRD 상세: [`../harness-prd.md`](../harness-prd.md)
 → Codex 리뷰 규칙: [`../harness-codex-review.md`](../harness-codex-review.md)
