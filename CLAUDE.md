@@ -110,9 +110,7 @@ claude-projects/
 | 11 | `rp-ship` | Sonnet | 커밋 → PR → CI → 머지 → 배포 |
 | 12 | `rp-retro` | Sonnet | 회고 |
 
-**모델 선택 정책 (자동 적용):** `rp-specify`·`rp-prd` 만 **Opus**, 그 외 모든 단계는 **Sonnet**. 각 스킬 파일(`docs/skills/rp-*.md`)의 frontmatter `model:` 필드로 강제 — 슬래시 커맨드 실행 시 해당 턴만 자동 전환, 다음 턴에 세션 모델 복귀. 사용자 수동 전환은 `/model` 슬래시.
-
-**예외 (Opus override):** 보안 민감(OAuth/암호화/CSRF) · 동시성·트랜잭션·DB 락 · 아키텍처 신규 도입 PR 의 plan/eng/code 리뷰는 사용자가 명시 `/model opus` 후 진행. 산출물 헤더에 모델 표시.
+**모델 선택 정책:** `rp-specify`·`rp-prd` 만 **Opus**, 그 외 모든 단계는 **Sonnet** 권장. 비용·속도 절감 + Opus 의 추론 우위는 신규 도메인 구체화·PRD 초안에 집중. 사용자가 `/model sonnet` 또는 `/model opus` 슬래시 커맨드로 단계 전환 시 즉시 전환. 본 정책은 **권장**이며 강제 전환 자동화는 별도 후속.
 
 **상세 표·근거:** [`docs/harness-workflow.md`](docs/harness-workflow.md)
 

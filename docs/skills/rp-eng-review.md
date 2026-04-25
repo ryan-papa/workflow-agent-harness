@@ -1,7 +1,6 @@
 ---
 description: '[5] 엔지 리뷰. Claude 5항목 점수제 + Codex /codex:review 1회. AND 진행'
 argument-hint: '[대상 PRD 경로]'
-model: sonnet
 ---
 
 # rp-eng-review

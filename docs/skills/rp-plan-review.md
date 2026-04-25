@@ -1,7 +1,6 @@
 ---
 description: '[4] 기획 리뷰. Claude 9항목 점수제 + Codex /codex:review 1회. AND 진행'
 argument-hint: '[대상 PRD 경로]'
-model: sonnet
 ---
 
 # rp-plan-review

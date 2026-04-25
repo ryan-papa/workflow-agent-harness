@@ -1,7 +1,6 @@
 ---
 description: '[9] 코드 리뷰. 7항목 최저 점수제 + Codex /codex:review 1회. High/Critical 반영'
 argument-hint: '[대상 PR·브랜치]'
-model: sonnet
 ---
 
 # rp-code-review

@@ -1,7 +1,6 @@
 ---
 description: '[8] QA/콘텐츠 검수. 코드 프로젝트는 E2E+axe 필수, 콘텐츠는 빌드·렌더링·품질'
 argument-hint: '[대상 기능·브랜치]'
-model: sonnet
 ---
 
 # rp-qa

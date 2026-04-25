@@ -1,7 +1,6 @@
 ---
 description: '[1] 프로젝트 초기화. CLAUDE.md·README.md·PRD 디렉터리 등 기본 구조 생성'
 argument-hint: '[프로젝트명] [유형: 코드|콘텐츠]'
-model: sonnet
 ---
 
 # rp-init
