@@ -149,7 +149,7 @@ workflow-agent-harness/
 - **⛔ 인프라 재기동(colima·k3s·노드 reboot 등)은 사용자 명시 허락 필수** — 상세: SSOT §인프라 재기동·다운타임 작업 + 레포별 정책 (`repositories/mac-mini-infra/CLAUDE.md` §⛔ 인프라 재기동 결정)
 - **⛔ auto-memory 시스템 비활성** — `~/.claude/projects/<proj>/memory/` 읽기·쓰기 금지, 사용자 "기억해" 요청 시 CLAUDE.md 직접 추가. 상세: SSOT §메모리 시스템 비활성
 
-**코드리뷰 상세:** [`harness-code-review.md`](docs/harness-code-review.md) — FAIL 조건 2종: 1b 프록시 self-invocation · **5a 파라미터 위변조(BOLA/IDOR)**
+**코드리뷰 상세:** [`harness-code-review.md`](docs/harness-code-review.md) — 점수 상한 규칙: 1a 동시성 · 1b 프록시 self-invocation · **5a 파라미터 위변조(BOLA/IDOR)**
 **인프라 리뷰 상세:** [`harness-infra-review.md`](docs/harness-infra-review.md) — SQL(방언·실행계획·타입 정밀도·대량 쓰기)·Redis·비동기 점유·직렬화 호환·배포 전략/pub-sub
 **디자인 원칙:** [`harness-design.md`](docs/harness-design.md)
 **README 규칙:** [`harness-readme.md`](docs/harness-readme.md)
