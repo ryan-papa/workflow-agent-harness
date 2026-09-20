@@ -76,7 +76,7 @@ git diff --cached | grep -iE \
 
 **5a 선행 판정 — 노출 등급**: 대상 **엔드포인트**를 **E**(외부 공개) / **I**(메시·사설망 내부) / **A**(운영자 전용) 로 먼저 확정. **미선언 시 E 기본값.** 경계 바깥에 최종 사용자·외부 조직이 있으면 전송 계층 인가와 무관하게 E.
 
-I·A 는 `TRUST-BOUNDARY` 증거 필수 — I 는 격리(ClusterIP·hostNetwork 미사용·참조 라우트 0건·east-west 미노출) + 전송 계층 인가(`PeerAuthentication` STRICT + 대상 셀렉트 ALLOW 정책 + `source.principals` 열거) + 계약 명시, A 는 인증 설정 위치 + 역할 검사 위치. **mTLS 단독은 인가 증거 불인정.** 결손 또는 **리뷰어가 내용을 직접 읽고 인용 불가 시 부재로 간주(fail-closed) → E 재판정.** 등급별 해제 매트릭스·증거 상세 → SSOT [`../harness-code-review.md`](../harness-code-review.md) 5a.
+I·A 는 `TRUST-BOUNDARY` 증거 필수 — I 는 (1) 외부 도달 불가 (2) 허용 호출자 열거 + 기본 거부 (3) 계약 + 호출측 소유권 검증 지점, A 는 인증 설정 위치 + 역할 검사 위치. **수단은 스택 자유**(메시 정책·게이트웨이 허용목록·사설 서브넷·방화벽) — 판정은 사실이 설정 원문으로 확인되는가. **전송 계층 인증 단독은 인가 증거 불인정**(인증 ≠ 인가). 결손 또는 **리뷰어가 내용을 직접 읽고 인용 불가 시 부재로 간주(fail-closed) → E 재판정.** 등급별 해제 매트릭스·증거 상세 → SSOT [`../harness-code-review.md`](../harness-code-review.md) 5a.
 
 ## ⛔ 실행 주체 (서브에이전트 필수)
 
@@ -84,7 +84,7 @@ I·A 는 `TRUST-BOUNDARY` 증거 필수 — I 는 격리(ClusterIP·hostNetwork 
 
 **병렬 발사**: [9] 진입 시 `[9-코드]`(7항목 점수제) 와 `[9-인프라]`(무점수 BLOCK/ASK/WARN) 서브에이전트를 **동일 메시지에서 동시 발사**한다. 컨텍스트 미공유 독립 판정. Codex-Lead 는 `spawn_agent` 동시 발사 불가 시 **순차 fallback 허용** (판정 규칙·통과 조건 동일).
 
-**서브에이전트 프롬프트** 4 필수 항목 (a)~(d) → SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) 리뷰 대상 diff·브랜치·파일 경로 (b) 코드 축 = 7항목 + PR 유형별 포커스 / 인프라 축 = 5영역 무점수 판정 (c)·(d) SSOT 그대로.
+**서브에이전트 프롬프트** 4 필수 항목 (a)~(d) → SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) 리뷰 대상 diff·브랜치·파일 경로 + **PR 본문(있을 경우) 및 `TRUST-BOUNDARY` 선언 원문** (b) 코드 축 = 7항목 + PR 유형별 포커스 / 인프라 축 = 5영역 무점수 판정 (c)·(d) SSOT 그대로.
 
 **결과 처리**: 별도 파일 저장 없음. 서브에이전트 점수·지적은 인-메모리에서 메인이 수신 후 코드·PRD 본문·PR 노트에 반영.
 
