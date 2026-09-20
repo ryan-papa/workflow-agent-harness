@@ -36,8 +36,8 @@
 |------|------|
 | 문체 | 구어체 금지, 간결·명료. 상세 원칙 10 → [`docs/harness-writing.md`](docs/harness-writing.md) |
 | 구조 | 테이블/리스트 우선, 산문 지양 |
-| 분량 | 파일당 **기본 300줄 이하**, 분리가 부적절한 경우에 한해 **최대 500줄** (CI: 300 초과 경고 / 500 초과 실패) |
-| 초과 시 | **역할/책임 단위로 파일 분리** 우선 (텍스트 압축이 아닌 영역 분리). 분리 시 SSOT가 쪼개져 참조가 흩어지는 경우에만 500줄까지 허용 |
+| 분량 | 파일당 **500줄 이하** (CI: 초과 시 실패) |
+| 초과 시 | **역할/책임 단위로 파일 분리**. 텍스트 압축이 아닌 영역 분리 — SSOT가 쪼개져 참조가 흩어지지 않는 경계를 택한다 |
 | 코드 | 코드 직접 작성 금지, 파일 링크 참조로 대체 |
 | **자동 정합성** | docs/ 변경 시 서브에이전트가 CLAUDE.md 트리+링크 자동 동기화 (사용자에게 변경 요약만 출력) |
 | **하네스 동기화** | 하네스 문서(원본) 변경 시 관련 스킬(`docs/skills/`) + CLAUDE.md를 즉시 갱신. **예외**: `rp-workflow`·`rp-amend`(오케스트레이터)·`rp-init`·`rp-specify`·`rp-retro`는 스킬-단독 운영(원본 `harness-*.md` 없음) — 스킬 파일이 SSOT |
@@ -149,7 +149,7 @@ workflow-agent-harness/
 - **⛔ 인프라 재기동(colima·k3s·노드 reboot 등)은 사용자 명시 허락 필수** — 상세: SSOT §인프라 재기동·다운타임 작업 + 레포별 정책 (`repositories/mac-mini-infra/CLAUDE.md` §⛔ 인프라 재기동 결정)
 - **⛔ auto-memory 시스템 비활성** — `~/.claude/projects/<proj>/memory/` 읽기·쓰기 금지, 사용자 "기억해" 요청 시 CLAUDE.md 직접 추가. 상세: SSOT §메모리 시스템 비활성
 
-**코드리뷰 상세:** [`harness-code-review.md`](docs/harness-code-review.md) — 점수 상한 규칙: 1a 동시성 · 1b 프록시 self-invocation · **5a 파라미터 위변조(BOLA/IDOR)**
+**코드리뷰 상세:** [`harness-code-review.md`](docs/harness-code-review.md) — 점수 상한 규칙: 1a 동시성 · 1b 프록시 self-invocation · **5a 파라미터 위변조(BOLA/IDOR, 노출 등급 E/I/A 선행 판정)**
 **인프라 리뷰 상세:** [`harness-infra-review.md`](docs/harness-infra-review.md) — SQL(방언·실행계획·타입 정밀도·대량 쓰기)·Redis·비동기 점유·직렬화 호환·배포 전략/pub-sub
 **디자인 원칙:** [`harness-design.md`](docs/harness-design.md)
 **README 규칙:** [`harness-readme.md`](docs/harness-readme.md)

@@ -21,17 +21,15 @@ jobs:
             echo "✅ $f"
           done
 
-      - name: Check line limits (soft 300 / hard 500)
+      - name: Check line limits (max 500)
         run: |
           echo "Checking line limits..."
           failed=0
           for f in $(find docs/ CLAUDE.md AGENTS.md README.md -name '*.md' -not -path '*/node_modules/*' -not -path '*/templates/*'); do
             lines=$(wc -l < "$f")
             if [ "$lines" -gt 500 ]; then
-              echo "❌ $f: ${lines} lines (hard max 500)"
+              echo "❌ $f: ${lines} lines (max 500)"
               failed=1
-            elif [ "$lines" -gt 300 ]; then
-              echo "::warning file=$f::${lines} lines — soft limit 300 초과. 역할/책임 단위 분리 검토 (hard limit 500)"
             else
               echo "✅ $f: ${lines} lines"
             fi
