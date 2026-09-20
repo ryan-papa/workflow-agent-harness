@@ -61,6 +61,10 @@ git diff --cached | grep -iE \
 
 각 항목에 점수 구간별 기준 + "8점 판단 질문" 적용.
 
+**필수 FAIL 체크 2종** (점수 무관 전체 FAIL):
+- **1b 프록시 self-invocation** — 피호출자에 어드바이스 보유 + 같은 빈 `this.xxx()` 호출
+- **5a 파라미터 위변조(BOLA/IDOR)** — 신원·권한 주체를 클라이언트 파라미터로 수신 + 서버측 검증 없음. 소유권 검증 누락·클라이언트 전달 권한 필드 신뢰는 보안 최대 6점 상한
+
 ## ⛔ 실행 주체 (서브에이전트 필수)
 
 코드 리뷰는 **반드시 메인 런타임의 서브에이전트로 실행** (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent`). 메인 에이전트 셀프 채점 **금지**.
@@ -93,7 +97,7 @@ git diff --cached | grep -iE \
 ## 판정 (2축 AND 결합)
 
 **통과 조건 (모두 충족):**
-- 코드 축: 평균 >= 8.0 AND 각 항목 >= 7
+- 코드 축: 평균 >= 8.0 AND 각 항목 >= 7 AND 1b·5a FAIL 조건 미적중
 - 인프라 축: **BLOCK 0건 AND 미해결 ASK 0건** ([`rp-infra-review.md`](rp-infra-review.md))
 
 최저 미달 시 평균 8.0 이상이어도 **미통과**. 코드 점수와 인프라 등급은 **독립 판정** — 서로의 점수를 조정하지 않는다. 관할 경계(중복 지적·상반 판정) → SSOT [`../harness-infra-review.md`](../harness-infra-review.md) "관할 경계".
