@@ -13,7 +13,7 @@ jobs:
       - name: Check markdown files exist
         run: |
           echo "Checking required files..."
-          for f in CLAUDE.md README.md AGENTS.md docs/harness-absolute-rules.md docs/harness-workflow.md docs/harness-dev.md docs/harness-qa.md docs/harness-ship.md docs/harness-code-review.md docs/harness-infra-review.md; do
+          for f in CLAUDE.md README.md AGENTS.md docs/harness-absolute-rules.md docs/harness-workflow.md docs/harness-dev.md docs/harness-qa.md docs/harness-ship.md docs/harness-code-review.md docs/harness-infra-review.md docs/harness-trust-boundary.md; do
             if [ ! -f "$f" ]; then
               echo "❌ Missing: $f"
               exit 1

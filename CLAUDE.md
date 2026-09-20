@@ -151,7 +151,7 @@ workflow-agent-harness/
 - **⛔ auto-memory 시스템 비활성** — `~/.claude/projects/<proj>/memory/` 읽기·쓰기 금지, 사용자 "기억해" 요청 시 CLAUDE.md 직접 추가. 상세: SSOT §메모리 시스템 비활성
 
 **코드리뷰 상세:** [`harness-code-review.md`](docs/harness-code-review.md) — 점수 상한 규칙: 1a 동시성 · 1b 프록시 self-invocation · 5a 파라미터 위변조
-**신뢰 경계 판정:** [`harness-trust-boundary.md`](docs/harness-trust-boundary.md) — 5a SSOT. 노출 등급 E/I/A · `TRUST-BOUNDARY` 증거 · fail-closed · 판정표 7행
+**신뢰 경계 판정:** [`harness-trust-boundary.md`](docs/harness-trust-boundary.md) — 5a SSOT. 노출 등급 E/I/A · `TRUST-BOUNDARY` 증거 · fail-closed · 판정표
 **인프라 리뷰 상세:** [`harness-infra-review.md`](docs/harness-infra-review.md) — SQL(방언·실행계획·타입 정밀도·대량 쓰기)·Redis·비동기 점유·직렬화 호환·배포 전략/pub-sub
 **디자인 원칙:** [`harness-design.md`](docs/harness-design.md)
 **README 규칙:** [`harness-readme.md`](docs/harness-readme.md)
