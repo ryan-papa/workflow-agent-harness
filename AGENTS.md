@@ -48,6 +48,7 @@
 - [`docs/harness-dev.md`](./docs/harness-dev.md)
 - [`docs/harness-code-review.md`](./docs/harness-code-review.md)
 - [`docs/harness-infra-review.md`](./docs/harness-infra-review.md)
+- [`docs/harness-trust-boundary.md`](./docs/harness-trust-boundary.md)
 - [`docs/harness-ship.md`](./docs/harness-ship.md)
 
 우선순위:
