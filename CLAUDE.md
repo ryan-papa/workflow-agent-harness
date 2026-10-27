@@ -102,6 +102,7 @@ workflow-agent-harness/
 ├── .gitignore
 ├── .codex/skills/             # Codex용 프로젝트 로컬 rp-* 스킬
 ├── AGENTS.md                  # Codex용 하네스 어댑터
+├── DB-GUIDE.md                # DB 연결 가이드 (절대 규칙은 SSOT §DB 파괴적 작업 금지)
 └── CLAUDE.md
 ```
 
@@ -150,6 +151,7 @@ workflow-agent-harness/
 **⛔ 하네스 절대 규칙:** [`docs/harness-absolute-rules.md`](docs/harness-absolute-rules.md) (SSOT, 예외 없음)
 - **⛔ CI 통과 전 `gh pr merge` 호출 자체 금지** — 가드 (a) 3단계(`gh pr checks --watch` + 재호출 exit 0 + pending/queued/in_progress/fail 0건) 모두 통과 전 머지 명령 실행 금지. `--auto`/`--admin`/`--no-verify` 전면 금지. 위반 시 즉시 revert + 배포 취소 + 회고 노트 의무. 사례: museum-finder PR #274 r1 / #294 / #225 / #296. 상세: SSOT §배포·머지·브랜치 + [`harness-ship.md`](docs/harness-ship.md) §CI 정책
 - **⛔ 인프라 재기동(colima·k3s·노드 reboot 등)은 사용자 명시 허락 필수** — 상세: SSOT §인프라 재기동·다운타임 작업 + 레포별 정책 (`repositories/mac-mini-infra/CLAUDE.md` §⛔ 인프라 재기동 결정)
+- **⛔ DB 파괴적 작업 금지** — `DROP`·`DELETE FROM`·`TRUNCATE` 실행 금지, `DROP COLUMN` 은 관리자 승인 필수. Bash·MCP DB 도구(`pg_query` 등) 전 경로 적용. 상세: SSOT §DB 파괴적 작업 금지
 - **⛔ auto-memory 시스템 비활성** — `~/.claude/projects/<proj>/memory/` 읽기·쓰기 금지, 사용자 "기억해" 요청 시 CLAUDE.md 직접 추가. 상세: SSOT §메모리 시스템 비활성
 
 **코드리뷰 상세:** [`harness-code-review.md`](docs/harness-code-review.md) — 점수 상한 규칙: 1a 동시성 · 1b 프록시 self-invocation (5a 는 참고 항목)

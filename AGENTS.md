@@ -166,6 +166,7 @@ Codex-Lead Mode의 리뷰 결과에는 독립성을 명시한다.
 - 테스트 통과를 QA 대체로 기록하지 않음
 - 실제 수행하지 않은 CI, PR, deploy, ship 단계를 완료로 기록하지 않음
 - "리뷰 3"을 같은 관점의 반복 채점으로 재정의하지 않음
+- DB `DROP`·`DELETE FROM`·`TRUNCATE` 실행 금지 → [`docs/harness-absolute-rules.md`](./docs/harness-absolute-rules.md) §DB 파괴적 작업 금지
 
 ## 응답 언어
 
