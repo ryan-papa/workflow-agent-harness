@@ -27,7 +27,7 @@
 | 원칙 | 핵심 | 반례 |
 |------|------|------|
 | Think | 가정 명시, 모호하면 질문 | 묵시적 가정으로 진행 |
-| Simplicity | 요청한 최소 코드만 | 요청 없는 추상화·옵션·예외처리 |
+| Simplicity | 요청한 최소 코드만 | 요청 없는 추상화·옵션·예외처리 (변경 범위 내 반복 로직의 추출은 제외 → [`harness-dev.md`](docs/harness-dev.md) "코드 작성 참고") |
 | Surgical | 요청한 줄만 수정 | 인접 코드 "개선"·재포맷·무관 리팩터 |
 
 리뷰 감점: 위반 시 Think → 1 정확성 -1, Simplicity → 2 설계 -1, Surgical → 7 유지보수성 -1 ([`docs/harness-code-review.md`](docs/harness-code-review.md) "특수 규칙" 표 참조)
