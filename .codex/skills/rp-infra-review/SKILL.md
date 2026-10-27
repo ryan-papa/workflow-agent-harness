@@ -81,6 +81,7 @@ description: "[9-인프라] 인프라 리뷰. 코드 리뷰와 병렬 실행. BL
 - [9] 카운터는 **코드 축과 공통 5회**, **사이클 단위** 소비 (한 사이클에서 어느 축이든 1개 이상 재실행하면 1회)
 - ASK 발생 자체는 **미소비**. ASK 후 코드 수정하여 재실행하면 그 사이클이 1회 소비
 - 조건부 재검증(코드 축 수정이 인프라 영역을 건드려 재실행)은 **소비 없음**, 같은 사이클 내 연쇄 재검증 금지
+- 재리뷰 범위 → SSOT [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "재리뷰 범위".
 - 기술 실패 재호출은 별도 카운트 — SSOT [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "재시도 한도"
 
 ## 지적 후처리
