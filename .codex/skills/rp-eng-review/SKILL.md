@@ -35,7 +35,7 @@ description: "[5] 엔지 리뷰. 진입 런타임 서브에이전트가 5항목 
 
 ## 절차 (양 모드 공통)
 
-1. **서브에이전트 병렬 발사** (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent`): [4]·[5] 두 서브에이전트를 **동일 메시지에서 동시 발사**, 컨텍스트 미공유 독립 판정. 메인 셀프 채점 **금지**. 프롬프트 4 필수 항목 (a)~(d) → SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) PRD + CLAUDE.md·harness-db.md 참고 (b) 5항목 (c)·(d) SSOT 그대로
+1. **서브에이전트 병렬 발사** (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent`): [4]·[5] 두 서브에이전트를 **동일 메시지에서 동시 발사**, 컨텍스트 미공유 독립 판정. 메인 셀프 채점 **금지**. 프롬프트 5 필수 항목 (a)~(e) → SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) PRD + CLAUDE.md·harness-db.md 참고 (b) 5항목 (c)·(d)·(e) SSOT 그대로 — 출력 마지막 줄 `목표 정합:`
    - **Codex-Lead 대칭**: `spawn_agent` 동시 발사 불가 환경이면 **순차 fallback 허용** — 판정 규칙·통과 조건 동일
 2. **판정**: 서브에이전트 결과만으로 판정
 3. **결과 처리**: 별도 파일 저장 없음. 점수·지적은 인-메모리에서 PRD 본문에 반영
