@@ -164,16 +164,7 @@ upd_ts  TIMESTAMPTZ NOT NULL DEFAULT NOW()  -- 트리거로 자동 갱신
 
 ## 하네스 DB 절대 규칙 (예외 없음)
 
-| 규칙 | 설명 |
-|------|------|
-| **DB/스키마/테이블 삭제 금지** | 기존 생성된 DATABASE, SCHEMA, TABLE은 **절대 DROP하지 않는다** |
-| **DELETE 실행 금지** | `DELETE FROM` 문은 하네스가 실행하지 않는다 — 관리자가 직접 수행 |
-| **TRUNCATE 실행 금지** | `TRUNCATE TABLE` 문은 하네스가 실행하지 않는다 — 관리자가 직접 수행 |
-| **DROP 실행 금지** | `DROP DATABASE`, `DROP TABLE`, `DROP INDEX` 등 모든 DROP 문 실행 금지 |
-| **ALTER 주의** | 컬럼 삭제(`DROP COLUMN`)는 관리자 승인 필수. 컬럼 추가는 허용 |
-
-> 데이터 삭제가 필요한 경우 관리자에게 요청하고, 관리자가 직접 CLI에서 실행한다.
-> "급해서", "테스트 데이터라서" 등 어떤 이유로도 예외 불가.
+`DROP`·`DELETE FROM`·`TRUNCATE` 실행 금지, `DROP COLUMN` 관리자 승인 필수 → SSOT [`docs/harness-absolute-rules.md`](docs/harness-absolute-rules.md) §DB 파괴적 작업 금지
 
 ## 주의사항
 
