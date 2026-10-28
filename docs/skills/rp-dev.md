@@ -66,4 +66,4 @@ argument-hint: '[태스크 ID 또는 범위]'
 
 전체 태스크 완료 즉시 `✓ [7] 개발 완료` 출력 후 **`/rp-qa` 자동 진입**.
 
-→ 개발 상세: [`../harness-dev.md`](../harness-dev.md)
+→ 개발 상세: [`../harness-dev.md`](../harness-dev.md) (코드 작성 참고: 반복 로직은 추출 권장 · 파라미터로 합치기는 지양 — §코드 작성 참고)
