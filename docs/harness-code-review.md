@@ -134,9 +134,9 @@
 
 **참고 항목**: 5a 적중은 코멘트로만 남기며 **점수 상한·통과 조건에 영향 없음**. **5a 적중만을 이유로 보안 항목 감점 금지** — 5a 밖 일반 보안 기준(인젝션·시크릿 등) 감점은 종전대로. 행 목록·등급별 적용·중요도는 SSOT 단독 보유.
 
-> **판단 질문 (참고 — 감점 근거 아님):** 신뢰 경계 바깥에서 모든 파라미터를 임의 값으로 바꿔 보내도 타인 리소스 접근·권한 상승·금액 조작이 불가능한가? (I 등급은 lateral movement 기준 — [`harness-trust-boundary.md`](harness-trust-boundary.md) §4)
+> **판단 질문 (참고 — 감점 근거 아님):** 신뢰 경계 바깥에서 모든 파라미터를 임의 값으로 바꿔 보내도 타인 리소스 접근·권한 상승·금액 조작이 불가능한가? (I 등급은 lateral movement 기준 — [`harness-trust-boundary.md`](harness-trust-boundary.md) §3)
 
-**N/A**: 인증 불요 공개 리소스, 또는 요청 주체·권한 개념 자체가 없는 변경 — 리뷰 본문에 "5a N/A: <이유>" 1줄 기록 후 skip. I 등급과의 구분 → [`harness-trust-boundary.md`](harness-trust-boundary.md) §5.
+**N/A**: 인증 불요 공개 리소스, 또는 요청 주체·권한 개념 자체가 없는 변경 — 리뷰 본문에 "5a N/A: <이유>" 1줄 기록 후 skip → [`harness-trust-boundary.md`](harness-trust-boundary.md) §4.
 
 ### 6. 성능 및 효율성 (Performance)
 
