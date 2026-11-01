@@ -47,7 +47,7 @@ argument-hint: '[프로젝트·기능 설명]'
 - 진입: `▶ [N] 단계명...`
 - 완료: `✓ [N] 단계명 완료`
 - 실패: `✗ [N] 단계명 실패 — [사유]`
-- 토큰: 진입 시 `python3 scripts/token-usage.py --start N`, 완료 줄 다음 토큰 1줄 → SSOT [`../harness-workflow.md`](../harness-workflow.md) "단계 토큰 출력"
+- 토큰: 진입 시 `python3 scripts/token-usage.py --start N`, 완료 줄 다음 토큰 1줄 (두 호출을 같은 메시지 병렬 호출로 묶지 않음) → SSOT [`../harness-workflow.md`](../harness-workflow.md) "단계 토큰 출력"
 
 ## 규칙
 
