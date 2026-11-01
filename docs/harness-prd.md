@@ -107,6 +107,8 @@ Doc Agent 작성 완료
 다음 단계 자동 진입
 ```
 
+**리뷰 범위**: PRD 변경분(base 대비 diff, 신규 파일이면 전체) + 영향 범위 중심 — SSOT: [`harness-absolute-rules.md`](harness-absolute-rules.md) "최초 리뷰 범위 (변경 중심)".
+
 한 축만 미달이면 **미달 축만 재실행**(축별 독립 카운터 3회). 수정이 상대 관점 영역을 건드리거나 PRD 전면 개작 시 통과한 축도 재검증 — SSOT: [`harness-absolute-rules.md`](harness-absolute-rules.md) "리뷰 단계 = 관점 분리".
 
 **⛔ 실행 주체**: 각 리뷰 단계는 **반드시 메인 런타임의 서브에이전트(Claude-Lead=Agent 툴 / Codex-Lead=`spawn_agent`)** 가 수행한다. 메인 에이전트의 셀프 채점 금지. SSOT: [`harness-absolute-rules.md`](harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".

@@ -44,6 +44,7 @@ workflow-agent-harness/
 ├── .claude/commands/                  # Claude Code 슬래시 명령 (rp-* 심링크)
 ├── .codex/skills/                     # Codex CLI 로컬 스킬 변환본
 ├── scripts/sync-codex-skills.py       # 스킬 변환·동기화
+├── scripts/token-usage.py             # 단계별 토큰 1줄 출력
 ├── AGENTS.md                          # Codex용 하네스 어댑터
 ├── CLAUDE.md                          # Claude Code 진입점
 └── README.md
@@ -65,7 +66,7 @@ workflow-agent-harness/
 | 8 | QA | 시나리오 테스트 + 콘텐츠 검수 |
 | 9 | 코드 리뷰 ∥ 인프라 리뷰 | 코드 축 7항목 채점 + **인프라 축 병렬**(SQL·Redis·비동기·직렬화·배포, BLOCK/ASK/WARN 무점수). 공통 최대 5회 |
 | 10 | 산출물 보고 | 결과 정리 + 자동 진입 |
-| 11 | 배포 (`rp-ship`) | PR 생성 → CI → 자동 머지 가드 3종 → 머지 → 배포 |
+| 11 | 배포 (`rp-ship`) | PR 생성(신규 시 `rp-pr-review` 독립 리뷰 1회, 출력만) → CI → 자동 머지 가드 3종 → 머지 → 배포 |
 | 12 | 회고 | 절차 준수·효율·규칙 개선 평가 (**사용자 명령 시에만**) |
 
 각 단계 완료 시 다음 단계 자동 진입. 기본 경로는 배포[11] 자동 머지 가드 실패 시 중단·보고하고, 회고[12]는 자동 진입하지 않는다.
