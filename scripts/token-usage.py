@@ -84,26 +84,29 @@ def claude_usage(root: Path, session_id: str) -> tuple[str, dict[str, int]]:
     return stage, totals
 
 
-def codex_session(root: Path, cwd: str) -> Path:
-    """Main rollout whose cwd contains the current cwd; newest first, deeper cwd breaks ties."""
+def codex_session(root: Path, cwd: str, harness_root: Path) -> Path:
+    """Main rollout under the harness root whose cwd contains the current cwd; newest first, deeper cwd breaks ties."""
     here = Path(os.path.realpath(cwd))
+    top = Path(os.path.realpath(harness_root))
     candidates = []
-    for path in root.rglob("rollout-*.jsonl"):
+    for mtime, path in sorted(((p.stat().st_mtime, p) for p in root.rglob("rollout-*.jsonl")), reverse=True):
+        if candidates and mtime < candidates[0][0]:
+            break
         first = next(read_jsonl(path), {})
         meta = first.get("payload", {}) if first.get("type") == "session_meta" else {}
         source = meta.get("source")
         if not meta.get("cwd") or (isinstance(source, dict) and "subagent" in source):
             continue
         session_cwd = Path(os.path.realpath(meta["cwd"]))
-        if here.is_relative_to(session_cwd):
-            candidates.append((path.stat().st_mtime, len(session_cwd.parts), path))
+        if session_cwd.is_relative_to(top) and here.is_relative_to(session_cwd):
+            candidates.append((mtime, len(session_cwd.parts), path))
     if not candidates:
         raise Fail("세션 식별 불가")
     return max(candidates)[2]
 
 
-def codex_usage(root: Path, cwd: str) -> tuple[str, dict[str, int]]:
-    path = codex_session(root, cwd)
+def codex_usage(root: Path, cwd: str, harness_root: Path) -> tuple[str, dict[str, int]]:
+    path = codex_session(root, cwd, harness_root)
 
     stage, base, total = None, {}, {}
     for row in read_jsonl(path):
@@ -177,20 +180,28 @@ def self_test() -> None:
         write_jsonl(croot / "2026" / "rollout-child.jsonl", [meta("/w", {"subagent": "review"})])
         write_jsonl(croot / "2026" / "rollout-wx.jsonl", [meta("/wx")])
         write_jsonl(croot / "2026" / "rollout-root.jsonl", [meta("/")])
-        for name, age in (("root", 30), ("x", 20), ("wx", 10), ("child", 0)):
+        write_jsonl(croot / "2026" / "rollout-sub.jsonl", [meta("/w/sub")])
+        write_jsonl(croot / "2026" / "rollout-old.jsonl", [meta("/w")])
+        ages = {"old": 100, "x": 20, "sub": 20, "wx": 10, "root": 5, "child": 0}
+        for name, age in ages.items():
             ts = 1_700_000_000 - age
             os.utime(croot / "2026" / f"rollout-{name}.jsonl", (ts, ts))
-        stage, totals = codex_usage(croot, "/w")
+        home = Path("/w")
+        stage, totals = codex_usage(croot, "/w", home)  # newer root("/")·child·wx skipped
         assert (stage, totals) == ("5", {"in": 60, "out": 15, "cache_r": 30}), (stage, totals)
-        assert codex_session(croot, "/w/sub/repo").name == "rollout-x.jsonl"
-        assert codex_session(croot, "/elsewhere").name == "rollout-root.jsonl"
-        os.utime(croot / "2026" / "rollout-root.jsonl", (1_700_000_100, 1_700_000_100))
-        assert codex_session(croot, "/w").name == "rollout-root.jsonl"  # newest wins over deeper cwd
+        assert codex_session(croot, "/w/sub/repo", home).name == "rollout-sub.jsonl"  # same mtime: deeper wins
+        os.utime(croot / "2026" / "rollout-x.jsonl", (1_700_000_001, 1_700_000_001))
+        assert codex_session(croot, "/w/sub/repo", home).name == "rollout-x.jsonl"  # newest wins over deeper
+        eroot = Path(tmp) / "early"
+        write_jsonl(eroot / "rollout-new.jsonl", [meta("/w")])
+        write_jsonl(eroot / "rollout-poison.jsonl", [meta(123)])  # parsing it raises: proves early exit
+        os.utime(eroot / "rollout-poison.jsonl", (1_600_000_000, 1_600_000_000))
+        assert codex_session(eroot, "/w", home).name == "rollout-new.jsonl"
         assert re.fullmatch(LABEL, "9") and not re.fullmatch(LABEL, "9-코드")
         assert not START.findall("python3 scripts/token-usage.py --start 9-코드")
         assert format_line(stage, totals, True) == "토큰 [5]: in 60 · out 15 · cache_r 30 · cache_w n/a (메인만)"
 
-        for fn, args in ((claude_usage, (root, "none")), (codex_usage, (Path(tmp) / "empty", "/w"))):
+        for fn, args in ((claude_usage, (root, "none")), (codex_usage, (croot, "/elsewhere", home)), (codex_usage, (croot, "/", home))):
             try:
                 fn(*args)
                 raise AssertionError(f"{fn.__name__} should fail")
@@ -223,7 +234,7 @@ def main() -> int:
                 raise Fail("세션 식별 불가")
             stage, totals = claude_usage(CLAUDE_ROOT, session_id)
         else:
-            stage, totals = codex_usage(CODEX_ROOT, os.getcwd())
+            stage, totals = codex_usage(CODEX_ROOT, os.getcwd(), Path(__file__).resolve().parents[1])
     except Fail as exc:
         print(f"토큰: 집계 실패 — {exc}")
         return 1
