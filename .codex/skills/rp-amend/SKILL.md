@@ -56,6 +56,10 @@ description: "기존 프로젝트 기능 수정·추가. Lite 판별 후 Full am
 4. Lite 판별 통과 시 Lite track으로 라우팅, 실패 시 `/rp-specify`부터 Full amend 순차 실행
 5. 이후 단계는 각 스킬 파일 절차에 따름
 
+## 상태 메시지·토큰
+
+[`rp-workflow.md`](rp-workflow.md) "상태 메시지" 와 동일 (단계 토큰 1줄 포함).
+
 ## 자동 전환
 
 각 단계 완료 시 다음 스킬로 자동 진입. 산출물 보고 후 `rp-ship`이 기본 경로로 이어지고 자동 머지 가드 실패 시에만 중단·보고한다.

@@ -34,6 +34,8 @@
 
 **상태 메시지:** 진입 `▶ [N] 단계명...`, 완료 `✓ [N] 단계명 완료`
 
+**단계 토큰 출력:** 단계 진입 시 `python3 scripts/token-usage.py --start N` **단독 호출**(N 은 숫자 시작 ASCII 라벨, 예: `9`. 보고 호출과 한 명령으로 묶지 않는다. **의무** — 토큰 집계 경계. transcript 가 assistant 텍스트를 전부 보존하지 않아 tool 호출을 경계로 쓴다). 완료 시 `✓ [N]` 다음 줄에 `python3 scripts/token-usage.py` 출력 1줄을 그대로 붙인다 — `토큰 [N]: in X · out Y · cache_r Z · cache_w W`. 경계 이후 메인+서브에이전트 합산(병렬 2축은 경계 1개), Codex 는 `(메인만)`·`cache_w n/a`. **파일 저장 없음, 추정치 금지** — 실패 시 `토큰: 집계 실패 — <사유 코드>`. 회귀 확인 `--self-test`
+
 **스킬 인덱스:**
 
 | # | 단계 | 스킬 파일 |

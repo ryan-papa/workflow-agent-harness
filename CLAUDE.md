@@ -11,7 +11,8 @@
 - 추론한 가정은 첫 질문 직전(질문 0개면 작업 시작 전) 1회 목록으로 **통지** — 확인 질문 아님, 응답 대기 없이 진행. 사용자 정정 시 그 시점에 반영
 - **질문은 1개씩 대화형으로 진행** (한번에 모아서 제시 금지)
 - 각 질문마다 객관식 4개 제공
-- 각 선택지에 추천 점수 표기 (10점 만점)
+- 각 선택지에 추천 점수 표기 (10점 만점, **0.5점 단위**)
+- **자동 선택:** 1위 ≥ **9.5** + 단독 1위면 질문 생략·자동 선택 → `Qn 자동 선택(점수): <선택지>` 1줄 **통지**(응답 대기 없음, 사용자 정정 시 반영). PRD에 `자동 선택(점수):` 접두로 기록 — 질문 미생성 추론은 `가정:` 으로 구분. 공동 1위면 질문
 - 최고 점수 항목에 "★ 추천" 표시
 - **선택지는 추천 점수 내림차순 정렬** — ★ 추천이 1번
 - 주관식 답변 항목 별도 제공 (항상 마지막 번호)
@@ -20,10 +21,10 @@
 
 **질문 형식 예시:**
 > Q1. [질문 내용]
-> 1. 선택지 1 — 9/10 ★ 추천
-> 2. 선택지 2 — 7/10
-> 3. 선택지 3 — 6/10
-> 4. 선택지 4 — 5/10
+> 1. 선택지 1 — 9.0/10 ★ 추천
+> 2. 선택지 2 — 7.5/10
+> 3. 선택지 3 — 6.0/10
+> 4. 선택지 4 — 5.0/10
 > 5. 직접 입력: ___
 
 ## Coding Principles
@@ -46,7 +47,7 @@
 | 초과 시 | **역할/책임 단위로 파일 분리**. 텍스트 압축이 아닌 영역 분리 — SSOT가 쪼개져 참조가 흩어지지 않는 경계를 택한다 |
 | 코드 | 코드 직접 작성 금지, 파일 링크 참조로 대체 |
 | **자동 정합성** | docs/ 변경 시 서브에이전트가 CLAUDE.md 트리+링크 자동 동기화 (사용자에게 변경 요약만 출력) |
-| **하네스 동기화** | 하네스 문서(원본) 변경 시 관련 스킬(`docs/skills/`) + CLAUDE.md를 즉시 갱신. **예외**: `rp-workflow`·`rp-amend`(오케스트레이터)·`rp-init`·`rp-specify`·`rp-retro`는 스킬-단독 운영(원본 `harness-*.md` 없음) — 스킬 파일이 SSOT |
+| **하네스 동기화** | 하네스 문서(원본) 변경 시 관련 스킬(`docs/skills/`) + CLAUDE.md를 즉시 갱신. **예외**: `rp-workflow`·`rp-amend`(오케스트레이터)·`rp-init`·`rp-specify`·`rp-retro`·`rp-pr-review`는 스킬-단독 운영(원본 `harness-*.md` 없음) — 스킬 파일이 SSOT |
 | **⛔ 민감 정보 금지** | 다음 정보는 **어떠한 문서·커밋 메시지에도 작성 금지**: (1) 인프라 — 호스트·계정명·포트·인증서 경로·내부 IP, (2) 개인 식별 정보 — 실명·개인 이메일·개인 연락처·SNS ID, (3) 시크릿 — 비밀번호·API 키·토큰·개인키. 환경변수 참조(`$DB_HOST`)로 대체하고 실제 값은 "관리자에게 별도 문의"로 안내. 공개키는 안전하지만 프로파일링 방지 위해 로컬 파일(`.gitignore`)에 분리 |
 
 ## Project Structure
@@ -96,6 +97,7 @@ workflow-agent-harness/
 │       ├── rp-code-review.md   # [9-코드] 코드 리뷰
 │       ├── rp-infra-review.md  # [9-인프라] 인프라 리뷰 (코드 리뷰와 병렬)
 │       ├── rp-ship.md          # [11] 커밋→PR→배포
+│       ├── rp-pr-review.md     # [11] 신규 PR 독립 리뷰 1회 (출력만)
 │       └── rp-retro.md         # [12] 회고
 ├── repositories/               # 프로젝트별 레포 (git 제외)
 │   └── [project]/
@@ -131,7 +133,7 @@ workflow-agent-harness/
 | 8 | `rp-qa` | QA / 콘텐츠 검수 | [`harness-qa.md`](docs/harness-qa.md) |
 | 9 | `rp-code-review` ∥ `rp-infra-review` | **코드 리뷰(7항목 점수제) ∥ 인프라 리뷰(SQL·Redis·비동기·직렬화·배포, 무점수 BLOCK/ASK/WARN)** 병렬. 공통 **최대 5회** | [`harness-code-review.md`](docs/harness-code-review.md) · [`harness-infra-review.md`](docs/harness-infra-review.md) |
 | 10 | — | 산출물 보고 → 커밋·PR 자동 진행 | [`harness-ship.md`](docs/harness-ship.md) |
-| 11 | `rp-ship` | 커밋 → PR → CI → 머지 → 배포 | [`harness-ship.md`](docs/harness-ship.md) |
+| 11 | `rp-ship` | 커밋 → PR(신규 시 `rp-pr-review` 1회, 출력만) → CI → 머지 → 배포 | [`harness-ship.md`](docs/harness-ship.md) |
 | 12 | `rp-retro` | 회고 (절차 준수 + 효율성 + 규칙 개선) | [`rp-retro.md`](docs/skills/rp-retro.md) |
 
 **메인 셀프 리뷰 절대 금지:** 4·5·9 단계 모두 메인 런타임의 서브에이전트(Claude-Lead=Agent 툴 / Codex-Lead=`spawn_agent`)가 채점. 재시도는 **[4]·[5] 최대 3회(축별 독립) / [9] 최대 5회(코드+인프라 공통, 사이클 단위)**, 한도 미달 시 자동 중단 + 사용자 결정 요청.
@@ -147,6 +149,8 @@ workflow-agent-harness/
 - 구체화 완료 → PRD 작성 자동 진입 (확인 질문 금지)
 - PRD 완료 → 기획 리뷰 자동 진입
 - 각 단계 완료 시 "다음 단계로 갈까요?" 질문 금지 — 바로 진행
+
+**단계 토큰 출력:** 진입 `token-usage.py --start N`, 완료 `✓ [N]` 다음 줄에 토큰 1줄 → [`harness-workflow.md`](docs/harness-workflow.md) "단계 토큰 출력"
 
 **스킬 위치:** [`docs/skills/`](docs/skills/)
 
