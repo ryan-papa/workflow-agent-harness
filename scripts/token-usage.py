@@ -72,26 +72,38 @@ def claude_usage(root: Path, session_id: str) -> tuple[str, dict[str, int]]:
     # Same message.id repeats per content block; the last non-zero usage wins.
     by_id: dict[str, dict] = {}
     for path in [main, *sorted((main.parent / session_id / "subagents").glob("*.jsonl"))]:
-        for row in read_jsonl(path):
+        for lineno, row in enumerate(read_jsonl(path)):
             if row.get("type") != "assistant" or row.get("timestamp", "") < start:
                 continue
             message = row.get("message", {})
             usage = message.get("usage") or {}
             if not any(usage.get(key) for key in CLAUDE_KEYS.values()):
                 continue
-            by_id[f"{path.name}:{message.get('id')}"] = usage
+            by_id[f"{path.name}:{message.get('id') or row.get('uuid') or lineno}"] = usage
     totals = {label: sum(u.get(key, 0) for u in by_id.values()) for label, key in CLAUDE_KEYS.items()}
     return stage, totals
 
 
-def codex_usage(root: Path, cwd: str) -> tuple[str, dict[str, int]]:
-    rollouts = sorted(root.rglob("rollout-*.jsonl"), key=lambda p: p.stat().st_mtime, reverse=True)
-    for path in rollouts:
+def codex_session(root: Path, cwd: str) -> Path:
+    """Main rollout whose cwd contains the current cwd; newest first, deeper cwd breaks ties."""
+    here = Path(os.path.realpath(cwd))
+    candidates = []
+    for path in root.rglob("rollout-*.jsonl"):
         first = next(read_jsonl(path), {})
-        if first.get("type") == "session_meta" and first.get("payload", {}).get("cwd") == cwd:
-            break
-    else:
+        meta = first.get("payload", {}) if first.get("type") == "session_meta" else {}
+        source = meta.get("source")
+        if not meta.get("cwd") or (isinstance(source, dict) and "subagent" in source):
+            continue
+        session_cwd = Path(os.path.realpath(meta["cwd"]))
+        if here.is_relative_to(session_cwd):
+            candidates.append((path.stat().st_mtime, len(session_cwd.parts), path))
+    if not candidates:
         raise Fail("세션 식별 불가")
+    return max(candidates)[2]
+
+
+def codex_usage(root: Path, cwd: str) -> tuple[str, dict[str, int]]:
+    path = codex_session(root, cwd)
 
     stage, base, total = None, {}, {}
     for row in read_jsonl(path):
@@ -132,6 +144,10 @@ def self_test() -> None:
         root = Path(tmp) / "claude"
         write_jsonl(root / "proj" / "sid.jsonl", [
             {"type": "user", "timestamp": "T05", "message": {"content": "python3 scripts/token-usage.py --start 9"}},
+            {"type": "assistant", "timestamp": "T06", "uuid": "u1", "message": {"content": [], "usage": {"output_tokens": 4}}},
+            {"type": "assistant", "timestamp": "T06", "uuid": "u2", "message": {"content": [], "usage": {"output_tokens": 6}}},
+            {"type": "assistant", "timestamp": "T06", "message": {"content": [], "usage": {"output_tokens": 1}}},
+            {"type": "assistant", "timestamp": "T06", "message": {"content": [], "usage": {"output_tokens": 1}}},
             asst("T01", "m0", "python3 scripts/token-usage.py --start 3", input_tokens=100, output_tokens=100),
             asst("T02", "m1", "make && python3 scripts/token-usage.py --start 4b", input_tokens=0, output_tokens=0),
             asst("T02", "m1", "", input_tokens=10, output_tokens=5, cache_read_input_tokens=7),
@@ -145,7 +161,7 @@ def self_test() -> None:
         ])
         stage, totals = claude_usage(root, "sid")
         assert stage == "4b", stage
-        assert totals == {"in": 31, "out": 7, "cache_r": 7, "cache_w": 3}, totals
+        assert totals == {"in": 31, "out": 19, "cache_r": 7, "cache_w": 3}, totals
 
         croot = Path(tmp) / "codex"
         tc = lambda i, o, c: {"type": "event_msg", "payload": {"type": "token_count", "info": {
@@ -157,13 +173,24 @@ def self_test() -> None:
                 "arguments": json.dumps({"cmd": "python3 scripts/token-usage.py --start 5"})}},
             tc(160, 25, 80),
         ])
+        meta = lambda cwd, source="cli": {"type": "session_meta", "payload": {"cwd": cwd, "source": source}}
+        write_jsonl(croot / "2026" / "rollout-child.jsonl", [meta("/w", {"subagent": "review"})])
+        write_jsonl(croot / "2026" / "rollout-wx.jsonl", [meta("/wx")])
+        write_jsonl(croot / "2026" / "rollout-root.jsonl", [meta("/")])
+        for name, age in (("root", 30), ("x", 20), ("wx", 10), ("child", 0)):
+            ts = 1_700_000_000 - age
+            os.utime(croot / "2026" / f"rollout-{name}.jsonl", (ts, ts))
         stage, totals = codex_usage(croot, "/w")
         assert (stage, totals) == ("5", {"in": 60, "out": 15, "cache_r": 30}), (stage, totals)
+        assert codex_session(croot, "/w/sub/repo").name == "rollout-x.jsonl"
+        assert codex_session(croot, "/elsewhere").name == "rollout-root.jsonl"
+        os.utime(croot / "2026" / "rollout-root.jsonl", (1_700_000_100, 1_700_000_100))
+        assert codex_session(croot, "/w").name == "rollout-root.jsonl"  # newest wins over deeper cwd
         assert re.fullmatch(LABEL, "9") and not re.fullmatch(LABEL, "9-코드")
         assert not START.findall("python3 scripts/token-usage.py --start 9-코드")
         assert format_line(stage, totals, True) == "토큰 [5]: in 60 · out 15 · cache_r 30 · cache_w n/a (메인만)"
 
-        for fn, args in ((claude_usage, (root, "none")), (codex_usage, (croot, "/other"))):
+        for fn, args in ((claude_usage, (root, "none")), (codex_usage, (Path(tmp) / "empty", "/w"))):
             try:
                 fn(*args)
                 raise AssertionError(f"{fn.__name__} should fail")
