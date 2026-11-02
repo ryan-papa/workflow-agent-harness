@@ -37,20 +37,31 @@ def start_stage(command: str) -> str | None:
     return found[-1] if found else None
 
 
+def obj(value) -> dict:
+    """Malformed transcript fields degrade to {} instead of raising."""
+    return value if isinstance(value, dict) else {}
+
+
+def num(value) -> int:
+    return value if isinstance(value, int) and not isinstance(value, bool) else 0
+
+
 def read_jsonl(path: Path):
     with path.open(encoding="utf-8") as fh:
         for line in fh:
             try:
-                yield json.loads(line)
+                row = json.loads(line)
             except json.JSONDecodeError:
                 continue
+            if isinstance(row, dict):
+                yield row
 
 
 def tool_commands(row: dict) -> list[str]:
-    content = row.get("message", {}).get("content")
+    content = obj(row.get("message")).get("content")
     if not isinstance(content, list):
         return []
-    return [str((c.get("input") or {}).get("command", "")) for c in content if c.get("type") == "tool_use"]
+    return [str(obj(c.get("input")).get("command", "")) for c in map(obj, content) if c.get("type") == "tool_use"]
 
 
 def claude_usage(root: Path, session_id: str) -> tuple[str, dict[str, int]]:
@@ -65,7 +76,7 @@ def claude_usage(root: Path, session_id: str) -> tuple[str, dict[str, int]]:
         for command in tool_commands(row):
             found = start_stage(command)
             if found:
-                stage, start = found, row.get("timestamp", "")
+                stage, start = found, str(row.get("timestamp", ""))
     if stage is None:
         raise Fail("경계 없음")
 
@@ -73,14 +84,14 @@ def claude_usage(root: Path, session_id: str) -> tuple[str, dict[str, int]]:
     by_id: dict[str, dict] = {}
     for path in [main, *sorted((main.parent / session_id / "subagents").glob("*.jsonl"))]:
         for lineno, row in enumerate(read_jsonl(path)):
-            if row.get("type") != "assistant" or row.get("timestamp", "") < start:
+            if row.get("type") != "assistant" or str(row.get("timestamp", "")) < start:
                 continue
-            message = row.get("message", {})
-            usage = message.get("usage") or {}
-            if not any(usage.get(key) for key in CLAUDE_KEYS.values()):
+            message = obj(row.get("message"))
+            usage = obj(message.get("usage"))
+            if not any(num(usage.get(key)) for key in CLAUDE_KEYS.values()):
                 continue
             by_id[f"{path.name}:{message.get('id') or row.get('uuid') or lineno}"] = usage
-    totals = {label: sum(u.get(key, 0) for u in by_id.values()) for label, key in CLAUDE_KEYS.items()}
+    totals = {label: sum(num(u.get(key)) for u in by_id.values()) for label, key in CLAUDE_KEYS.items()}
     return stage, totals
 
 
@@ -93,9 +104,11 @@ def codex_session(root: Path, cwd: str, harness_root: Path) -> Path:
         if candidates and mtime < candidates[0][0]:
             break
         first = next(read_jsonl(path), {})
-        meta = first.get("payload", {}) if first.get("type") == "session_meta" else {}
+        meta = obj(first.get("payload")) if first.get("type") == "session_meta" else {}
+        if not isinstance(meta.get("cwd"), str) or not meta["cwd"]:
+            continue
         source = meta.get("source")
-        if not meta.get("cwd") or (isinstance(source, dict) and "subagent" in source):
+        if isinstance(source, dict) and "subagent" in source:
             continue
         session_cwd = Path(os.path.realpath(meta["cwd"]))
         if session_cwd.is_relative_to(top) and here.is_relative_to(session_cwd):
@@ -110,20 +123,20 @@ def codex_usage(root: Path, cwd: str, harness_root: Path) -> tuple[str, dict[str
 
     stage, base, total = None, {}, {}
     for row in read_jsonl(path):
-        payload = row.get("payload", {})
+        payload = obj(row.get("payload"))
         if row.get("type") == "event_msg" and payload.get("type") == "token_count":
-            total = (payload.get("info") or {}).get("total_token_usage") or total
+            total = obj(obj(payload.get("info")).get("total_token_usage")) or total
         elif row.get("type") == "response_item" and payload.get("type") == "function_call":
             try:
-                command = str(json.loads(payload.get("arguments") or "{}").get("cmd", ""))
-            except json.JSONDecodeError:
+                command = str(obj(json.loads(payload.get("arguments") or "{}")).get("cmd", ""))
+            except (json.JSONDecodeError, TypeError):
                 continue
             found = start_stage(command)
             if found:
                 stage, base = found, total
     if stage is None:
         raise Fail("경계 없음")
-    totals = {label: total.get(key, 0) - base.get(key, 0) for label, key in CODEX_KEYS.items()}
+    totals = {label: num(total.get(key)) - num(base.get(key)) for label, key in CODEX_KEYS.items()}
     return stage, totals
 
 
@@ -151,6 +164,10 @@ def self_test() -> None:
             {"type": "assistant", "timestamp": "T06", "uuid": "u2", "message": {"content": [], "usage": {"output_tokens": 6}}},
             {"type": "assistant", "timestamp": "T06", "message": {"content": [], "usage": {"output_tokens": 1}}},
             {"type": "assistant", "timestamp": "T06", "message": {"content": [], "usage": {"output_tokens": 1}}},
+            [1, 2],
+            {"type": "assistant", "timestamp": "T06", "message": "x"},
+            {"type": "assistant", "timestamp": "T06", "uuid": "u3", "message": {"usage": {"output_tokens": "9", "input_tokens": True}}},
+            {"type": "assistant", "timestamp": "T06", "message": {"content": ["x", {"type": "tool_use", "input": "x"}], "usage": "x"}},
             asst("T01", "m0", "python3 scripts/token-usage.py --start 3", input_tokens=100, output_tokens=100),
             asst("T02", "m1", "make && python3 scripts/token-usage.py --start 4b", input_tokens=0, output_tokens=0),
             asst("T02", "m1", "", input_tokens=10, output_tokens=5, cache_read_input_tokens=7),
@@ -174,6 +191,11 @@ def self_test() -> None:
             tc(100, 10, 50),
             {"type": "response_item", "payload": {"type": "function_call",
                 "arguments": json.dumps({"cmd": "python3 scripts/token-usage.py --start 5"})}},
+            "not-a-dict",
+            {"type": "event_msg", "payload": "not-a-dict"},
+            {"type": "event_msg", "payload": {"type": "token_count", "info": "x"}},
+            {"type": "response_item", "payload": {"type": "function_call", "arguments": "[1]"}},
+            {"type": "response_item", "payload": {"type": "function_call", "arguments": 5}},
             tc(160, 25, 80),
         ])
         meta = lambda cwd, source="cli": {"type": "session_meta", "payload": {"cwd": cwd, "source": source}}
@@ -182,7 +204,10 @@ def self_test() -> None:
         write_jsonl(croot / "2026" / "rollout-root.jsonl", [meta("/")])
         write_jsonl(croot / "2026" / "rollout-sub.jsonl", [meta("/w/sub")])
         write_jsonl(croot / "2026" / "rollout-old.jsonl", [meta("/w")])
-        ages = {"old": 100, "x": 20, "sub": 20, "wx": 10, "root": 5, "child": 0}
+        write_jsonl(croot / "2026" / "rollout-bad1.jsonl", [[1, 2]])
+        write_jsonl(croot / "2026" / "rollout-bad2.jsonl", [meta(123)])
+        write_jsonl(croot / "2026" / "rollout-bad3.jsonl", [{"type": "session_meta", "payload": "x"}])
+        ages = {"old": 100, "x": 20, "sub": 20, "wx": 10, "root": 5, "bad1": 3, "bad2": 2, "bad3": 1, "child": 0}
         for name, age in ages.items():
             ts = 1_700_000_000 - age
             os.utime(croot / "2026" / f"rollout-{name}.jsonl", (ts, ts))
@@ -194,9 +219,15 @@ def self_test() -> None:
         assert codex_session(croot, "/w/sub/repo", home).name == "rollout-x.jsonl"  # newest wins over deeper
         eroot = Path(tmp) / "early"
         write_jsonl(eroot / "rollout-new.jsonl", [meta("/w")])
-        write_jsonl(eroot / "rollout-poison.jsonl", [meta(123)])  # parsing it raises: proves early exit
-        os.utime(eroot / "rollout-poison.jsonl", (1_600_000_000, 1_600_000_000))
-        assert codex_session(eroot, "/w", home).name == "rollout-new.jsonl"
+        write_jsonl(eroot / "rollout-older.jsonl", [meta("/w")])
+        os.utime(eroot / "rollout-older.jsonl", (1_600_000_000, 1_600_000_000))
+        real, seen = read_jsonl, []
+        globals()["read_jsonl"] = lambda path: seen.append(path.name) or real(path)
+        try:
+            assert codex_session(eroot, "/w", home).name == "rollout-new.jsonl"
+        finally:
+            globals()["read_jsonl"] = real
+        assert seen == ["rollout-new.jsonl"], seen  # older file never parsed: early exit
         assert re.fullmatch(LABEL, "9") and not re.fullmatch(LABEL, "9-코드")
         assert not START.findall("python3 scripts/token-usage.py --start 9-코드")
         assert format_line(stage, totals, True) == "토큰 [5]: in 60 · out 15 · cache_r 30 · cache_w n/a (메인만)"
