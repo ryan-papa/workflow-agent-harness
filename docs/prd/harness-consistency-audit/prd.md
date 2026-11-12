@@ -56,16 +56,15 @@
 | 파일 | 변경 |
 |------|------|
 | `docs/harness-absolute-rules.md` | 추출 섹션, 워크트리 경로, 메타 경로(대상·QA·인프라 skip), `docs/skills/` 예외 [8]·[9], 결정 기록 위치 |
-| `docs/harness-ship.md` · `docs/skills/rp-ship.md` | 추출 섹션, 열린 질문, 워크트리 제거 경로, 메타 QA 이수 확인 |
+| `docs/harness-ship.md` · `docs/skills/rp-ship.md` | 추출 섹션, 열린 질문, 산출물 보고 지적 처리 표, 워크트리 제거 경로, 메타 QA 이수 확인 |
 | `docs/harness-prd.md` · `docs/skills/rp-prd.md` | 섹션 SSOT 링크, 항목명 정렬, 메타 대상, 기록 위치 링크 |
 | `docs/harness-qa.md` | "하네스 메타" 행, 재검증 플로우 심각도 |
 | `docs/harness-code-review.md` · `docs/skills/rp-code-review.md` · `docs/skills/rp-pr-review.md` | 심각도 SSOT 표·처리 원칙·링크, Low 자동 반영 |
 | `docs/harness-dev.md` · `docs/skills/rp-dev.md` | 재진입 merge 통일 |
-| `docs/harness-workflow.md` · `docs/skills/rp-workflow.md` | 메타 경로 |
+| `docs/skills/rp-workflow.md` | 메타 경로 |
 | `docs/skills/rp-plan-review.md` · `rp-eng-review.md` · `rp-task.md` · `rp-retro.md` · `rp-specify.md` · `docs/prd-template.md` | 전환 분기, 도식, 회고 규칙, 번복 기록 |
 | `AGENTS.md` | 구 규칙 정비, 심각도 링크, 메타 QA |
 | `CLAUDE.md` | 자동 선택 `rp-retro` 예외 링크 |
-| `docs/harness-ship.md` | 산출물 보고 포맷에 리뷰 지적 처리 표 |
 | `docs/skills/rp-qa.md` | 메타 분기 트리거·유형·전환 |
 | `scripts/sync-codex-skills.py` (+ `.codex/skills/*` 15종 재생성) | 상대 링크 재작성 |
 
