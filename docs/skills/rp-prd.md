@@ -60,7 +60,7 @@ PRD(Product Requirements Document) 작성.
 
 ## ▶ 자동 전환
 
-완료 즉시 `✓ [3] PRD 작성 완료` 출력 후 **`/rp-plan-review` 자동 진입** (`docs/skills/` 전용 메타 예외 — 변경 범위가 `docs/skills/` + `.codex/skills/` 동기화분으로 한정될 때 (PRD 산출물 `docs/prd/` 는 판정에서 무시 — 포함돼도 예외 유지): [4]·[5] 스킵 → `/rp-qa` — [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "단축 경로·예외").
+완료 즉시 `✓ [3] PRD 작성 완료` 출력 후 **`/rp-plan-review` 자동 진입** (`docs/skills/` 전용 메타 예외 — 변경 범위가 `docs/skills/` + `.codex/skills/` 동기화분으로 한정될 때 (해당 변경의 PRD 산출물 `docs/prd/[feature]/prd.md` 는 판정에서 무시 — 포함돼도 예외 유지): [4]·[5] 스킵 → `/rp-qa` — [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "단축 경로·예외").
 
 → PRD 상세: [`../harness-prd.md`](../harness-prd.md)
 → 템플릿: [`../prd-template.md`](../prd-template.md)
