@@ -8,7 +8,7 @@ description: "[1] 프로젝트 초기화. CLAUDE.md·README.md·PRD 디렉터리
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -38,8 +38,8 @@ description: "[1] 프로젝트 초기화. CLAUDE.md·README.md·PRD 디렉터리
 
 | 유형 | 템플릿 |
 |------|--------|
-| 오픈소스/라이브러리 | [`templates/readme-opensource.md`](../templates/readme-opensource.md) |
-| 사내 서비스/API | [`templates/readme-service.md`](../templates/readme-service.md) |
+| 오픈소스/라이브러리 | [`templates/readme-opensource.md`](../../../docs/templates/readme-opensource.md) |
+| 사내 서비스/API | [`templates/readme-service.md`](../../../docs/templates/readme-service.md) |
 
 ## CLAUDE.md 템플릿
 
@@ -67,12 +67,12 @@ description: "[1] 프로젝트 초기화. CLAUDE.md·README.md·PRD 디렉터리
 
 ## 시크릿 세팅
 
-[`../security-guide.md`](../security-guide.md) 원칙을 따른다. 상세 절차: [`../security/secrets-management.md`](../security/secrets-management.md)
+[`../security-guide.md`](../../../docs/security-guide.md) 원칙을 따른다. 상세 절차: [`../security/secrets-management.md`](../../../docs/security/secrets-management.md)
 
 에이전트 실행 순서:
 
 1. 전제조건 확인
-   - sops·age 설치 여부(`command -v sops age`) — 미설치면 [`../security/secrets-management.md`](../security/secrets-management.md) "기기 초기 세팅" 안내 후 대기
+   - sops·age 설치 여부(`command -v sops age`) — 미설치면 [`../security/secrets-management.md`](../../../docs/security/secrets-management.md) "기기 초기 세팅" 안내 후 대기
    - `workflow-agent-harness/docs/security/recipients.local.md` 존재 여부 — 없으면 `recipients.local.md.example` 복사 후 사용자에게 공개키 입력 요청
 
 2. 템플릿 복사 + 공개키 치환
@@ -110,4 +110,4 @@ description: "[1] 프로젝트 초기화. CLAUDE.md·README.md·PRD 디렉터리
 
 완료 즉시 `✓ [1] 초기화 완료` 출력 후 **`/rp-specify` 자동 진입**.
 
-→ 개발 상세: [`../harness-dev.md`](../harness-dev.md)
+→ 개발 상세: [`../harness-dev.md`](../../../docs/harness-dev.md)

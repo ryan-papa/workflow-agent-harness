@@ -8,7 +8,7 @@ description: "[4] 기획 리뷰. 진입 런타임 서브에이전트가 9항목 
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -26,7 +26,7 @@ description: "[4] 기획 리뷰. 진입 런타임 서브에이전트가 9항목 
 | Claude-Lead (Claude Code) | Claude Agent 툴 서브에이전트 | **없음** — Codex 호출 금지 |
 | Codex-Lead (Codex CLI) | Codex `spawn_agent` 서브에이전트 | **없음** — Claude 호출 금지 |
 
-**런타임 = 리뷰어.** 교차 런타임 추가 리뷰 전면 금지. SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
+**런타임 = 리뷰어.** 교차 런타임 추가 리뷰 전면 금지. SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
 
 ## 트리거
 
@@ -35,14 +35,14 @@ description: "[4] 기획 리뷰. 진입 런타임 서브에이전트가 9항목 
 
 ## 절차 (양 모드 공통)
 
-1. **서브에이전트 병렬 발사** (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent`): [4] 기획 · [5] 엔지 두 서브에이전트를 **동일 메시지에서 동시 발사**, 컨텍스트 미공유 독립 판정. 메인 셀프 채점 **금지**. 프롬프트 5 필수 항목 (a)~(e) → SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) PRD 경로 + PRD diff·영향 범위 (SSOT "최초 리뷰 범위") (b) 9항목 (c)·(d)·(e) SSOT 그대로 — 출력 마지막 줄 `목표 정합:`
+1. **서브에이전트 병렬 발사** (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent`): [4] 기획 · [5] 엔지 두 서브에이전트를 **동일 메시지에서 동시 발사**, 컨텍스트 미공유 독립 판정. 메인 셀프 채점 **금지**. 프롬프트 5 필수 항목 (a)~(e) → SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) PRD 경로 + PRD diff·영향 범위 (SSOT "최초 리뷰 범위") (b) 9항목 (c)·(d)·(e) SSOT 그대로 — 출력 마지막 줄 `목표 정합:`
    - **Codex-Lead 대칭**: `spawn_agent` 동시 발사 불가 환경이면 **순차 fallback 허용** — 판정 규칙·통과 조건 동일, 실행 순서만 다름. 병렬 여부를 통과 조건에 넣지 않는다
 2. **판정**: 서브에이전트 결과만으로 판정
 3. **결과 처리**: 별도 파일 저장 없음. 점수·지적은 인-메모리에서 PRD 본문에 반영
 4. **통과**: 평균 ≥8.0 + 각 항목 ≥7 → **[5]도 통과 시** 다음 단계
-5. **미달**: 지적 반영 → PRD 본문 갱신 → **미달 축만** 새 서브에이전트로 재실행. 최대 2회 추가, **총 3회**(축별 독립 카운터). 3회 미달 시 자동 중단 + 사용자 결정 요청 (강행/재설계/중단). 재리뷰 범위 → SSOT [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "재리뷰 범위".
-6. **조건부 재검증**: PRD 수정이 **기능 요구사항 증감·스코프 경계**를 건드리면 통과한 [4]도 1회 재검증. PRD **전면 개작 시 무조건 양축 재실행**. 재검증은 카운트 미소비이며 **같은 사이클 내 연쇄 재검증 금지** — 재검증이 미달이면 그 축은 다음 사이클의 미달 축으로 전환. 리뷰 통과 후 동작·결정 변경 → SSOT [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "리뷰 지적 반영 검증".
-7. **기술 실패 Fallback**: SSOT [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "재시도 한도" 적용. 한 축만 실패 시 **해당 축만 재호출, 정상 축 결과 보존**. 실패 축을 생략한 통과 판정 금지. 메인 셀프 채점 우회 금지
+5. **미달**: 지적 반영 → PRD 본문 갱신 → **미달 축만** 새 서브에이전트로 재실행. 최대 2회 추가, **총 3회**(축별 독립 카운터). 3회 미달 시 자동 중단 + 사용자 결정 요청 (강행/재설계/중단). 재리뷰 범위 → SSOT [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "재리뷰 범위".
+6. **조건부 재검증**: PRD 수정이 **기능 요구사항 증감·스코프 경계**를 건드리면 통과한 [4]도 1회 재검증. PRD **전면 개작 시 무조건 양축 재실행**. 재검증은 카운트 미소비이며 **같은 사이클 내 연쇄 재검증 금지** — 재검증이 미달이면 그 축은 다음 사이클의 미달 축으로 전환. 리뷰 통과 후 동작·결정 변경 → SSOT [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "리뷰 지적 반영 검증".
+7. **기술 실패 Fallback**: SSOT [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "재시도 한도" 적용. 한 축만 실패 시 **해당 축만 재호출, 정상 축 결과 보존**. 실패 축을 생략한 통과 판정 금지. 메인 셀프 채점 우회 금지
 
 ## 평가 항목
 
@@ -66,6 +66,6 @@ description: "[4] 기획 리뷰. 진입 런타임 서브에이전트가 9항목 
 
 ## ▶ 자동 전환
 
-병렬 축 [5] 엔지 리뷰와 **양축 통과** 시 `✓ [4]·[5] 리뷰 통과 (Claude-Lead)` 또는 `✓ [4]·[5] 리뷰 통과 (Codex-Lead)` 출력 후 **`/rp-task` 자동 진입**. 한 축만 통과면 미달 축 재실행 후 재판정.
+병렬 축 [5] 엔지 리뷰와 **양축 통과** 시 `✓ [4]·[5] 리뷰 통과 (Claude-Lead)` 또는 `✓ [4]·[5] 리뷰 통과 (Codex-Lead)` 출력 후 **`/rp-task` 자동 진입** (메타 단축 경로: `/rp-qa`). 한 축만 통과면 미달 축 재실행 후 재판정.
 
-→ PRD 상세: [`../harness-prd.md`](../harness-prd.md)
+→ PRD 상세: [`../harness-prd.md`](../../../docs/harness-prd.md)

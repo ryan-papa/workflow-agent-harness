@@ -25,7 +25,7 @@ argument-hint: '[브랜치명] [변경 요약]'
    - MERGED/CLOSED만 존재하거나 PR 없음 → 신규 PR 생성
 5. **PR 생성/재사용**: `gh pr create --base <detected-base> ...` (제목 + 변경 요약 + 테스트 계획 + **PRD 요약 `<details>` 블록 본문에 처음부터 포함**)
    - PRD 유형별 추출 섹션:
-     - Full PRD: `## 개요·목적` + `## 기능 요구사항`
+     - Full PRD: `## 문제·맥락` + `## 기능 요구사항`
      - 간소 PRD (메타): `## 변경 이유` + `## 영향 파일` + `## 검증` — `## 롤백 전략`은 PRD 원본에 보존하되 PR 본문 추출 제외(의도, 운영자 내부 자료). SSOT: [`../harness-ship.md`](../harness-ship.md) "PR 생성 시 PRD 요약 본문 포함" 표
    - **인프라 리뷰 노트**: 인프라 축 실행 시 PR 본문에 별도 섹션 추가 — (1) 판정 요약(BLOCK/ASK/WARN 건수) (2) 자문 지적 (3) 인프라 선행 작업 체크리스트. **식별 정보 일반화 의무**(호스트·계정·내부 IP 금지, 인덱스·토픽명은 역할 기술로 치환) — SSOT: [`../harness-infra-review.md`](../harness-infra-review.md) "PR 본문 인프라 리뷰 노트"
    - 추출 검증: 필수 섹션 중 하나라도 PRD에서 누락 시 PR 생성 차단 + 사용자 보고
@@ -173,7 +173,7 @@ PR 생성 시점에 .github/workflows/ 확인
 **본 스킬 한정 보조 규칙:**
 - **머지 전략**: `--merge` 고정 (squash/rebase 금지)
 - **동일 브랜치 재PR**: MERGED/CLOSED된 PR이 있어도 신규 PR 생성 (OPEN PR만 재사용)
-- **QA·코드리뷰·인프라리뷰 이수 확인**: PR 생성 직전 `rp-qa`·`rp-code-review`·`rp-infra-review` 완료 상태 체크. 미완이면 ship 중단 후 해당 단계 복귀 (메타 단축 경로는 본 규칙 적용 외). **인프라 축의 정당한 skip(콘텐츠·메타 변경·N/A 반환)은 이수로 간주**
+- **QA·코드리뷰·인프라리뷰 이수 확인**: PR 생성 직전 `rp-qa`·`rp-code-review`·`rp-infra-review` 완료 상태 체크. 미완이면 ship 중단 후 해당 단계 복귀 (메타 단축 경로는 `rp-qa` 메타 QA·`rp-code-review` 이수 확인). **인프라 축의 정당한 skip(콘텐츠·메타 변경·N/A 반환)은 이수로 간주**
 
 ## 머지 후 검증
 
@@ -185,7 +185,7 @@ PR 생성 시점에 .github/workflows/ 확인
 
 PR 머지 완료 후 통합 브랜치 워크트리 제거. **하네스 메타 레포는 스킵.**
 
-- 워크트리에 미커밋·미푸시 변경 없으면 `git -C repositories/[project] worktree remove worktrees/[branch]`
+- 워크트리에 미커밋·미푸시 변경 없으면 `git -C repositories/[project] worktree remove worktrees/[branch 슬래시→대시]` (예: `feat/[project]` → `worktrees/feat-[project]`)
 - 미커밋·미푸시 변경 감지(또는 git이 dirty로 remove 거부) 시 **제거 보류 + 사용자 알림** (강제 `--force` 금지), 다음 `rp-dev` 진입 시 재확인
 - 상세: [`../harness-dev.md` §워크트리 격리](../harness-dev.md)
 

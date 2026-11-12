@@ -32,7 +32,7 @@ origin/[base]                      ← 베이스 (develop→main→master 순 �
 | 메인 클론 정책 | `repositories/[project]/`는 **베이스 브랜치에 유지**. 통합 브랜치는 워크트리에서만 체크아웃 → 동일 브랜치 동시 체크아웃 충돌(git 제약) 회피 |
 | 생성 | `git -C repositories/[project] worktree add worktrees/feat-[project] -b feat/[project] origin/[base]` (경로는 `-C` 대상 서브레포 기준 상대경로 → `repositories/[project]/worktrees/feat-[project]`) |
 | 베이스 부재 | `origin` 리모트 없거나 develop/main/master 모두 부재 시 **중단 + 사용자 질의** (임의 로컬 fallback 금지) |
-| 재진입 | 워크트리 존재 시 재사용 + `git fetch`. clean이면 `origin/[base]` rebase 안내, **미커밋 변경 시 rebase 강행 금지 → 경고 후 사용자 선택(중단/stash)** |
+| 재진입 | 워크트리 존재 시 재사용 + `git fetch`. clean이면 `git merge origin/[base]` 안내(merge 방식 고정 — rebase·force-push 금지), **미커밋 변경 시 merge 강행 금지 → 경고 후 사용자 선택(중단/stash)** |
 | 정리 | PR 머지 후 `rp-ship`이 `git worktree remove`. 미커밋·미푸시 변경 시 **보류 + 사용자 알림**, 다음 `rp-dev` 진입 시 재확인 |
 
 ## 레포 초기화 체크리스트

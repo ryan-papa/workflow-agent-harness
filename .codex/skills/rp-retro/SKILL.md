@@ -8,7 +8,7 @@ description: "[12] 회고. 단계별 평가 + 규칙 개선 제안. 사용자 �
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -53,8 +53,8 @@ description: "[12] 회고. 단계별 평가 + 규칙 개선 제안. 사용자 �
 2. 위반·비효율 원인 교차 분석 (영역 간 영향 파악)
 3. 하네스 규칙 자체 개선 제안 도출
 4. 결과를 사용자에게 보고
-5. 개선 제안을 번호형 선택지로 제시
-6. 사용자 승인된 항목만 하네스 문서에 반영
+5. 개선 제안을 번호형 선택지로 제시 — **자동 선택 미적용**(CLAUDE.md Interaction 임계값 무관, 전 항목 사용자 선택)
+6. 사용자 승인된 항목만 하네스 문서에 반영 — 반영은 하네스 메타 단축 경로 경유 ([`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "단축 경로·예외")
 
 ## 평가 항목 (각 10점 만점)
 
@@ -65,7 +65,7 @@ description: "[12] 회고. 단계별 평가 + 규칙 개선 제안. 사용자 �
 | 테스트 충실도 | 테스트 작성·통과 규칙을 지켰는가 |
 | QA 완전성 | QA/콘텐츠 검수가 누락 없이 수행되었는가 |
 | 코드리뷰 품질 | 코드리뷰가 형식적이지 않고 실질적이었는가 |
-| 배포 안전성 | CI 통과 후 머지, 사용자 승인 절차를 지켰는가 |
+| 배포 안전성 | CI 동기 검증·자동 머지 가드 3종 AND·`--auto` 금지를 지켰는가 |
 | 효율성 | 불필요한 반복·대기·수동 작업 없이 진행했는가 |
 | 커뮤니케이션 | 산출물 보고·중간 보고가 적절했는가 |
 
@@ -98,8 +98,8 @@ description: "[12] 회고. 단계별 평가 + 규칙 개선 제안. 사용자 �
 
 ## 반영 규칙
 
-- 사용자 승인된 개선만 하네스 문서에 적용
+- 사용자 승인된 개선만 하네스 문서에 적용 (메타 단축 경로: feat 브랜치·간소 PRD·리뷰·`rp-ship`)
 - 하네스 문서 변경 시 관련 스킬 + CLAUDE.md 즉시 동기화
 - 반영 후 변경 요약을 사용자에게 출력
 
-→ 워크플로우: [`../harness-workflow.md`](../harness-workflow.md)
+→ 워크플로우: [`../harness-workflow.md`](../../../docs/harness-workflow.md)

@@ -8,7 +8,7 @@ description: "[3] PRD 작성. 일반 기능은 Full PRD, 하네스 메타 변경
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -28,7 +28,7 @@ PRD(Product Requirements Document) 작성.
 
 ### 분기 — 변경 유형 판별
 
-1. **하네스 메타 변경** (`docs/`, `CLAUDE.md`, 스킬, `.claude/settings.json`) → **간소 PRD 경로**
+1. **하네스 메타 변경** (`docs/`, `CLAUDE.md`, `AGENTS.md`, 스킬, `scripts/`, `.codex/`, `.claude/settings.json`) → **간소 PRD 경로**
 2. **일반 기능 변경** (`repositories/[project]/`) → **Full PRD 경로**
 
 ### Full PRD (일반 기능)
@@ -44,24 +44,25 @@ PRD(Product Requirements Document) 작성.
 2. 파일명: `docs/prd/[feature]/prd.md`(하네스 루트 기준)
 3. 완전 생략 금지 — 4섹션 모두 작성 필수
 4. **frontmatter 식별자**: PRD 본문 상단에 `**유형:** 하네스 메타 변경` 명시 (rp-ship 메타 분기 선검사 키)
-5. 상세 규격: [`../harness-prd.md`](../harness-prd.md) "간소 PRD" 섹션 참조
+5. 상세 규격: [`../harness-prd.md`](../../../docs/harness-prd.md) "간소 PRD" 섹션 참조
 
 ## 필수 포함 항목
 
 | 섹션 | 내용 |
 |------|------|
-| 프로젝트 개요 | 목적, 대상 사용자 |
+| 문제·맥락 · 타깃 사용자 | 배경·원인·왜 지금, 대상 사용자·사용 맥락 |
 | 핵심 시나리오 + 실패 모드 | 코드경로 × 시나리오 × 감지 × UX 대응 |
 | 대안 탐색 | A/B/C/D + 판단 근거 유형 + 선택 근거 |
+| 스코프 & 비-스코프 · 성공 기준 & 실패 기준 | In/Out, 성공 지표·접을 기준 |
 | 톤·정체성 | 톤·어투·금칙어·레퍼런스·샘플 카피 |
 | 기능 요구사항 | F-01 ~ F-XX, 우선순위 |
 | AI 기능 검증 | AI 포함 시 정답 샘플셋·채점 기준·주입 방어·합격선(해당 시만) |
-| 기술 스택 | 언어, 프레임워크, 인프라 |
-| 제약사항 | 성능, 보안, 호환성 |
+| 비기능 요구사항 | 성능, 보안, 확장성 |
+| 기술 스택 · 제약사항 | 언어·프레임워크·인프라, 기술·비즈니스 제약 |
 | **공개 전환 시나리오** | **보안·시크릿 관련 기능에 한해 필수.** 레포가 공개로 전환되거나 산출물이 외부에 노출될 때 추가 리스크가 생기는 요소가 있는지 검토. (예: 공개키 하드코딩, 인프라 식별자, 개인 식별 정보) |
-| Open Issues | 미결 사항 |
+| 가정 · 리스크 · 열린 질문 | 가정·요청 번복·리스크·미결 사항 (접두·위치: [`rp-specify.md`](../../../docs/skills/rp-specify.md) "추론 우선 판정") |
 
-신규 섹션이 비면 공란으로 두지 말고 "해당 없음" + 근거 명시.
+섹션 구조 SSOT: [`../prd-template.md`](../../../docs/prd-template.md). 신규 섹션이 비면 공란으로 두지 말고 "해당 없음" + 근거 명시.
 
 ## 완료 조건
 
@@ -73,5 +74,5 @@ PRD(Product Requirements Document) 작성.
 
 완료 즉시 `✓ [3] PRD 작성 완료` 출력 후 **`/rp-plan-review` 자동 진입**.
 
-→ PRD 상세: [`../harness-prd.md`](../harness-prd.md)
-→ 템플릿: [`../prd-template.md`](../prd-template.md)
+→ PRD 상세: [`../harness-prd.md`](../../../docs/harness-prd.md)
+→ 템플릿: [`../prd-template.md`](../../../docs/prd-template.md)

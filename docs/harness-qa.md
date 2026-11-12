@@ -6,6 +6,7 @@
 |------|----------|---------|---------|
 | 코드 프로젝트 | src/ 또는 실행 코드 존재 | 기능 QA + E2E + 디자인 QA | 7항목 전체 ([`harness-code-review.md`](harness-code-review.md)) |
 | 콘텐츠 프로젝트 | MDX/MD 콘텐츠 중심 | 빌드 + 렌더링 + 내용 품질 검수 | 빌드 검증만 |
+| 하네스 메타 | 하네스 루트 `docs/`·`CLAUDE.md`·`AGENTS.md`·스킬·`scripts/`·`.codex/`·`.claude/settings.json` 변경 | 로컬 CI 동등 검사(필수 파일·500줄·내부 링크) + `sync-codex-skills.py --check` + 변경 스크립트 `--self-test`(있을 때) | 7항목 전체 (인프라 축 skip) |
 
 ## QA 사전 검증 (필수)
 
@@ -88,7 +89,7 @@ PRD `AI 기능 검증` 섹션과 1:1 연동. AI 기능이 포함된 경우 필�
 ```
 QA 또는 코드 리뷰 미통과
   ↓
-High/Mid/Low 이슈 수정 (코드 변경 발생)
+Critical~Low 이슈 수정 (한도 소진 회차 Low 제외, 코드 변경 발생)
   ↓
 테스트 + 빌드 통과 확인
   ↓

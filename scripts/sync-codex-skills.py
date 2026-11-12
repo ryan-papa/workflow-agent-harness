@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import json
 import shutil
 import sys
@@ -69,6 +70,11 @@ def adapt_body_for_codex(body: str) -> str:
     for before, after in replacements.items():
         adapted = adapted.replace(before, after)
 
+    # .codex/skills/<name>/SKILL.md 기준으로 docs/skills/ 상대 링크 재작성
+    adapted = re.sub(r"\]\(\./", "](", adapted)
+    adapted = re.sub(r"\]\(\.\./", "](../../../docs/", adapted)
+    adapted = re.sub(r"\]\(([\w-]+\.md)", r"](../../../docs/skills/\1", adapted)
+
     return adapted
 
 
@@ -93,7 +99,7 @@ def render_skill(source: Path) -> str:
         "`python3 scripts/sync-codex-skills.py` after changing the Claude skill source.\n\n"
         "## Codex Adapter Notes\n\n"
         "- Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.\n"
-        "- Resolve copied relative links against the source file under `docs/skills/` when needed.\n"
+        "- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.\n"
         "- Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.\n"
         "- Use Codex `spawn_agent` for independent review when a review step requires role separation.\n"
         "- Runtime is the reviewer: never call Claude for an extra cross-runtime review.\n"

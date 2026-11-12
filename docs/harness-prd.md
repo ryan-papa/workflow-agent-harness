@@ -60,16 +60,9 @@
 
 ## PRD 작성 (Doc Agent)
 
-**섹션:**
+**섹션:** SSOT [`prd-template.md`](prd-template.md). 필수 항목 요약은 [`skills/rp-prd.md`](skills/rp-prd.md) "필수 포함 항목".
 
-| 섹션 | 내용 |
-|------|------|
-| 개요·목적 | 배경, 목표, 범위 |
-| 사용자 스토리 | `As a ... I want ... So that ...` |
-| 기능 요구사항 | 구체적 동작 정의 |
-| 비기능 요구사항 | 성능, 보안, 확장성 |
-| 제약사항 | 기술·비즈니스 제약 |
-| Open Issues | TBD 항목 추적 |
+**결정·가정 기록 위치:** `가정:`·`자동 선택(점수):`·`사용자 결정(요청 번복):` 접두와 PRD 유형별 위치 → [`skills/rp-specify.md`](skills/rp-specify.md) "추론 우선 판정".
 
 **파일명:**
 ```
@@ -80,7 +73,7 @@ repositories/[project]/docs/prd/YYYYMMDD_HHMMSS_[feature]_[8자리랜덤].md
 
 ### 간소 PRD (하네스 메타 변경용)
 
-하네스 자체 문서(`docs/`, `CLAUDE.md`, 스킬, `.claude/settings.json`) 변경은 **간소 PRD** 허용 (완전 생략 금지).
+하네스 자체 문서(`docs/`, `CLAUDE.md`, `AGENTS.md`, 스킬, `scripts/`, `.codex/`, `.claude/settings.json`) 변경은 **간소 PRD** 허용 (완전 생략 금지).
 
 | 필수 섹션 | 내용 |
 |---------|------|

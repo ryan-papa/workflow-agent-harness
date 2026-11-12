@@ -5,7 +5,7 @@
 이 파일은 Codex용 하네스 어댑터다. [`CLAUDE.md`](./CLAUDE.md)를 대체하지 않고, Claude 중심 워크플로우를 Codex가 실행 가능한 규칙으로 번역한다.
 
 목표:
-- Claude 중심 하네스에서 Codex를 보조 구현자·독립 리뷰어로 사용
+- Codex CLI 진입 시 Codex-Lead 로 동일 하네스 수행 (교차 런타임 리뷰 금지 — Claude 작업의 리뷰어로 Codex 사용 불가)
 - 문서 우선, QA, 코드리뷰 게이트 유지 (리뷰 결과는 PRD 본문 흡수, 별도 증거 파일 없음)
 - `/rp-*`, `.claude` hook 등 Claude 전용 기능을 Codex에서 실행한 것처럼 기록하지 않음
 
@@ -65,7 +65,7 @@ Claude 전용 요소는 Codex에서 아래처럼 해석한다.
 | Claude 요소 | Codex 해석 |
 |---|---|
 | `/rp-workflow`, `/rp-amend` | 문서화된 단계 순서를 수동으로 따른다 |
-| Agent tool subagent review | 명시적으로 독립 리뷰 관점으로 재검토한다 |
+| Agent tool subagent review | `spawn_agent` 서브에이전트로 독립 채점 (메인 셀프 채점 금지) |
 | `.claude` hooks | 참고 동작으로만 취급한다 |
 
 실제로 실행하지 않은 Claude 전용 명령은 실행했다고 기록하지 않는다.
@@ -114,6 +114,7 @@ Codex가 주 작성자이고 메인 런타임이 Codex CLI인 경우:
 
 하네스 메타 변경은 단축 경로를 허용한다.
 - `init`, `specify`, `task`, `dev` 생략 가능
+- [8] 메타 QA 필수 ([`docs/harness-qa.md`](./docs/harness-qa.md) "하네스 메타" 행), [9] 인프라 축 skip
 - `docs/prd/[feature]/prd.md` 간소 PRD 필수 (frontmatter `**유형:** 하네스 메타 변경` + 4섹션)
 - 리뷰 결과는 PRD 본문에 반영, 별도 증거 파일 생성 금지
 
@@ -133,7 +134,7 @@ Full flow에서는 같은 모델만 사용 가능하다는 이유로 plan review
 진입 런타임 서브에이전트의 리뷰 결과는 **PRD 본문에 반영**한다. 별도 증거 파일(`review-claude-*.md`, `review-codex-*.md`)을 작성·저장하지 않는다.
 
 - 리뷰 지적은 응답 텍스트로만 메인 에이전트에 전달
-- High/Critical 지적은 PRD(또는 코드) 본문 갱신으로만 흔적을 남김
+- Critical/High/Medium 지적은 PRD(또는 코드) 본문 갱신으로만 흔적을 남김 (심각도 기준: [`docs/harness-code-review.md`](./docs/harness-code-review.md) "지적 심각도")
 - 회차 추적·점수표 보존·Codex 원문 저장 모두 폐기
 
 Codex-Lead Full flow에서도 plan/eng/code/infra 네 리뷰 축은 서로 다른 관점의 판정임을 유지하되, 산출물은 PRD 또는 코드 본문 갱신 자체로 흡수된다. Lite는 SSOT 통합 plan/engineering 리뷰 예외를 따른다.
@@ -157,11 +158,11 @@ Codex-Lead Mode의 리뷰 결과에는 독립성을 명시한다.
 
 ## 절대 규칙
 
-사용자가 하네스 자체 변경을 명시적으로 요청하지 않는 한 아래를 우회하지 않는다.
+아래는 예외 없이 지킨다 (하네스 자체 변경도 메타 단축 경로로만 진행 — SSOT [`docs/harness-absolute-rules.md`](./docs/harness-absolute-rules.md)).
 
 - 동작 변경은 문서 우선
 - QA와 code review는 생략 불가
-- High/Critical finding은 다음 단계 전 반영 (PRD/코드 본문에 흡수)
+- 모든 심각도 finding은 다음 단계 전 반영 (PRD/코드 본문에 흡수). 단 [9] 재시도 한도 소진 회차의 Low 는 미처리 후 진행, 산출물 보고에 표로 기록 (심각도 기준: [`docs/harness-code-review.md`](./docs/harness-code-review.md) "지적 심각도")
 - 리뷰 결과는 별도 증거 파일이 아닌 PRD 본문 자체에 반영
 - 테스트 통과를 QA 대체로 기록하지 않음
 - 실제 수행하지 않은 CI, PR, deploy, ship 단계를 완료로 기록하지 않음

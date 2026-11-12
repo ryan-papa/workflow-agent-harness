@@ -8,7 +8,7 @@ description: "기존 프로젝트 기능 수정·추가. Lite 판별 후 Full am
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -36,12 +36,12 @@ description: "기존 프로젝트 기능 수정·추가. Lite 판별 후 Full am
 
 ## 플로우
 
-기본은 [`rp-workflow.md`](rp-workflow.md) "플로우" 표 (12단계 SSOT)와 동일. **rp-amend 의 차이점만 명시:**
+기본은 [`rp-workflow.md`](../../../docs/skills/rp-workflow.md) "플로우" 표 (12단계 SSOT)와 동일. **rp-amend 의 차이점만 명시:**
 
 | 순서 | 차이 |
 |:---:|------|
 | 1 | `rp-init` **스킵** (프로젝트 이미 존재) |
-| 2 | Full amend는 `/rp-specify` 를 **기능 단위**로 5단계 항목 전체 확정(추론 우선). Lite는 [`../harness-workflow.md`](../harness-workflow.md) Lite 질문 규칙 적용 |
+| 2 | Full amend는 `/rp-specify` 를 **기능 단위**로 5단계 항목 전체 확정(추론 우선). Lite는 [`../harness-workflow.md`](../../../docs/harness-workflow.md) Lite 질문 규칙 적용 |
 | 3 | Full amend는 `/rp-prd` **Full PRD** 사용. Lite는 간이 1쪽 PRD 사용 |
 | 4·5 | Full amend는 rp-workflow 분리 리뷰를 **병렬 동시 발사**로 적용. Lite는 통합 plan/engineering 리뷰 1회 |
 | 6 | Full amend는 `/rp-task` 로 기능 변경분만 분해. Lite는 태스크 분해 생략 |
@@ -52,13 +52,13 @@ description: "기존 프로젝트 기능 수정·추가. Lite 판별 후 Full am
 
 1. 진입 시 프로젝트명 확인(`repositories/[project]/` 존재 여부 검증)
 2. 존재하지 않으면 `/rp-workflow`로 리다이렉트 안내
-3. 존재하면 [`../harness-workflow.md`](../harness-workflow.md) Lite 판별 먼저 수행
+3. 존재하면 [`../harness-workflow.md`](../../../docs/harness-workflow.md) Lite 판별 먼저 수행
 4. Lite 판별 통과 시 Lite track으로 라우팅, 실패 시 `/rp-specify`부터 Full amend 순차 실행
 5. 이후 단계는 각 스킬 파일 절차에 따름
 
 ## 상태 메시지·토큰
 
-[`rp-workflow.md`](rp-workflow.md) "상태 메시지" 와 동일 (단계 토큰 1줄 포함).
+[`rp-workflow.md`](../../../docs/skills/rp-workflow.md) "상태 메시지" 와 동일 (단계 토큰 1줄 포함).
 
 ## 자동 전환
 
@@ -67,10 +67,10 @@ description: "기존 프로젝트 기능 수정·추가. Lite 판별 후 Full am
 ## ⛔ 절대 규칙
 
 - Full amend는 `rp-init` 스킵해도 **기능 단위 `rp-specify` 생략 불가**
-- Full amend는 간소 PRD 아님 — Full PRD 필수. Lite는 [`../harness-workflow.md`](../harness-workflow.md) 경량 PRD 규칙 적용
-- QA·코드리뷰 **생략 불가** (워크플로우와 동일). 회고는 **사용자 명시 명령(`/rp-retro`) 시에만 실행** — 자동 진입 없음 (SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "단축 경로·예외")
+- Full amend는 간소 PRD 아님 — Full PRD 필수. Lite는 [`../harness-workflow.md`](../../../docs/harness-workflow.md) 경량 PRD 규칙 적용
+- QA·코드리뷰 **생략 불가** (워크플로우와 동일). 회고는 **사용자 명시 명령(`/rp-retro`) 시에만 실행** — 자동 진입 없음 (SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "단축 경로·예외")
 - `main` 직접 수정 금지, feat 브랜치 필수
 - `rp-ship` 스킬 경유 필수
 
-→ 전체 플로우: [`../harness-workflow.md`](../harness-workflow.md)
-→ 오케스트레이터: [`rp-workflow.md`](rp-workflow.md)
+→ 전체 플로우: [`../harness-workflow.md`](../../../docs/harness-workflow.md)
+→ 오케스트레이터: [`rp-workflow.md`](../../../docs/skills/rp-workflow.md)

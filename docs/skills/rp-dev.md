@@ -19,7 +19,7 @@ argument-hint: '[태스크 ID 또는 범위]'
 1. **베이스 감지**: 유저 미지정 시 `git -C repositories/[project] ls-remote --heads origin develop|main|master` 순 첫 존재 채택. origin·후보 전무 → 중단 + 사용자 질의
 2. **최신화**: `git -C repositories/[project] fetch origin` (실패 시 중단·보고)
 3. **워크트리 생성**: 없으면 `git -C repositories/[project] worktree add worktrees/feat-[project] -b feat/[project] origin/[base]` (경로는 `-C` 대상 서브레포 기준 → `repositories/[project]/worktrees/feat-[project]`). 메인 클론은 베이스 브랜치 유지(통합 브랜치 체크아웃 금지)
-4. **재진입**: 워크트리 존재 시 재사용 + `git fetch`. clean이면 `origin/[base]` rebase 안내, 미커밋 변경 시 rebase 강행 금지 → 경고 후 사용자 선택(중단/stash)
+4. **재진입**: 워크트리 존재 시 재사용 + `git fetch`. clean이면 `git merge origin/[base]` 안내(merge 방식 고정 — rebase·force-push 금지), 미커밋 변경 시 merge 강행 금지 → 경고 후 사용자 선택(중단/stash)
 5. 이후 모든 태스크 작업은 **워크트리 디렉터리에서** 진행
 
 → 상세: [`../harness-dev.md` §워크트리 격리](../harness-dev.md)

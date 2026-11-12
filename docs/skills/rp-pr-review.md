@@ -84,12 +84,7 @@ argument-hint: '[PR URL]'
 
 **심각도 기준** (리뷰어가 안 붙였거나 뭉갰을 때만 메인이 보정)
 
-| 심각도 | 내용 |
-|--------|------|
-| Critical | 데이터 유실·보안 취약·프로덕션 장애로 이어짐 |
-| High | 명백한 버그·동시성 결함·정합성 위험 |
-| Medium | 엣지 케이스 누락·성능 저하·설계 부채 |
-| Low | 네이밍·중복·가독성·문서 |
+→ SSOT [`../harness-code-review.md`](../harness-code-review.md) "지적 심각도" 표 (Critical / High / Medium / Low)
 
 ## 정렬 규칙
 
