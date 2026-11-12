@@ -57,7 +57,7 @@ QA + 코드리뷰 + 인프라 리뷰(또는 콘텐츠 검수) 통과 후 사용�
 | 롤백 전략 추출 제외 (의도) | 간소 PRD의 `## 롤백 전략`은 **운영자 내부 자료**로 PR 본문 미포함. PRD 원본(`docs/prd/[feature]/prd.md`)에는 4섹션 모두 보존 — `rp-ship.md` "PR base 자동 감지" 메타 분기 선검사 시 4섹션 검증 |
 | 인프라 리뷰 노트 | 인프라 축 실행 시 별도 섹션 추가 — 판정 요약·자문 지적·인프라 선행 작업. **식별 정보 일반화 의무** (SSOT: [`harness-infra-review.md`](harness-infra-review.md)) |
 | 추출 누락 | PR 생성 차단 |
-| 최초 PR 독립 리뷰 | 신규 PR 생성 시에만 [`skills/rp-pr-review.md`](skills/rp-pr-review.md) 1회 — **출력만**, 게이트·머지 무영향 (재사용 PR 미호출) |
+| 최초 PR 독립 리뷰 | 신규 PR 생성 시에만 [`skills/rp-pr-review.md`](skills/rp-pr-review.md) 1회 — **출력만**, 게이트·머지 무영향 (재사용 PR 미호출). Medium 이상만 출력·후속 PR 대상, Low 는 건수만 |
 | 사후 정리 | 없음 — PRD 디렉토리 main 영구 보존 (추적성 향상) |
 
 → 실행 절차: [`skills/rp-ship.md`](skills/rp-ship.md) "PR 생성" SSOT
