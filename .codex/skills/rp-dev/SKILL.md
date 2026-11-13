@@ -8,7 +8,7 @@ description: "[7] 개발. 태스크별 반복 사이클. 통합 브랜치에서 
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -31,10 +31,10 @@ description: "[7] 개발. 태스크별 반복 사이클. 통합 브랜치에서 
 1. **베이스 감지**: 유저 미지정 시 `git -C repositories/[project] ls-remote --heads origin develop|main|master` 순 첫 존재 채택. origin·후보 전무 → 중단 + 사용자 질의
 2. **최신화**: `git -C repositories/[project] fetch origin` (실패 시 중단·보고)
 3. **워크트리 생성**: 없으면 `git -C repositories/[project] worktree add worktrees/feat-[project] -b feat/[project] origin/[base]` (경로는 `-C` 대상 서브레포 기준 → `repositories/[project]/worktrees/feat-[project]`). 메인 클론은 베이스 브랜치 유지(통합 브랜치 체크아웃 금지)
-4. **재진입**: 워크트리 존재 시 재사용 + `git fetch`. clean이면 `origin/[base]` rebase 안내, 미커밋 변경 시 rebase 강행 금지 → 경고 후 사용자 선택(중단/stash)
+4. **재진입**: 워크트리 존재 시 재사용 + `git fetch`. clean이면 `git merge origin/[base]` 안내(merge 방식 고정 — rebase·force-push 금지), 미커밋 변경 시 merge 강행 금지 → 경고 후 사용자 선택(중단/stash)
 5. 이후 모든 태스크 작업은 **워크트리 디렉터리에서** 진행
 
-→ 상세: [`../harness-dev.md` §워크트리 격리](../harness-dev.md)
+→ 상세: [`../harness-dev.md` §워크트리 격리](../../../docs/harness-dev.md)
 
 ## 절차 (태스크당, 워크트리 내부)
 
@@ -68,7 +68,7 @@ description: "[7] 개발. 태스크별 반복 사이클. 통합 브랜치에서 
 
 ## 스펙 변경 시
 
-개발 중 스펙 변경 발생 시: PRD 문서 업데이트 → 변경 부분 기획/엔지니어링 리뷰 → 코드 작업. 문서 없이 코드 수정 금지. → [`../harness-dev.md` §스펙 변경 시 플로우](../harness-dev.md)
+개발 중 스펙 변경 발생 시: PRD 문서 업데이트 → 변경 부분 기획/엔지니어링 리뷰 → 코드 작업. 문서 없이 코드 수정 금지. → [`../harness-dev.md` §스펙 변경 시 플로우](../../../docs/harness-dev.md)
 
 ## 완료 조건
 
@@ -78,4 +78,4 @@ description: "[7] 개발. 태스크별 반복 사이클. 통합 브랜치에서 
 
 전체 태스크 완료 즉시 `✓ [7] 개발 완료` 출력 후 **`/rp-qa` 자동 진입**.
 
-→ 개발 상세: [`../harness-dev.md`](../harness-dev.md) (코드 작성 참고: 반복 로직은 추출 권장 · 파라미터로 합치기는 지양 — §코드 작성 참고)
+→ 개발 상세: [`../harness-dev.md`](../../../docs/harness-dev.md) (코드 작성 참고: 반복 로직은 추출 권장 · 파라미터로 합치기는 지양 — §코드 작성 참고)

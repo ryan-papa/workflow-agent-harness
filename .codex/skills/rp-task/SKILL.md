@@ -8,7 +8,7 @@ description: "[6] 태스크 분해. PRD F-XX 기능 요구사항을 실행 단�
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -44,7 +44,7 @@ PRD 기능 요구사항 기반 태스크 분해.
 ## 브랜치 전략
 
 ```
-main
+origin/[base]                      ← 베이스 (develop→main→master 자동 감지)
   └── feat/[project-name]          ← 통합 브랜치
        ├── feat/T-01-description   ← 태스크 브랜치
        └── feat/T-02-description
@@ -60,4 +60,4 @@ main
 
 완료 즉시 `✓ [6] 태스크 분해 완료` 출력 후 **`/rp-dev` 자동 진입**.
 
-→ 개발: [`rp-dev.md`](rp-dev.md)
+→ 개발: [`rp-dev.md`](../../../docs/skills/rp-dev.md)

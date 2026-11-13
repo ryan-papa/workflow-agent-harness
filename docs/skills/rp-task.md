@@ -32,7 +32,7 @@ PRD 기능 요구사항 기반 태스크 분해.
 ## 브랜치 전략
 
 ```
-main
+origin/[base]                      ← 베이스 (develop→main→master 자동 감지)
   └── feat/[project-name]          ← 통합 브랜치
        ├── feat/T-01-description   ← 태스크 브랜치
        └── feat/T-02-description

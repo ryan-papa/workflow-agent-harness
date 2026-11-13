@@ -8,7 +8,7 @@ description: "[11] 커밋·PR·CI·자동머지·배포. 수동 git/gh 우회 �
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -37,13 +37,13 @@ description: "[11] 커밋·PR·CI·자동머지·배포. 수동 git/gh 우회 �
    - MERGED/CLOSED만 존재하거나 PR 없음 → 신규 PR 생성
 5. **PR 생성/재사용**: `gh pr create --base <detected-base> ...` (제목 + 변경 요약 + 테스트 계획 + **PRD 요약 `<details>` 블록 본문에 처음부터 포함**)
    - PRD 유형별 추출 섹션:
-     - Full PRD: `## 개요·목적` + `## 기능 요구사항`
-     - 간소 PRD (메타): `## 변경 이유` + `## 영향 파일` + `## 검증` — `## 롤백 전략`은 PRD 원본에 보존하되 PR 본문 추출 제외(의도, 운영자 내부 자료). SSOT: [`../harness-ship.md`](../harness-ship.md) "PR 생성 시 PRD 요약 본문 포함" 표
-   - **인프라 리뷰 노트**: 인프라 축 실행 시 PR 본문에 별도 섹션 추가 — (1) 판정 요약(BLOCK/ASK/WARN 건수) (2) 자문 지적 (3) 인프라 선행 작업 체크리스트. **식별 정보 일반화 의무**(호스트·계정·내부 IP 금지, 인덱스·토픽명은 역할 기술로 치환) — SSOT: [`../harness-infra-review.md`](../harness-infra-review.md) "PR 본문 인프라 리뷰 노트"
+     - Full PRD: `## 문제·맥락` + `## 기능 요구사항`
+     - 간소 PRD (메타): `## 변경 이유` + `## 영향 파일` + `## 검증` — `## 롤백 전략`은 PRD 원본에 보존하되 PR 본문 추출 제외(의도, 운영자 내부 자료). SSOT: [`../harness-ship.md`](../../../docs/harness-ship.md) "PR 생성 시 PRD 요약 본문 포함" 표
+   - **인프라 리뷰 노트**: 인프라 축 실행 시 PR 본문에 별도 섹션 추가 — (1) 판정 요약(BLOCK/ASK/WARN 건수) (2) 자문 지적 (3) 인프라 선행 작업 체크리스트. **식별 정보 일반화 의무**(호스트·계정·내부 IP 금지, 인덱스·토픽명은 역할 기술로 치환) — SSOT: [`../harness-infra-review.md`](../../../docs/harness-infra-review.md) "PR 본문 인프라 리뷰 노트"
    - 추출 검증: 필수 섹션 중 하나라도 PRD에서 누락 시 PR 생성 차단 + 사용자 보고
    - **재사용 PR**: 단계 4 에서 OPEN PR 재사용 시, 기존 본문에 PRD 요약 `<details>` 블록 부재면 `gh pr edit <num> --body` 로 보강 (정책 변경 이전에 생성된 PR 대응). 보강 실패 시 ship 중단
    - PRD 디렉토리 main 영구 보존 — 별도 정리 commit 금지 (CI 재실행 비용 차단)
-   - **신규 PR 생성 시에만** [`rp-pr-review.md`](rp-pr-review.md)(하네스 사본) 1회 호출 — 생성 URL 전달, 리뷰어 백그라운드 발사 후 단계 6·7 병행, **단계 8 머지 전 결과 출력**(최대 10분). 결과는 출력만 — 반영·머지 중단·가드 영향 없음. 재사용 PR 미호출
+   - **신규 PR 생성 시에만** [`rp-pr-review.md`](../../../docs/skills/rp-pr-review.md)(하네스 사본) 1회 호출 — 생성 URL 전달, 리뷰어 백그라운드 발사 후 단계 6·7 병행, **단계 8 머지 전 결과 출력**(최대 10분). 결과는 출력만 — 반영·머지 중단·가드 영향 없음. 재사용 PR 미호출
 ### 컨플릭트 선행 가드 (CI 대기 이전 필수)
 6. **컨플릭트 선검사·해소** — 가드 (a) CI 대기 **이전에** 실행한다. 컨플릭트가 있으면 `pull_request` 기반 체크가 트리거되지 않아 가드 (a)의 `gh pr checks --watch` 가 무한 대기·오판하므로 선행한다. 상세 절차는 아래 "컨플릭트 선행 가드" 섹션 SSOT. (실제 CI 통과 대기는 가드 (a)에서 수행 — 본 단계는 머지 가능 상태만 확정)
 
@@ -180,12 +180,12 @@ PR 생성 시점에 .github/workflows/ 확인
 
 ## 절대 규칙
 
-→ **SSOT**: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) — CI 통과 전 머지 금지, 자동 머지 가드 3종 AND, PR base 자동 감지(fail-closed), feat 브랜치 직행 배포 금지, rp-ship 필수 호출, 비상 탈출구 `RP_SHIP_MANUAL=1`. 본문 중복 금지.
+→ **SSOT**: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) — CI 통과 전 머지 금지, 자동 머지 가드 3종 AND, PR base 자동 감지(fail-closed), feat 브랜치 직행 배포 금지, rp-ship 필수 호출, 비상 탈출구 `RP_SHIP_MANUAL=1`. 본문 중복 금지.
 
 **본 스킬 한정 보조 규칙:**
 - **머지 전략**: `--merge` 고정 (squash/rebase 금지)
 - **동일 브랜치 재PR**: MERGED/CLOSED된 PR이 있어도 신규 PR 생성 (OPEN PR만 재사용)
-- **QA·코드리뷰·인프라리뷰 이수 확인**: PR 생성 직전 `rp-qa`·`rp-code-review`·`rp-infra-review` 완료 상태 체크. 미완이면 ship 중단 후 해당 단계 복귀 (메타 단축 경로는 본 규칙 적용 외). **인프라 축의 정당한 skip(콘텐츠·메타 변경·N/A 반환)은 이수로 간주**
+- **QA·코드리뷰·인프라리뷰 이수 확인**: PR 생성 직전 `rp-qa`·`rp-code-review`·`rp-infra-review` 완료 상태 체크. 미완이면 ship 중단 후 해당 단계 복귀 (메타 단축 경로는 `rp-qa` 메타 QA·`rp-code-review` 이수 확인). **인프라 축의 정당한 skip(콘텐츠·메타 변경·N/A 반환)은 이수로 간주**
 
 ## 머지 후 검증
 
@@ -197,9 +197,9 @@ PR 생성 시점에 .github/workflows/ 확인
 
 PR 머지 완료 후 통합 브랜치 워크트리 제거. **하네스 메타 레포는 스킵.**
 
-- 워크트리에 미커밋·미푸시 변경 없으면 `git -C repositories/[project] worktree remove worktrees/[branch]`
+- 워크트리에 미커밋·미푸시 변경 없으면 `git -C repositories/[project] worktree remove worktrees/[branch 슬래시→대시]` (예: `feat/[project]` → `worktrees/feat-[project]`)
 - 미커밋·미푸시 변경 감지(또는 git이 dirty로 remove 거부) 시 **제거 보류 + 사용자 알림** (강제 `--force` 금지), 다음 `rp-dev` 진입 시 재확인
-- 상세: [`../harness-dev.md` §워크트리 격리](../harness-dev.md)
+- 상세: [`../harness-dev.md` §워크트리 격리](../../../docs/harness-dev.md)
 
 ## 완료 조건
 
@@ -211,4 +211,4 @@ PR 머지 완료 후 통합 브랜치 워크트리 제거. **하네스 메타 �
 
 배포 완료 즉시 `✓ [11] 배포 완료. 회고가 필요하면 /rp-retro` 출력. 회고는 사용자 명시 명령 시에만 실행 (자동 진입 없음).
 
-→ 배포 상세: [`../harness-ship.md`](../harness-ship.md)
+→ 배포 상세: [`../harness-ship.md`](../../../docs/harness-ship.md)

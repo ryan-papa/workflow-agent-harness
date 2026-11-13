@@ -108,8 +108,12 @@ git diff --cached | grep -iE \
 
 | 심각도 | 처리 |
 |--------|------|
-| High/Mid | Dev Agent가 자동 수정 |
-| Low | 테이블로 제시, 사용자 선택 |
+| Critical/High/Medium/Low | Dev Agent가 자동 수정 — 사용자 선택 대기 없음 |
+| Low (예외) | 재시도 카운터 5회를 모두 소비한 회차가 통과한 경우의 Low 는 **미처리 후 진행** |
+
+처리·미처리 지적은 산출물 보고[10]에 표로 정리.
+
+심각도 기준 SSOT: [`../harness-code-review.md`](../harness-code-review.md) "지적 심각도"
 
 ## 자동화 vs 판단
 

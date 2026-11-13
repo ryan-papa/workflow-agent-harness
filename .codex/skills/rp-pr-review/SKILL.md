@@ -8,7 +8,7 @@ description: "PR 링크 하나로 진입 런타임 독립 서브에이전트가 
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -23,7 +23,7 @@ description: "PR 링크 하나로 진입 런타임 독립 서브에이전트가 
 
 | 항목 | 규칙 |
 |------|------|
-| 호출 주체 | [`rp-ship.md`](rp-ship.md) — **신규 PR 생성 직후 1회만**. OPEN PR 재사용·재푸시 시 미호출 |
+| 호출 주체 | [`rp-ship.md`](../../../docs/skills/rp-ship.md) — **신규 PR 생성 직후 1회만**. OPEN PR 재사용·재푸시 시 미호출 |
 | 입력 | `gh pr create` 반환 URL 을 인자로 전달 = 명시 링크. 질문 없음 |
 | 실행 | 리뷰어 백그라운드 발사 → 컨플릭트 가드·CI watch 병행 → **머지 판정 전 결과 출력** (최대 지연 = 10분 타임아웃) |
 | 결과 처리 | **출력만.** 반영·머지 중단·게이트 영향 없음. 단계 통과 근거 기록 금지 |
@@ -96,12 +96,7 @@ description: "PR 링크 하나로 진입 런타임 독립 서브에이전트가 
 
 **심각도 기준** (리뷰어가 안 붙였거나 뭉갰을 때만 메인이 보정)
 
-| 심각도 | 내용 |
-|--------|------|
-| Critical | 데이터 유실·보안 취약·프로덕션 장애로 이어짐 |
-| High | 명백한 버그·동시성 결함·정합성 위험 |
-| Medium | 엣지 케이스 누락·성능 저하·설계 부채 |
-| Low | 네이밍·중복·가독성·문서 |
+→ SSOT [`../harness-code-review.md`](../../../docs/harness-code-review.md) "지적 심각도" 표 (Critical / High / Medium / Low)
 
 ## 정렬 규칙
 

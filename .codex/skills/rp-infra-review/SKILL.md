@@ -8,7 +8,7 @@ description: "[9-인프라] 인프라 리뷰. 코드 리뷰와 병렬 실행. BL
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -26,7 +26,7 @@ description: "[9-인프라] 인프라 리뷰. 코드 리뷰와 병렬 실행. BL
 | Claude-Lead (Claude Code) | Claude Agent 툴 서브에이전트 | **없음** — Codex 호출 금지 |
 | Codex-Lead (Codex CLI) | Codex `spawn_agent` 서브에이전트 | **없음** — Claude 호출 금지 |
 
-**런타임 = 리뷰어.** SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
+**런타임 = 리뷰어.** SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
 
 ## 트리거
 
@@ -48,9 +48,9 @@ description: "[9-인프라] 인프라 리뷰. 코드 리뷰와 병렬 실행. BL
 
 - 서브에이전트 필수 (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent`)
 - **⛔ 실인프라 접근 전면 금지** — 정적 분석 전용. DB·Redis·k8s·브로커 조회·접속, MCP DB 도구, `kubectl`·`redis-cli`·`mysql` 실행 금지. 위반 시 결과 폐기 + 재발사(카운트 미소비), **재발사 상한 2회** 후 중단 + 사용자 보고
-- **서브에이전트 프롬프트** 5 필수 항목 (a)~(e) → SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) 리뷰 대상 diff·브랜치·파일 경로 (b) **5영역 무점수 BLOCK/ASK/WARN 판정** (c)·(d)·(e) SSOT 그대로 + 실인프라 접근 금지 — 출력 마지막 줄 `목표 정합:`
+- **서브에이전트 프롬프트** 5 필수 항목 (a)~(e) → SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) 리뷰 대상 diff·브랜치·파일 경로 (b) **5영역 무점수 BLOCK/ASK/WARN 판정** (c)·(d)·(e) SSOT 그대로 + 실인프라 접근 금지 — 출력 마지막 줄 `목표 정합:`
 - **결과 처리**: 별도 파일 저장 없음. 판정은 인-메모리로 메인이 수신 후 코드 수정·PR 본문 노트에 반영
-- **⛔ 인가 판정 금지**: 특정 변경의 인가·노출 설정(메시 정책·게이트웨이 허용목록·라우트) **실효성 판정은 코드 축 5a 관할**. 본 축은 배포 전략 관점만 본다. **런타임 실효성(트래픽 실차단)은 어느 축도 검증하지 않는다.** 하네스 문서의 기술 서술 검수는 본 축 관할 유지. 관할 경계 SSOT → [`../harness-infra-review.md`](../harness-infra-review.md) "관할 경계"
+- **⛔ 인가 판정 금지**: 특정 변경의 인가·노출 설정(메시 정책·게이트웨이 허용목록·라우트) **실효성 판정은 코드 축 5a 관할**. 본 축은 배포 전략 관점만 본다. **런타임 실효성(트래픽 실차단)은 어느 축도 검증하지 않는다.** 하네스 문서의 기술 서술 검수는 본 축 관할 유지. 관할 경계 SSOT → [`../harness-infra-review.md`](../../../docs/harness-infra-review.md) "관할 경계"
 
 ## 판정 등급
 
@@ -62,7 +62,7 @@ description: "[9-인프라] 인프라 리뷰. 코드 리뷰와 병렬 실행. BL
 
 **점수제 아님.** 통과 조건은 `BLOCK 0건 AND 미해결 ASK 0건`.
 
-부여 조건·제외·인용 의무·해제 경로 상세 → [`../harness-infra-review.md`](../harness-infra-review.md).
+부여 조건·제외·인용 의무·해제 경로 상세 → [`../harness-infra-review.md`](../../../docs/harness-infra-review.md).
 
 ## 검사 5영역 (요약)
 
@@ -74,15 +74,15 @@ description: "[9-인프라] 인프라 리뷰. 코드 리뷰와 병렬 실행. BL
 | 4 | 직렬화 호환 | 파괴적 스키마 변경(BLOCK) / 안전한 추가 |
 | 5 | 배포·pub/sub | 전략 판별 → 구·신 동시 존재 영향 + 선행 인프라 작업 |
 
-→ 상세: [`../harness-infra-review.md`](../harness-infra-review.md)
+→ 상세: [`../harness-infra-review.md`](../../../docs/harness-infra-review.md)
 
 ## 재시도 · 카운트
 
 - [9] 카운터는 **코드 축과 공통 5회**, **사이클 단위** 소비 (한 사이클에서 어느 축이든 1개 이상 재실행하면 1회)
 - ASK 발생 자체는 **미소비**. ASK 후 코드 수정하여 재실행하면 그 사이클이 1회 소비
-- 조건부 재검증(코드 축 수정이 인프라 영역을 건드려 재실행)은 **소비 없음**, 같은 사이클 내 연쇄 재검증 금지. 리뷰 통과 후 동작·결정 변경 → SSOT [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "리뷰 지적 반영 검증".
-- 재리뷰 범위 → SSOT [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "재리뷰 범위".
-- 기술 실패 재호출은 별도 카운트 — SSOT [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "재시도 한도"
+- 조건부 재검증(코드 축 수정이 인프라 영역을 건드려 재실행)은 **소비 없음**, 같은 사이클 내 연쇄 재검증 금지. 리뷰 통과 후 동작·결정 변경 → SSOT [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "리뷰 지적 반영 검증".
+- 재리뷰 범위 → SSOT [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "재리뷰 범위".
+- 기술 실패 재호출은 별도 카운트 — SSOT [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "재시도 한도"
 
 ## 지적 후처리
 
@@ -102,5 +102,5 @@ description: "[9-인프라] 인프라 리뷰. 코드 리뷰와 병렬 실행. BL
 
 코드 축과 **양축 통과** 시 `✓ [9] 코드리뷰 + 인프라 리뷰 통과` 출력 후 **산출물 보고[10] 자동 진입**.
 
-→ 판정 기준 상세: [`../harness-infra-review.md`](../harness-infra-review.md)
-→ 코드 축: [`rp-code-review.md`](rp-code-review.md)
+→ 판정 기준 상세: [`../harness-infra-review.md`](../../../docs/harness-infra-review.md)
+→ 코드 축: [`rp-code-review.md`](../../../docs/skills/rp-code-review.md)

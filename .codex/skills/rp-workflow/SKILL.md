@@ -8,7 +8,7 @@ description: "하네스 전체 워크플로우 오케스트레이터. 신규 프
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -59,19 +59,19 @@ description: "하네스 전체 워크플로우 오케스트레이터. 신규 프
 - 진입: `▶ [N] 단계명...`
 - 완료: `✓ [N] 단계명 완료`
 - 실패: `✗ [N] 단계명 실패 — [사유]`
-- 토큰: 진입 시 `python3 scripts/token-usage.py --start N`, 완료 줄 다음 토큰 1줄 (두 호출을 같은 메시지 병렬 호출로 묶지 않음) → SSOT [`../harness-workflow.md`](../harness-workflow.md) "단계 토큰 출력"
+- 토큰: 진입 시 `python3 scripts/token-usage.py --start N`, 완료 줄 다음 토큰 1줄 (두 호출을 같은 메시지 병렬 호출로 묶지 않음) → SSOT [`../harness-workflow.md`](../../../docs/harness-workflow.md) "단계 토큰 출력"
 
 ## 규칙
 
-- **메타 변경 단축 경로** — 하네스 문서(`docs/`, `CLAUDE.md`, 스킬, `.claude/settings.json`) 변경은 `rp-init`·`rp-specify`·`rp-task`·`rp-dev` **스킵** + feat 브랜치 + `rp-prd` 간소 경로 + `rp-plan-review` + `rp-eng-review` + `rp-code-review` + `rp-ship`으로 진행. `main` 직접 수정 금지
+- **메타 변경 단축 경로** — 하네스 문서(`docs/`, `CLAUDE.md`, `AGENTS.md`, 스킬, `scripts/`, `.codex/`, `.claude/settings.json`) 변경은 `rp-init`·`rp-specify`·`rp-task`·`rp-dev` **스킵** + feat 브랜치 + `rp-prd` 간소 경로 + `rp-plan-review` ∥ `rp-eng-review` + `rp-qa`(메타 QA) + `rp-code-review`(인프라 축 skip) + `rp-ship`으로 진행. `main` 직접 수정 금지. SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "단축 경로·예외"
 - **신규 `rp-*` 스킬 추가 시 심링크 자동 동기화** — `docs/skills/rp-*.md` 생성 감지 시 `PostToolUse` 훅이 `.claude/commands/rp-*.md` 심링크 자동 생성. 훅 실패 시 수동 fallback: `cd .claude/commands && ln -s ../../docs/skills/rp-새이름.md rp-새이름.md`
 - **전 단계 자동 연결** — 각 스킬 완료 시 다음 스킬 자동 호출
 - **기본 경로 승인 대기 없음** — 산출물 보고 후 `rp-ship`이 커밋·PR·자동 머지 가드·배포를 진행. 자동 머지 가드 실패 시 OPEN 유지 + 사용자 보고
 - QA([8]), 코드리뷰·인프라리뷰([9] 2축) **생략 불가** — 인프라 축의 정당한 skip(콘텐츠·메타 변경·N/A)은 이수로 간주
-- **리뷰 병렬 발사** — [4]∥[5], [9-코드]∥[9-인프라]를 동일 메시지에서 동시 호출. 미달 축만 재실행하되 상대 관점 영역 변경 시 통과 축도 1회 재검증. SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "리뷰 단계 = 관점 분리"
-- **[4][5][9] 교차 런타임 추가 리뷰 금지** — 진입 런타임의 서브에이전트 채점만으로 판정. Claude-Lead 에서 `codex`·`/codex:*` 호출 금지, Codex-Lead 에서 Claude 호출 금지. SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스"
+- **리뷰 병렬 발사** — [4]∥[5], [9-코드]∥[9-인프라]를 동일 메시지에서 동시 호출. 미달 축만 재실행하되 상대 관점 영역 변경 시 통과 축도 1회 재검증. SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "리뷰 단계 = 관점 분리"
+- **[4][5][9] 교차 런타임 추가 리뷰 금지** — 진입 런타임의 서브에이전트 채점만으로 판정. Claude-Lead 에서 `codex`·`/codex:*` 호출 금지, Codex-Lead 에서 Claude 호출 금지. SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스"
 - 산출물 보고([10]) 없이 배포([11]) 진행 **금지**
-- 회고([12]) — **사용자 명시 명령(`/rp-retro`) 시에만 실행, 자동 진입 없음** (SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "단축 경로·예외")
+- 회고([12]) — **사용자 명시 명령(`/rp-retro`) 시에만 실행, 자동 진입 없음** (SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "단축 경로·예외")
 - 각 스킬의 상세 규칙은 해당 스킬 파일 참조
 
-→ 워크플로우 상세: [`../harness-workflow.md`](../harness-workflow.md)
+→ 워크플로우 상세: [`../harness-workflow.md`](../../../docs/harness-workflow.md)

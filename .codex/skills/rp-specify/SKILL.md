@@ -8,7 +8,7 @@ description: "[2] 구체화. 존재 이유·사용자·핵심 장면·경계·�
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -48,7 +48,7 @@ description: "[2] 구체화. 존재 이유·사용자·핵심 장면·경계·�
 | 기본값 | 근거 없음 + 어느 답이든 결과 차이 미미 | 질문 생략, 업계 관행 기본값을 가정으로 기록 |
 
 - 가정 목록은 첫 질문 직전(질문 0개면 작업 시작 전) 1회 **통지** — 확인 질문 아님, 응답 대기 없이 진행
-- 가정은 PRD에 근거와 함께 기록 (Full PRD: [`../prd-template.md`](../prd-template.md) "가정 · 리스크 · 열린 질문"의 `가정` 행, 간이·간소 PRD: 결정 사항 표·본문에 `가정:` 접두) — 사용자 확정과 구분. 자동 선택 항목은 `자동 선택(점수):` 접두로 별도 표기, 요청 상충 선택지 채택은 `사용자 결정(요청 번복):` 접두로 기록 + 번복된 이전 결정 명시 (Full PRD: "가정 · 리스크 · 열린 질문" 표 `요청 번복` 행, 간이·간소 PRD: 결정 사항 표)
+- 가정은 PRD에 근거와 함께 기록 (Full PRD: [`../prd-template.md`](../../../docs/prd-template.md) "가정 · 리스크 · 열린 질문"의 `가정` 행, 간이·간소 PRD: 결정 사항 표·본문에 `가정:` 접두) — 사용자 확정과 구분. 자동 선택 항목은 `자동 선택(점수):` 접두로 별도 표기, 요청 상충 선택지 채택은 `사용자 결정(요청 번복):` 접두로 기록 + 번복된 이전 결정 또는 상충한 사용자 발화 명시 (Full PRD: "가정 · 리스크 · 열린 질문" 표 `요청 번복` 행, 간이·간소 PRD: 결정 사항 표)
 - PRD 작성 후 가정 오류 판명 시: PRD 본문 갱신 → 영향 축 리뷰 재검증 (재검증 범위는 [4]·[5] 규칙 동일)
 
 ## 절차
@@ -109,4 +109,4 @@ CLAUDE.md의 Interaction 규칙에 따른다:
 
 완료 즉시 `✓ [2] 구체화 완료` 출력 후 **`/rp-prd` 자동 진입**.
 
-→ PRD 작성: [`rp-prd.md`](rp-prd.md)
+→ PRD 작성: [`rp-prd.md`](../../../docs/skills/rp-prd.md)

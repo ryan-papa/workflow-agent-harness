@@ -8,7 +8,7 @@ description: "[9] 코드 리뷰. 진입 런타임 서브에이전트가 7항목 
 ## Codex Adapter Notes
 
 - Treat this as the Codex project-local equivalent of the matching Claude `/rp-*` skill.
-- Resolve copied relative links against the source file under `docs/skills/` when needed.
+- Relative links are rewritten to resolve from this `.codex/skills/<name>/` directory.
 - Do not record Claude-only `.claude` hooks or slash commands as executed unless they actually ran.
 - Use Codex `spawn_agent` for independent review when a review step requires role separation.
 - Runtime is the reviewer: never call Claude for an extra cross-runtime review.
@@ -19,7 +19,7 @@ description: "[9] 코드 리뷰. 진입 런타임 서브에이전트가 7항목 
 
 코드 리뷰 (7항목 평가). **메인 셀프 채점 절대 금지** — 해당 런타임 서브에이전트가 **코드 관점**으로 채점.
 
-[9]는 **2축 병렬**이다: `[9-코드]`(본 스킬) ∥ `[9-인프라]`([`rp-infra-review.md`](rp-infra-review.md)). 두 서브에이전트를 **동일 메시지에서 동시 발사**하고, 통과는 두 축 AND 결합.
+[9]는 **2축 병렬**이다: `[9-코드]`(본 스킬) ∥ `[9-인프라]`([`rp-infra-review.md`](../../../docs/skills/rp-infra-review.md)). 두 서브에이전트를 **동일 메시지에서 동시 발사**하고, 통과는 두 축 AND 결합.
 
 ## 작성 모드
 
@@ -28,7 +28,7 @@ description: "[9] 코드 리뷰. 진입 런타임 서브에이전트가 7항목 
 | Claude-Lead (Claude Code) | Claude Agent 툴 서브에이전트 | **없음** — Codex 호출 금지 |
 | Codex-Lead (Codex CLI) | Codex `spawn_agent` 서브에이전트 | **없음** — Claude 호출 금지 |
 
-**런타임 = 리뷰어.** 교차 런타임 추가 리뷰 전면 금지. SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
+**런타임 = 리뷰어.** 교차 런타임 추가 리뷰 전면 금지. SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
 
 ## 트리거
 
@@ -72,7 +72,7 @@ git diff --cached | grep -iE \
 
 **합성 규칙**: 동일 항목에 상한 복수 적중 → **가장 낮은 상한** 채택. 상한 + 감점 동시 → **감점 먼저, 그 뒤 상한 클램프** (`min(원점수 - 감점, 상한)`).
 
-**5a 선행 판정 — 노출 등급**: 대상 **엔드포인트**를 **E**(외부 공개) / **I**(내부 전용) / **A**(운영자 전용) 로 확정. **기본값 I** — E·A 는 SSOT §1 확정 조건(공개 라우트·인증 예외·현재 시제 문서 서술·대고객 클라이언트 호출 / 운영자 인증·역할 검사)이 레포에서 **실제로 확인될 때만**, 근거 1줄 인용. 판정표 적중은 `5a 참고: <행> <위치> <개선 방향>` 코멘트로만 남기며 **점수 무영향**(5a 적중만으로 보안 감점 금지). 등급 정의·판정표 → SSOT [`../harness-trust-boundary.md`](../harness-trust-boundary.md).
+**5a 선행 판정 — 노출 등급**: 대상 **엔드포인트**를 **E**(외부 공개) / **I**(내부 전용) / **A**(운영자 전용) 로 확정. **기본값 I** — E·A 는 SSOT §1 확정 조건(공개 라우트·인증 예외·현재 시제 문서 서술·대고객 클라이언트 호출 / 운영자 인증·역할 검사)이 레포에서 **실제로 확인될 때만**, 근거 1줄 인용. 판정표 적중은 `5a 참고: <행> <위치> <개선 방향>` 코멘트로만 남기며 **점수 무영향**(5a 적중만으로 보안 감점 금지). 등급 정의·판정표 → SSOT [`../harness-trust-boundary.md`](../../../docs/harness-trust-boundary.md).
 
 ## ⛔ 실행 주체 (서브에이전트 필수)
 
@@ -80,15 +80,15 @@ git diff --cached | grep -iE \
 
 **병렬 발사**: [9] 진입 시 `[9-코드]`(7항목 점수제) 와 `[9-인프라]`(무점수 BLOCK/ASK/WARN) 서브에이전트를 **동일 메시지에서 동시 발사**한다. 컨텍스트 미공유 독립 판정. Codex-Lead 는 `spawn_agent` 동시 발사 불가 시 **순차 fallback 허용** (판정 규칙·통과 조건 동일).
 
-**서브에이전트 프롬프트** 5 필수 항목 (a)~(e) → SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) 리뷰 대상 diff·브랜치·파일 경로 + **PR 본문(있을 경우), 레포 문서(`README.md` + PR 본문이 지목한 문서) 의 노출 면 서술** (b) 코드 축 = 7항목 + PR 유형별 포커스 / 인프라 축 = 5영역 무점수 판정 (c)·(d)·(e) SSOT 그대로 — 출력 마지막 줄 `목표 정합:`.
+**서브에이전트 프롬프트** 5 필수 항목 (a)~(e) → SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) 리뷰 대상 diff·브랜치·파일 경로 + **PR 본문(있을 경우), 레포 문서(`README.md` + PR 본문이 지목한 문서) 의 노출 면 서술** (b) 코드 축 = 7항목 + PR 유형별 포커스 / 인프라 축 = 5영역 무점수 판정 (c)·(d)·(e) SSOT 그대로 — 출력 마지막 줄 `목표 정합:`.
 
 **결과 처리**: 별도 파일 저장 없음. 서브에이전트 점수·지적은 인-메모리에서 메인이 수신 후 코드·PRD 본문·PR 노트에 반영.
 
-**재시도**: PRD 본문 갱신 + 코드 수정 후 **미달·차단된 축만** 새 서브에이전트로 재실행. 회차별 별도 파일·점수 보존 없음 (한도는 아래 판정 절). 재리뷰 범위 → SSOT [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "재리뷰 범위".
+**재시도**: PRD 본문 갱신 + 코드 수정 후 **미달·차단된 축만** 새 서브에이전트로 재실행. 회차별 별도 파일·점수 보존 없음 (한도는 아래 판정 절). 재리뷰 범위 → SSOT [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "재리뷰 범위".
 
-**조건부 재검증**: 수정이 상대 관점 영역을 건드리면 통과한 축도 1회 재검증 — SQL·Redis·직렬화 대상 타입·배포 매니페스트 변경 → 인프라 축 / 비즈니스 로직·공개 API·테스트 변경 → 코드 축. 재검증은 카운트 미소비, **같은 사이클 내 연쇄 재검증 금지**(미달 시 다음 사이클의 미달 축으로 전환). 리뷰 통과 후 동작·결정 변경 → SSOT [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "리뷰 지적 반영 검증".
+**조건부 재검증**: 수정이 상대 관점 영역을 건드리면 통과한 축도 1회 재검증 — SQL·Redis·직렬화 대상 타입·배포 매니페스트 변경 → 인프라 축 / 비즈니스 로직·공개 API·테스트 변경 → 코드 축. 재검증은 카운트 미소비, **같은 사이클 내 연쇄 재검증 금지**(미달 시 다음 사이클의 미달 축으로 전환). 리뷰 통과 후 동작·결정 변경 → SSOT [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "리뷰 지적 반영 검증".
 
-**부분 기술 실패**: 한 축만 실패 시 해당 축만 최대 2회 재호출(총 3회), 정상 축 결과 보존. **실패 축을 생략한 통과 판정 금지**. SSOT [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "재시도 한도" 적용. 메인 셀프 채점 우회 금지.
+**부분 기술 실패**: 한 축만 실패 시 해당 축만 최대 2회 재호출(총 3회), 정상 축 결과 보존. **실패 축을 생략한 통과 판정 금지**. SSOT [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "재시도 한도" 적용. 메인 셀프 채점 우회 금지.
 
 ## PR 유형별 포커스
 
@@ -107,21 +107,25 @@ git diff --cached | grep -iE \
 
 **통과 조건 (모두 충족):**
 - 코드 축: 평균 >= 8.0 AND 각 항목 >= 7
-- 인프라 축: **BLOCK 0건 AND 미해결 ASK 0건** ([`rp-infra-review.md`](rp-infra-review.md))
+- 인프라 축: **BLOCK 0건 AND 미해결 ASK 0건** ([`rp-infra-review.md`](../../../docs/skills/rp-infra-review.md))
 
-최저 미달 시 평균 8.0 이상이어도 **미통과**. 코드 점수와 인프라 등급은 **독립 판정** — 서로의 점수를 조정하지 않는다. 관할 경계(중복 지적·상반 판정) → SSOT [`../harness-infra-review.md`](../harness-infra-review.md) "관할 경계".
+최저 미달 시 평균 8.0 이상이어도 **미통과**. 코드 점수와 인프라 등급은 **독립 판정** — 서로의 점수를 조정하지 않는다. 관할 경계(중복 지적·상반 판정) → SSOT [`../harness-infra-review.md`](../../../docs/harness-infra-review.md) "관할 경계".
 
 **재시도:**
 - 미달·차단 → 개발자 재투입 (인-메모리 **최대 5회** — 본 [9] 단계 한정, **코드+인프라 공통 카운터**. [4]·[5]는 축별 3회)
 - **소비 단위 = 사이클** — 한 사이클에서 어느 축이든 1개 이상 재실행하면 1회 소비. 조건부 재검증은 미소비. ASK 발생 자체도 미소비(ASK 후 코드 수정하여 재실행하면 그 사이클이 1회 소비)
-- **5회 미달 → 자동 중단 + 사용자 결정 요청** (강행/재설계/중단). 임계 완화 금지 — SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "재시도 한도"
+- **5회 미달 → 자동 중단 + 사용자 결정 요청** (강행/재설계/중단). 임계 완화 금지 — SSOT: [`../harness-absolute-rules.md`](../../../docs/harness-absolute-rules.md) "재시도 한도"
 
 ## 이슈 처리
 
 | 심각도 | 처리 |
 |--------|------|
-| High/Mid | 개발자가 자동 수정 |
-| Low | 테이블로 제시, 사용자 선택 |
+| Critical/High/Medium/Low | 개발자가 자동 수정 — 사용자 선택 대기 없음 |
+| Low (예외) | 재시도 카운터 5회를 모두 소비한 회차가 통과한 경우의 Low 는 **미처리 후 진행** |
+
+처리·미처리 지적은 산출물 보고[10]에 표로 정리.
+
+심각도 기준 SSOT: [`../harness-code-review.md`](../../../docs/harness-code-review.md) "지적 심각도"
 
 ## 자동화 vs 판단
 
@@ -141,4 +145,4 @@ git diff --cached | grep -iE \
 
 산출물 보고 후 `rp-ship`이 커밋·PR·자동 머지 가드·배포를 이어서 진행한다. 자동 머지 가드 실패 시 중단·보고.
 
-→ 리뷰 기준 상세: [`../harness-code-review.md`](../harness-code-review.md)
+→ 리뷰 기준 상세: [`../harness-code-review.md`](../../../docs/harness-code-review.md)

@@ -1,5 +1,5 @@
 ---
-description: '[8] QA/콘텐츠 검수. 코드 프로젝트는 E2E+axe 필수, 콘텐츠는 빌드·렌더링·품질'
+description: '[8] QA/콘텐츠 검수. 코드 프로젝트는 E2E+axe 필수, 콘텐츠는 빌드·렌더링·품질, 하네스 메타는 로컬 CI·동기화 검사'
 argument-hint: '[대상 기능·브랜치]'
 ---
 
@@ -10,11 +10,12 @@ argument-hint: '[대상 기능·브랜치]'
 ## 트리거
 
 - 전체 태스크 개발 완료 후 자동
+- 메타 단축 경로: [4]∥[5] 양축 통과 후 자동 (`docs/skills/` 전용 예외는 간소 PRD 작성 직후)
 - `/rp-qa` 명령
 
 ## 유형 판별
 
-→ SSOT: [`../harness-qa.md`](../harness-qa.md) "프로젝트 유형별 분기" 표 (코드 / 콘텐츠 분기)
+→ SSOT: [`../harness-qa.md`](../harness-qa.md) "프로젝트 유형별 분기" 표 (코드 / 콘텐츠 / 하네스 메타 분기)
 
 ## 코드 프로젝트 QA
 
@@ -68,6 +69,6 @@ Dev Agent 재투입 → 수정 → QA 재실행 (최대 3회, 실패 시 사용�
 
 ## ▶ 자동 전환
 
-통과 즉시 `✓ [8] QA 통과` 출력 후 **`/rp-code-review` ∥ `/rp-infra-review` 자동 진입** (2축 동시 발사).
+통과 즉시 `✓ [8] QA 통과` 출력 후 **`/rp-code-review` ∥ `/rp-infra-review` 자동 진입** (2축 동시 발사). 하네스 메타는 `/rp-code-review` 단독 (인프라 축 skip).
 
 → QA 상세: [`../harness-qa.md`](../harness-qa.md)
