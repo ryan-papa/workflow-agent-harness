@@ -51,7 +51,7 @@ argument-hint: '[프로젝트·기능 설명]'
 
 ## 규칙
 
-- **메타 변경 단축 경로** — 하네스 문서(`docs/`, `CLAUDE.md`, `AGENTS.md`, 스킬, `scripts/`, `.codex/`, `.claude/settings.json`) 변경은 `rp-init`·`rp-specify`·`rp-task`·`rp-dev` **스킵** + feat 브랜치 + `rp-prd` 간소 경로 + `rp-plan-review` ∥ `rp-eng-review` + `rp-qa`(메타 QA) + `rp-code-review`(인프라 축 skip) + `rp-ship`으로 진행 (변경 범위가 `docs/skills/` + `.codex/skills/` 동기화분으로 한정될 때는 [4]·[5] 스킵). `main` 직접 수정 금지. SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "단축 경로·예외"
+- **메타 변경 단축 경로** — 하네스 문서(`docs/`, `CLAUDE.md`, `AGENTS.md`, 스킬, `scripts/`, `.codex/`, `.claude/settings.json`) 변경은 `rp-init`·`rp-specify`·`rp-task`·`rp-dev` **스킵** + feat 브랜치 + `rp-prd` 간소 경로 + `rp-plan-review` ∥ `rp-eng-review` + `rp-qa`(메타 QA) + `rp-code-review`(인프라 축 skip) + `rp-ship`으로 진행 (변경 범위가 `docs/skills/` + `.codex/skills/` 동기화분으로 한정될 때 (해당 변경의 PRD 산출물 `docs/prd/[feature]/prd.md` 는 판정에서 무시 — 포함돼도 예외 유지)는 [4]·[5] 스킵). `main` 직접 수정 금지. SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "단축 경로·예외"
 - **신규 `rp-*` 스킬 추가 시 심링크 자동 동기화** — `docs/skills/rp-*.md` 생성 감지 시 `PostToolUse` 훅이 `.claude/commands/rp-*.md` 심링크 자동 생성. 훅 실패 시 수동 fallback: `cd .claude/commands && ln -s ../../docs/skills/rp-새이름.md rp-새이름.md`
 - **전 단계 자동 연결** — 각 스킬 완료 시 다음 스킬 자동 호출
 - **기본 경로 승인 대기 없음** — 산출물 보고 후 `rp-ship`이 커밋·PR·자동 머지 가드·배포를 진행. 자동 머지 가드 실패 시 OPEN 유지 + 사용자 보고
