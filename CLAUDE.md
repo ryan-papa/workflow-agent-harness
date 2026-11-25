@@ -161,7 +161,7 @@ workflow-agent-harness/
 
 **스킬 위치:** [`docs/skills/`](docs/skills/)
 
-**스킬 동기화 (Codex · Antigravity):** `docs/skills/rp-*.md`가 원본이다. 변경 후 `.claude/commands/` 심링크와 `.codex/skills/rp-*/SKILL.md`·`.agents/skills/rp-*/SKILL.md` 변환본을 함께 갱신한다. 수동 동기화는 `python3 scripts/sync-skills.py`, 확인은 `python3 scripts/sync-skills.py --check`, 글로벌 설치는 `python3 scripts/sync-skills.py --install-user` (Codex 단독 호환: `scripts/sync-codex-skills.py`).
+**스킬 동기화 (Codex · Antigravity):** `docs/skills/rp-*.md`가 원본이다. 변경 후 `.claude/commands/` 심링크와 `.codex/skills/rp-*/SKILL.md`·`.agents/skills/rp-*/SKILL.md` 변환본을 함께 갱신한다. 수동 동기화는 `python3 scripts/sync-skills.py --sync-claude-links`(신규 스킬의 `.claude/commands/` 심링크 생성 포함), 변환본 검증은 `python3 scripts/sync-skills.py --check`(`.codex/skills/`·`.agents/skills/` 대상, 동기화와 분리 실행), 글로벌 설치는 `python3 scripts/sync-skills.py --install-user`. Codex 변환본 단독 호환 래퍼는 `scripts/sync-codex-skills.py`(옵션은 `--check`·`--install-user`만 지원).
 
 **⛔ 하네스 절대 규칙:** [`docs/harness-absolute-rules.md`](docs/harness-absolute-rules.md) (SSOT, 예외 없음)
 - **⛔ CI 통과 전 `gh pr merge` 호출 자체 금지** — 가드 (a) 3단계(`gh pr checks --watch` + 재호출 exit 0 + pending/queued/in_progress/fail 0건) 모두 통과 전 머지 명령 실행 금지. `--auto`/`--admin`/`--no-verify` 전면 금지. 위반 시 즉시 revert + 배포 취소 + 회고 노트 의무. 사례: museum-finder PR #274 r1 / #294 / #225 / #296. 상세: SSOT §배포·머지·브랜치 + [`harness-ship.md`](docs/harness-ship.md) §CI 정책
