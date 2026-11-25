@@ -30,11 +30,11 @@
 (선택) [12] 회고 — 사용자 명시 명령 시에만 실행 → /rp-retro
 ```
 
-**작성 모드 분기:** 메인 런타임이 Claude면 Claude-Lead, Codex면 Codex-Lead. **런타임 = 리뷰어** — 진입 런타임의 서브에이전트만 채점하며 교차 런타임 추가 리뷰는 전면 금지. 메인 셀프 채점 절대 금지. SSOT [`harness-absolute-rules.md`](harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
+**작성 모드 분기:** 메인 런타임이 Claude면 Claude-Lead, Codex면 Codex-Lead, Antigravity면 Antigravity-Lead. **런타임 = 리뷰어** — 진입 런타임의 서브에이전트만 채점하며 교차 런타임 추가 리뷰는 전면 금지. 메인 셀프 채점 절대 금지. SSOT [`harness-absolute-rules.md`](harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
 
 **상태 메시지:** 진입 `▶ [N] 단계명...`, 완료 `✓ [N] 단계명 완료`
 
-**단계 토큰 출력:** 단계 진입 시 `python3 scripts/token-usage.py --start N` **단독 호출**(N 은 숫자 시작 ASCII 라벨, 예: `9`. 보고 호출과 한 명령으로 묶지 않는다. **의무** — 토큰 집계 경계. transcript 가 assistant 텍스트를 전부 보존하지 않아 tool 호출을 경계로 쓴다). 완료 시 `✓ [N]` 다음 줄에 `python3 scripts/token-usage.py` 출력 1줄을 그대로 붙인다 — `토큰 [N]: in X · out Y · cache_r Z · cache_w W`. 경계 이후 메인+서브에이전트 합산(병렬 2축은 경계 1개), Codex 는 `(메인만)`·`cache_w n/a`. **파일 저장 없음, 추정치 금지** — 실패 시 `토큰: 집계 실패 — <사유 코드>`. 두 호출 모두 cwd 가 하네스 루트가 아니면 `<하네스 루트>/scripts/token-usage.py` 로 호출. `--start` 와 보고 호출은 **같은 assistant 메시지의 병렬 tool 호출로 묶지 않는다**(같은 메시지의 tool_use 행은 응답 종료 후 일괄 기록 → 보고 시점 미반영). 순차 호출은 허용. 보고 호출이 포함된 응답 자체 사용량은 미포함. 보고 라벨이 현재 단계와 다르면 메인이 수치 대신 `토큰: 집계 실패 — 라벨 불일치` 를 직접 출력(스크립트 출력 아님). 회귀 확인 `--self-test`
+**단계 토큰 출력:** 단계 진입 시 `python3 scripts/token-usage.py --start N` **단독 호출**(N 은 숫자 시작 ASCII 라벨, 예: `9`. 보고 호출과 한 명령으로 묶지 않는다. **의무** — 토큰 집계 경계. transcript 가 assistant 텍스트를 전부 보존하지 않아 tool 호출을 경계로 쓴다). 완료 시 `✓ [N]` 다음 줄에 `python3 scripts/token-usage.py` 출력 1줄을 그대로 붙인다 — `토큰 [N]: in X · out Y · cache_r Z · cache_w W`. 경계 이후 메인+서브에이전트 합산(병렬 2축은 경계 1개), Codex 는 `(메인만)`·`cache_w n/a`, Antigravity 는 `cache_w n/a`(자식 transcript 누락 시 `(메인만)`). **파일 저장 없음, 추정치 금지** — 실패 시 `토큰: 집계 실패 — <사유 코드>`. 두 호출 모두 cwd 가 하네스 루트가 아니면 `<하네스 루트>/scripts/token-usage.py` 로 호출. `--start` 와 보고 호출은 **같은 assistant 메시지의 병렬 tool 호출로 묶지 않는다**(같은 메시지의 tool_use 행은 응답 종료 후 일괄 기록 → 보고 시점 미반영). 순차 호출은 허용. 보고 호출이 포함된 응답 자체 사용량은 미포함. 보고 라벨이 현재 단계와 다르면 메인이 수치 대신 `토큰: 집계 실패 — 라벨 불일치` 를 직접 출력(스크립트 출력 아님). 회귀 확인 `--self-test`
 
 **스킬 인덱스:**
 
@@ -149,8 +149,8 @@
 
 **문서 정합성:**
 - docs/ 파일 변경 시 CLAUDE.md 트리·링크 자동 동기화
-- `docs/skills/rp-*.md` 신규 생성 시 `.claude/commands/rp-*.md` 심링크 `PostToolUse` 훅이 자동 생성 (`.claude/hooks/sync-rp-commands.sh`)
-- `docs/skills/rp-*.md` 변경 시 `.codex/skills/rp-*/SKILL.md`도 `scripts/sync-codex-skills.py`로 동기화
+- `docs/skills/rp-*.md` 신규 생성 시 `.claude/commands/rp-*.md` 심링크 `PostToolUse` 훅이 자동 생성 (`.claude/hooks/sync-rp-commands.sh` · `.agents/hooks.json`)
+- `docs/skills/rp-*.md` 변경 시 `.codex/skills/rp-*/SKILL.md`·`.agents/skills/rp-*/SKILL.md`도 `scripts/sync-skills.py`로 동기화 (Codex 단독 호환: `scripts/sync-codex-skills.py`)
 
 **스펙 변경 시 문서 우선 원칙:**
 - 기능 추가/변경/삭제 시 코드 작업 전에 반드시 PRD 문서 먼저 업데이트

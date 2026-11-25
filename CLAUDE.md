@@ -107,8 +107,14 @@ workflow-agent-harness/
 │       ├── worktrees/[통합브랜치명]/  # 통합 브랜치별 워크트리 (서브레포 내부 격리, 서브레포 .gitignore 제외)
 │       └── docs/prd/
 ├── .gitignore
+├── .agents/                   # Antigravity 워크스페이스 스킬(`.agents/skills/`) · 훅(`.agents/hooks.json`)
 ├── .codex/skills/             # Codex용 프로젝트 로컬 rp-* 스킬
+├── scripts/
+│   ├── sync-skills.py         # Codex · Antigravity 스킬 공통 동기화 엔진
+│   ├── sync-codex-skills.py   # Codex 호환 래퍼
+│   └── token-usage.py         # 단계별 토큰 1줄 출력 (Claude · Codex · Antigravity)
 ├── AGENTS.md                  # Codex용 하네스 어댑터
+├── GEMINI.md                  # Antigravity용 경량 하네스 어댑터
 ├── DB-GUIDE.md                # DB 연결 가이드 (절대 규칙은 SSOT §DB 파괴적 작업 금지)
 └── CLAUDE.md
 ```
@@ -125,7 +131,7 @@ workflow-agent-harness/
 
 → [`docs/harness-workflow.md`](docs/harness-workflow.md)
 
-**작성 모드:** Claude Code 진입 = Claude-Lead, Codex CLI 진입 = Codex-Lead. 리뷰 매트릭스 SSOT [`harness-absolute-rules.md`](docs/harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
+**작성 모드:** Claude Code 진입 = Claude-Lead, Codex CLI 진입 = Codex-Lead, Antigravity 진입 = Antigravity-Lead. 리뷰 매트릭스 SSOT [`harness-absolute-rules.md`](docs/harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
 
 | 단계 | 스킬 | 내용 |
 |:----:|------|------|
@@ -137,11 +143,11 @@ workflow-agent-harness/
 | 11 | `rp-ship` | 커밋 → PR(신규 시 `rp-pr-review` 1회, 출력만) → CI → 머지 → 배포 | [`harness-ship.md`](docs/harness-ship.md) |
 | 12 | `rp-retro` | 회고 (절차 준수 + 효율성 + 규칙 개선) | [`rp-retro.md`](docs/skills/rp-retro.md) |
 
-**메인 셀프 리뷰 절대 금지:** 4·5·9 단계 모두 메인 런타임의 서브에이전트(Claude-Lead=Agent 툴 / Codex-Lead=`spawn_agent`)가 채점. 재시도는 **[4]·[5] 최대 3회(축별 독립) / [9] 최대 5회(코드+인프라 공통, 사이클 단위)**, 한도 미달 시 자동 중단 + 사용자 결정 요청.
+**메인 셀프 리뷰 절대 금지:** 4·5·9 단계 모두 메인 런타임의 서브에이전트(Claude-Lead=Agent 툴 / Codex-Lead=`spawn_agent` / Antigravity-Lead=`invoke_subagent`)가 채점. 재시도는 **[4]·[5] 최대 3회(축별 독립) / [9] 최대 5회(코드+인프라 공통, 사이클 단위)**, 한도 미달 시 자동 중단 + 사용자 결정 요청.
 
-**리뷰 병렬 실행:** `[4] ∥ [5]`, `[9-코드] ∥ [9-인프라]` 를 동일 메시지에서 동시 발사(컨텍스트 미공유 독립 판정). 미달 축만 재실행하되 상대 관점 영역 변경 시 통과 축도 1회 재검증. Codex-Lead 는 동시 발사 불가 시 순차 fallback 허용(통과 조건 동일). **인프라 축은 정적 분석 전용 — 실인프라 조회·접속 금지.**
+**리뷰 병렬 실행:** `[4] ∥ [5]`, `[9-코드] ∥ [9-인프라]` 를 동일 메시지에서 동시 발사(컨텍스트 미공유 독립 판정). 미달 축만 재실행하되 상대 관점 영역 변경 시 통과 축도 1회 재검증. Codex-Lead·Antigravity-Lead 는 동시 발사 불가 환경 시 순차 fallback 허용(통과 조건 동일). **인프라 축은 정적 분석 전용 — 실인프라 조회·접속 금지.**
 
-**⛔ 교차 런타임 추가 리뷰 금지:** 런타임 = 리뷰어. Claude-Lead 에서 `codex`·`/codex:*` 호출 금지, Codex-Lead 에서 Claude 호출 금지. 통과 판정은 **동일 런타임 서브에이전트의 판정 단일 기준**(코드 축 점수 + 인프라 축 BLOCK·미해결 ASK 0건).
+**⛔ 교차 런타임 추가 리뷰 금지:** 런타임 = 리뷰어. Claude-Lead · Codex-Lead · Antigravity-Lead 간 교차 호출 전면 금지. 통과 판정은 **동일 런타임 서브에이전트의 판정 단일 기준**(코드 축 점수 + 인프라 축 BLOCK·미해결 ASK 0건).
 
 **오케스트레이터:**
 - `rp-workflow` — 신규 프로젝트·기능 (init부터 전 단계)
@@ -155,7 +161,7 @@ workflow-agent-harness/
 
 **스킬 위치:** [`docs/skills/`](docs/skills/)
 
-**Codex 스킬 동기화:** `docs/skills/rp-*.md`가 원본이다. 변경 후 `.claude/commands/` 심링크와 `.codex/skills/rp-*/SKILL.md` 변환본을 함께 갱신한다. 수동 확인은 `python3 scripts/sync-codex-skills.py --check`, 로컬 설치는 `python3 scripts/sync-codex-skills.py --install-user`.
+**스킬 동기화 (Codex · Antigravity):** `docs/skills/rp-*.md`가 원본이다. 변경 후 `.claude/commands/` 심링크와 `.codex/skills/rp-*/SKILL.md`·`.agents/skills/rp-*/SKILL.md` 변환본을 함께 갱신한다. 수동 동기화는 `python3 scripts/sync-skills.py`, 확인은 `python3 scripts/sync-skills.py --check`, 글로벌 설치는 `python3 scripts/sync-skills.py --install-user` (Codex 단독 호환: `scripts/sync-codex-skills.py`).
 
 **⛔ 하네스 절대 규칙:** [`docs/harness-absolute-rules.md`](docs/harness-absolute-rules.md) (SSOT, 예외 없음)
 - **⛔ CI 통과 전 `gh pr merge` 호출 자체 금지** — 가드 (a) 3단계(`gh pr checks --watch` + 재호출 exit 0 + pending/queued/in_progress/fail 0건) 모두 통과 전 머지 명령 실행 금지. `--auto`/`--admin`/`--no-verify` 전면 금지. 위반 시 즉시 revert + 배포 취소 + 회고 노트 의무. 사례: museum-finder PR #274 r1 / #294 / #225 / #296. 상세: SSOT §배포·머지·브랜치 + [`harness-ship.md`](docs/harness-ship.md) §CI 정책

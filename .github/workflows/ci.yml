@@ -13,7 +13,7 @@ jobs:
       - name: Check markdown files exist
         run: |
           echo "Checking required files..."
-          for f in CLAUDE.md README.md AGENTS.md docs/harness-absolute-rules.md docs/harness-workflow.md docs/harness-dev.md docs/harness-qa.md docs/harness-ship.md docs/harness-code-review.md docs/harness-infra-review.md docs/harness-trust-boundary.md; do
+          for f in CLAUDE.md README.md AGENTS.md GEMINI.md docs/harness-absolute-rules.md docs/harness-workflow.md docs/harness-dev.md docs/harness-qa.md docs/harness-ship.md docs/harness-code-review.md docs/harness-infra-review.md docs/harness-trust-boundary.md; do
             if [ ! -f "$f" ]; then
               echo "❌ Missing: $f"
               exit 1
@@ -25,7 +25,7 @@ jobs:
         run: |
           echo "Checking line limits..."
           failed=0
-          for f in $(find docs/ CLAUDE.md AGENTS.md README.md -name '*.md' -not -path '*/node_modules/*' -not -path '*/templates/*'); do
+          for f in $(find docs/ CLAUDE.md AGENTS.md GEMINI.md README.md -name '*.md' -not -path '*/node_modules/*' -not -path '*/templates/*'); do
             lines=$(wc -l < "$f")
             if [ "$lines" -gt 500 ]; then
               echo "❌ $f: ${lines} lines (max 500)"
@@ -36,11 +36,26 @@ jobs:
           done
           if [ "$failed" -eq 1 ]; then exit 1; fi
 
+      - name: Check rule file byte budgets
+        run: |
+          gemini_bytes=$(wc -c < GEMINI.md)
+          agents_bytes=$(wc -c < AGENTS.md)
+          combined_bytes=$((gemini_bytes + agents_bytes))
+          # Antigravity per-file cap is 24,000B; combined cap (22,000B) keeps headroom for subrepo rules
+          echo "GEMINI.md: ${gemini_bytes}B (max 8000B)"
+          echo "AGENTS.md: ${agents_bytes}B (max 24000B, per-file cap)"
+          echo "Combined (GEMINI.md + AGENTS.md): ${combined_bytes}B (max 22000B)"
+          if [ "$gemini_bytes" -gt 8000 ] || [ "$agents_bytes" -gt 24000 ] || [ "$combined_bytes" -gt 22000 ]; then
+            echo "❌ Rule byte budget exceeded"
+            exit 1
+          fi
+          echo "✅ Rule byte budgets OK"
+
       - name: Check for broken internal links
         run: |
           echo "Checking internal links..."
           failed=0
-          for f in $(find docs/ CLAUDE.md AGENTS.md README.md -name '*.md' -not -path '*/templates/*'); do
+          for f in $(find docs/ CLAUDE.md AGENTS.md GEMINI.md README.md -name '*.md' -not -path '*/templates/*'); do
             links=$(grep -oP '\[.*?\]\(\K[^)]+' "$f" 2>/dev/null | grep -v '^http' | grep -v '^#' || true)
             dir=$(dirname "$f")
             for link in $links; do
@@ -53,3 +68,11 @@ jobs:
           done
           if [ "$failed" -eq 1 ]; then exit 1; fi
           echo "✅ All internal links valid"
+
+      - name: Check skill sync and script self-tests
+        run: |
+          python3 scripts/sync-skills.py --check
+          python3 scripts/sync-codex-skills.py --check
+          python3 scripts/sync-skills.py --self-test
+          python3 scripts/token-usage.py --self-test
+          python3 .agents/hooks/sync-rp-skills.py --self-test

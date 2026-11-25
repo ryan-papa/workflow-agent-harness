@@ -4,7 +4,7 @@
 
 ## ⛔ 실행 주체 · 접근 제약
 
-- **반드시 메인 런타임의 서브에이전트**가 수행 (Claude-Lead=Agent 툴 / Codex-Lead=`spawn_agent`). 메인 셀프 채점 금지. SSOT: [`harness-absolute-rules.md`](harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스"
+- **반드시 메인 런타임의 서브에이전트**가 수행 (Claude-Lead=Agent 툴 / Codex-Lead=`spawn_agent` / Antigravity-Lead=`invoke_subagent`). 메인 셀프 채점 금지. SSOT: [`harness-absolute-rules.md`](harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스"
 - **⛔ 실인프라 접근 전면 금지**: 본 리뷰는 **정적 분석 전용**이다. DB·Redis·k8s·메시지 브로커 조회·접속, MCP DB 도구 사용, `kubectl`·`redis-cli`·`mysql` 등 실행 금지. 위반 감지 시 **결과 폐기 + 재발사**(재시도 카운트 미소비). **재발사 상한 2회** — 3회째 위반 시 중단 + 사용자 보고 (무한 재발사·토큰 소진 차단)
 - 리뷰 결과 파일 생성 금지. 판정은 응답 텍스트로만 반환
 

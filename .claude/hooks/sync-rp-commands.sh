@@ -1,5 +1,5 @@
 #!/bin/bash
-# Auto-create .claude/commands/rp-*.md symlink and refresh Codex skills
+# Auto-create .claude/commands/rp-*.md symlink and refresh Codex/Antigravity skills
 # when docs/skills/rp-*.md is written.
 # Hook input: JSON on stdin with tool_input.file_path.
 # Fails open (exit 0) so harness workflow is never blocked by this helper.
@@ -20,7 +20,10 @@ case "$file_path" in
       ( cd "$project_root/.claude/commands" && ln -s "../../docs/skills/$base" "$base" ) \
         && echo "[sync-rp-commands] symlink created: .claude/commands/$base" >&2
     fi
-    if [ -x "$project_root/scripts/sync-codex-skills.py" ]; then
+    if [ -f "$project_root/scripts/sync-skills.py" ]; then
+      ( cd "$project_root" && python3 scripts/sync-skills.py --target all ) \
+        && echo "[sync-rp-commands] skills refreshed: .codex/skills, .agents/skills" >&2
+    elif [ -x "$project_root/scripts/sync-codex-skills.py" ]; then
       ( cd "$project_root" && python3 scripts/sync-codex-skills.py ) \
         && echo "[sync-rp-commands] codex skills refreshed: .codex/skills" >&2
     fi

@@ -2,7 +2,7 @@
 
 ## ⛔ 실행 주체
 
-본 기준의 코드 리뷰는 **반드시 메인 런타임의 서브에이전트**(Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent`)가 수행한다. 메인 에이전트가 본인이 작성한 코드를 자체 채점하는 행위 **금지**. SSOT: [`harness-absolute-rules.md`](harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
+본 기준의 코드 리뷰는 **반드시 메인 런타임의 서브에이전트**(Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent` / Antigravity-Lead=`invoke_subagent` `TypeName: "self"`)가 수행한다. 메인 에이전트가 본인이 작성한 코드를 자체 채점하는 행위 **금지**. SSOT: [`harness-absolute-rules.md`](harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
 
 ## 평가 항목 (7개, 각 10점)
 

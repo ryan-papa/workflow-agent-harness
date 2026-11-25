@@ -13,8 +13,9 @@ argument-hint: '[대상 PR·브랜치]'
 
 | 모드 | 채점 주체 | 외부 추가 리뷰 |
 |------|---------|-------------|
-| Claude-Lead (Claude Code) | Claude Agent 툴 서브에이전트 | **없음** — Codex 호출 금지 |
-| Codex-Lead (Codex CLI) | Codex `spawn_agent` 서브에이전트 | **없음** — Claude 호출 금지 |
+| Claude-Lead (Claude Code) | Claude Agent 툴 서브에이전트 | **없음** — 타 런타임 호출 금지 |
+| Codex-Lead (Codex CLI) | Codex `spawn_agent` 서브에이전트 | **없음** — 타 런타임 호출 금지 |
+| Antigravity-Lead (Antigravity) | Antigravity `invoke_subagent` (`TypeName: "self"`) | **없음** — 타 런타임 호출 금지 |
 
 **런타임 = 리뷰어.** 교차 런타임 추가 리뷰 전면 금지. SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
 
@@ -64,9 +65,9 @@ git diff --cached | grep -iE \
 
 ## ⛔ 실행 주체 (서브에이전트 필수)
 
-코드 리뷰는 **반드시 메인 런타임의 서브에이전트로 실행** (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent`). 메인 에이전트 셀프 채점 **금지**.
+코드 리뷰는 **반드시 메인 런타임의 서브에이전트로 실행** (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent` / Antigravity-Lead=`invoke_subagent` `TypeName: "self"`). 메인 에이전트 셀프 채점 **금지**.
 
-**병렬 발사**: [9] 진입 시 `[9-코드]`(7항목 점수제) 와 `[9-인프라]`(무점수 BLOCK/ASK/WARN) 서브에이전트를 **동일 메시지에서 동시 발사**한다. 컨텍스트 미공유 독립 판정. Codex-Lead 는 `spawn_agent` 동시 발사 불가 시 **순차 fallback 허용** (판정 규칙·통과 조건 동일).
+**병렬 발사**: [9] 진입 시 `[9-코드]`(7항목 점수제) 와 `[9-인프라]`(무점수 BLOCK/ASK/WARN) 서브에이전트를 **동일 메시지에서 동시 발사**한다(Antigravity-Lead 는 비동기 fan-in). 컨텍스트 미공유 독립 판정. Codex-Lead·Antigravity-Lead 는 동시 발사 불가 환경 시 **순차 fallback 허용** (판정 규칙·통과 조건 동일).
 
 **서브에이전트 프롬프트** 5 필수 항목 (a)~(e) → SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) 리뷰 대상 diff·브랜치·파일 경로 + **PR 본문(있을 경우), 레포 문서(`README.md` + PR 본문이 지목한 문서) 의 노출 면 서술** (b) 코드 축 = 7항목 + PR 유형별 포커스 / 인프라 축 = 5영역 무점수 판정 (c)·(d)·(e) SSOT 그대로 — 출력 마지막 줄 `목표 정합:`.
 
@@ -130,7 +131,7 @@ git diff --cached | grep -iE \
 
 ## ▶ 자동 전환
 
-**양축 통과** 시 `✓ [9] 코드리뷰 + 인프라 리뷰 통과 (Claude-Lead)` 또는 `✓ [9] 코드리뷰 + 인프라 리뷰 통과 (Codex-Lead)` 출력 후 **산출물 보고[10] 자동 진입**.
+**양축 통과** 시 `✓ [9] 코드리뷰 + 인프라 리뷰 통과 (<작성 모드>)` (`Claude-Lead` / `Codex-Lead` / `Antigravity-Lead`) 출력 후 **산출물 보고[10] 자동 진입**.
 
 산출물 보고 후 `rp-ship`이 커밋·PR·자동 머지 가드·배포를 이어서 진행한다. 자동 머지 가드 실패 시 중단·보고.
 

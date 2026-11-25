@@ -49,7 +49,7 @@ argument-hint: '[프로젝트명] [유형: 코드|콘텐츠]'
 
 새 하네스 스킬(`rp-*.md`)을 만들 때:
 - [ ] `docs/skills/rp-<이름>.md` 생성(YAML frontmatter `description` + `argument-hint` 포함)
-- [ ] `.claude/commands/rp-<이름>.md` 심링크 확인 — `PostToolUse` 훅이 자동 생성. 미생성 시 수동 fallback: `cd .claude/commands && ln -s ../../docs/skills/rp-<이름>.md rp-<이름>.md`
+- [ ] `.claude/commands/rp-<이름>.md` 심링크 및 `.codex/skills/`·`.agents/skills/` 변환본 확인 — `PostToolUse` 훅이 자동 갱신. 미생성 시 수동 fallback: `python3 scripts/sync-skills.py --target all --sync-claude-links`
 - [ ] `CLAUDE.md`·`docs/harness-workflow.md`·`docs/skills/rp-workflow.md` 트리·링크 갱신
 - [ ] `/reload-plugins` 후 자동완성에서 노출 확인
 
