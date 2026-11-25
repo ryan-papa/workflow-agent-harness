@@ -11,6 +11,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 from dataclasses import dataclass
@@ -256,11 +257,13 @@ def sync_claude_links(
 ) -> list[str]:
     commands_dir.mkdir(parents=True, exist_ok=True)
     created: list[str] = []
-    for source in sorted(source_dir.glob("rp-*.md")):
-        link = commands_dir / source.name
-        if not link.exists() and not link.is_symlink():
-            link.symlink_to(Path("..") / ".." / "docs" / "skills" / source.name)
-            created.append(source.name)
+    with _dest_lock(commands_dir):
+        for source in sorted(source_dir.glob("rp-*.md")):
+            link = commands_dir / source.name
+            if not link.exists() and not link.is_symlink():
+                with contextlib.suppress(FileExistsError):
+                    link.symlink_to(Path("..") / ".." / "docs" / "skills" / source.name)
+                    created.append(source.name)
     return created
 
 
@@ -401,13 +404,44 @@ def self_test() -> None:
         )
         assert not (user_dir_conflict / "rp-demo").is_symlink()
 
-        # 4. Claude commands symlink helper
+        # 4. Claude commands symlink helper (creation, idempotency, FileExistsError race)
         cmd_dir = root / ".claude" / "commands"
         created = sync_claude_links(source_dir=src_dir, commands_dir=cmd_dir)
         assert created == ["rp-demo.md"]
         assert (cmd_dir / "rp-demo.md").is_symlink()
+        assert sync_claude_links(source_dir=src_dir, commands_dir=cmd_dir) == []
 
-        # 5. Missing frontmatter fails fast WITHOUT destroying existing synced skills
+        race_skill = src_dir / "rp-race.md"
+        ok_skill = src_dir / "rp-ok.md"
+        race_skill.write_text(skill.read_text(encoding="utf-8"), encoding="utf-8")
+        ok_skill.write_text(skill.read_text(encoding="utf-8"), encoding="utf-8")
+        orig_symlink = Path.symlink_to
+        def _fake_race(self: Path, target, target_is_directory: bool = False) -> None:
+            if self.name == "rp-race.md":
+                raise FileExistsError("simulated parallel hook race")
+            orig_symlink(self, target, target_is_directory=target_is_directory)
+        Path.symlink_to = _fake_race  # type: ignore[method-assign]
+        try:
+            assert sync_claude_links(source_dir=src_dir, commands_dir=cmd_dir) == ["rp-ok.md"]
+            assert (cmd_dir / "rp-ok.md").is_symlink()
+        finally:
+            Path.symlink_to = orig_symlink  # type: ignore[method-assign]
+        race_skill.unlink()
+        ok_skill.unlink()
+        (cmd_dir / "rp-ok.md").unlink()
+
+        # 5. Codex wrapper rejects unsupported flags (--target, --sync-claude-links)
+        wrapper = ROOT / "scripts" / "sync-codex-skills.py"
+        for bad_args in (["--target", "antigravity"], ["--target=antigravity"], ["--sync-claude-links"]):
+            proc = subprocess.run(
+                [sys.executable, str(wrapper), *bad_args],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert proc.returncode == 2, (bad_args, proc.returncode, proc.stderr)
+
+        # 6. Missing frontmatter fails fast WITHOUT destroying existing synced skills
         bad = src_dir / "rp-bad.md"
         bad.write_text("# no frontmatter\n", encoding="utf-8")
         for cfg in resolve_targets("all"):
