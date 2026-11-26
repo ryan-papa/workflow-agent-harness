@@ -11,8 +11,9 @@ argument-hint: '[대상 PR·브랜치]'
 
 | 모드 | 판정 주체 | 외부 추가 리뷰 |
 |------|---------|-------------|
-| Claude-Lead (Claude Code) | Claude Agent 툴 서브에이전트 | **없음** — Codex 호출 금지 |
-| Codex-Lead (Codex CLI) | Codex `spawn_agent` 서브에이전트 | **없음** — Claude 호출 금지 |
+| Claude-Lead (Claude Code) | Claude Agent 툴 서브에이전트 | **없음** — 타 런타임 호출 금지 |
+| Codex-Lead (Codex CLI) | Codex `spawn_agent` 서브에이전트 | **없음** — 타 런타임 호출 금지 |
+| Antigravity-Lead (Antigravity) | Antigravity `invoke_subagent` (`TypeName: "self"`) | **없음** — 타 런타임 호출 금지 |
 
 **런타임 = 리뷰어.** SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
 
@@ -34,7 +35,7 @@ argument-hint: '[대상 PR·브랜치]'
 
 ## ⛔ 실행 주체 · 접근 제약
 
-- 서브에이전트 필수 (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent`)
+- 서브에이전트 필수 (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent` / Antigravity-Lead=`invoke_subagent` `TypeName: "self"`)
 - **⛔ 실인프라 접근 전면 금지** — 정적 분석 전용. DB·Redis·k8s·브로커 조회·접속, MCP DB 도구, `kubectl`·`redis-cli`·`mysql` 실행 금지. 위반 시 결과 폐기 + 재발사(카운트 미소비), **재발사 상한 2회** 후 중단 + 사용자 보고
 - **서브에이전트 프롬프트** 5 필수 항목 (a)~(e) → SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) 리뷰 대상 diff·브랜치·파일 경로 (b) **5영역 무점수 BLOCK/ASK/WARN 판정** (c)·(d)·(e) SSOT 그대로 + 실인프라 접근 금지 — 출력 마지막 줄 `목표 정합:`
 - **결과 처리**: 별도 파일 저장 없음. 판정은 인-메모리로 메인이 수신 후 코드 수정·PR 본문 노트에 반영

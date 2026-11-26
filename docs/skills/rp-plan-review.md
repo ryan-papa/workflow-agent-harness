@@ -11,8 +11,9 @@ argument-hint: '[대상 PRD 경로]'
 
 | 모드 | 채점 주체 | 외부 추가 리뷰 |
 |------|---------|-------------|
-| Claude-Lead (Claude Code) | Claude Agent 툴 서브에이전트 | **없음** — Codex 호출 금지 |
-| Codex-Lead (Codex CLI) | Codex `spawn_agent` 서브에이전트 | **없음** — Claude 호출 금지 |
+| Claude-Lead (Claude Code) | Claude Agent 툴 서브에이전트 | **없음** — 타 런타임 호출 금지 |
+| Codex-Lead (Codex CLI) | Codex `spawn_agent` 서브에이전트 | **없음** — 타 런타임 호출 금지 |
+| Antigravity-Lead (Antigravity) | Antigravity `invoke_subagent` (`TypeName: "self"`) | **없음** — 타 런타임 호출 금지 |
 
 **런타임 = 리뷰어.** 교차 런타임 추가 리뷰 전면 금지. SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
 
@@ -21,10 +22,10 @@ argument-hint: '[대상 PRD 경로]'
 - PRD 작성 완료 후 — **[5] 엔지 리뷰와 동시 발사** (병렬)
 - `/rp-plan-review` 명령
 
-## 절차 (양 모드 공통)
+## 절차 (전 모드 공통)
 
-1. **서브에이전트 병렬 발사** (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent`): [4] 기획 · [5] 엔지 두 서브에이전트를 **동일 메시지에서 동시 발사**, 컨텍스트 미공유 독립 판정. 메인 셀프 채점 **금지**. 프롬프트 5 필수 항목 (a)~(e) → SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) PRD 경로 + PRD diff·영향 범위 (SSOT "최초 리뷰 범위") (b) 9항목 (c)·(d)·(e) SSOT 그대로 — 출력 마지막 줄 `목표 정합:`
-   - **Codex-Lead 대칭**: `spawn_agent` 동시 발사 불가 환경이면 **순차 fallback 허용** — 판정 규칙·통과 조건 동일, 실행 순서만 다름. 병렬 여부를 통과 조건에 넣지 않는다
+1. **서브에이전트 병렬 발사** (Claude-Lead=Agent 툴 `subagent_type=general-purpose` / Codex-Lead=`spawn_agent` / Antigravity-Lead=`invoke_subagent` `TypeName: "self"`): [4] 기획 · [5] 엔지 두 서브에이전트를 **동일 메시지에서 동시 발사**, 컨텍스트 미공유 독립 판정(Antigravity-Lead 는 두 완료 알림을 모두 수신해 판정하는 비동기 fan-in). 메인 셀프 채점 **금지**. 프롬프트 5 필수 항목 (a)~(e) → SSOT: [`../harness-absolute-rules.md`](../harness-absolute-rules.md) "[리뷰 단계 서브에이전트 필수]" 절. 본 단계 적용값: (a) PRD 경로 + PRD diff·영향 범위 (SSOT "최초 리뷰 범위") (b) 9항목 (c)·(d)·(e) SSOT 그대로 — 출력 마지막 줄 `목표 정합:`
+   - **순차 fallback 대칭**: Codex-Lead·Antigravity-Lead 동시 발사 불가 환경이면 **순차 fallback 허용** — 판정 규칙·통과 조건 동일, 실행 순서만 다름. 병렬 여부를 통과 조건에 넣지 않는다
 2. **판정**: 서브에이전트 결과만으로 판정
 3. **결과 처리**: 별도 파일 저장 없음. 점수·지적은 인-메모리에서 PRD 본문에 반영
 4. **통과**: 평균 ≥8.0 + 각 항목 ≥7 → **[5]도 통과 시** 다음 단계
@@ -54,6 +55,6 @@ argument-hint: '[대상 PRD 경로]'
 
 ## ▶ 자동 전환
 
-병렬 축 [5] 엔지 리뷰와 **양축 통과** 시 `✓ [4]·[5] 리뷰 통과 (Claude-Lead)` 또는 `✓ [4]·[5] 리뷰 통과 (Codex-Lead)` 출력 후 **`/rp-task` 자동 진입** (메타 단축 경로: `/rp-qa`). 한 축만 통과면 미달 축 재실행 후 재판정.
+병렬 축 [5] 엔지 리뷰와 **양축 통과** 시 `✓ [4]·[5] 리뷰 통과 (<작성 모드>)` (`Claude-Lead` / `Codex-Lead` / `Antigravity-Lead`) 출력 후 **`/rp-task` 자동 진입** (메타 단축 경로: `/rp-qa`). 한 축만 통과면 미달 축 재실행 후 재판정.
 
 → PRD 상세: [`../harness-prd.md`](../harness-prd.md)

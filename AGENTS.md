@@ -1,5 +1,7 @@
 # Codex Rules
 
+> 본 파일은 **Codex CLI 전용** 어댑터다. Antigravity 런타임에서 루트 [`GEMINI.md`](./GEMINI.md)와 함께 로드될 때는 [`GEMINI.md`](./GEMINI.md) 매핑을 우선 적용한다.
+
 ## 역할
 
 이 파일은 Codex용 하네스 어댑터다. [`CLAUDE.md`](./CLAUDE.md)를 대체하지 않고, Claude 중심 워크플로우를 Codex가 실행 가능한 규칙으로 번역한다.
@@ -15,15 +17,16 @@
 
 | 모드 | 메인 | 서브에이전트 (단계당 재시도 포함) | 외부 추가 리뷰 |
 |------|------|------------------------------|-------------|
-| Claude-Lead | Claude Code | Claude 서브에이전트 ([4]·[5] 3회 / [9] 5회) | **없음** — Codex 호출 금지 |
-| Codex-Lead | Codex CLI | Codex `spawn_agent` 서브에이전트 ([4]·[5] 3회 / [9] 5회) | **없음** — Claude 리뷰 금지 |
+| Claude-Lead | Claude Code | Claude 서브에이전트 ([4]·[5] 3회 / [9] 5회) | **없음** — 타 런타임 호출 금지 |
+| Codex-Lead | Codex CLI | Codex `spawn_agent` 서브에이전트 ([4]·[5] 3회 / [9] 5회) | **없음** — 타 런타임 호출 금지 |
+| Antigravity-Lead | Antigravity | Antigravity `invoke_subagent` (`TypeName: "self"`, [4]·[5] 3회 / [9] 5회) | **없음** — 타 런타임 호출 금지 |
 
 핵심:
 - 사용자가 진입한 런타임이 메인
 - **리뷰 병렬**: `[4] ∥ [5]`, `[9-코드] ∥ [9-인프라]` 동시 발사 (컨텍스트 미공유 독립 판정). Codex-Lead 는 `spawn_agent` 동시 발사 불가 시 **순차 fallback 허용** — 판정 규칙·통과 조건 동일, 병렬 여부는 통과 조건 아님
 - **[9-인프라]**: SQL·Redis·비동기·직렬화·배포 5영역, **무점수 BLOCK/ASK/WARN** 판정, **정적 분석 전용(실인프라 접근 금지)**. SSOT: [`docs/harness-infra-review.md`](./docs/harness-infra-review.md)
 - 메인 셀프 채점 절대 금지 — 모든 채점은 해당 런타임의 서브에이전트가 수행
-- **런타임 = 리뷰어**: 교차 런타임 추가 리뷰 전면 금지 (Claude-Lead 에서 Codex 호출 금지, Codex-Lead 에서 Claude 호출 금지)
+- **런타임 = 리뷰어**: 교차 런타임 추가 리뷰 전면 금지 (Claude-Lead · Codex-Lead · Antigravity-Lead 간 교차 호출 금지)
 - 한도 미달 시 자동 중단 + 사용자 결정 요청 (강행/재설계/중단)
 - 동일 변경을 나중에 다른 런타임에서 다시 열어도 기존 리뷰 대체·재채점 금지
 
@@ -33,9 +36,9 @@
 
 관리 규칙:
 - 원본은 `docs/skills/rp-*.md`
-- 변환본은 `scripts/sync-codex-skills.py`로 생성
-- Claude hook은 `docs/skills/rp-*.md` 변경 시 `.claude/commands/`와 `.codex/skills/`를 함께 갱신
-- Codex에서 직접 수정했다면 `python3 scripts/sync-codex-skills.py --check`로 동기화 확인
+- 변환본은 `scripts/sync-skills.py`로 생성 (Codex 호환 래퍼: `scripts/sync-codex-skills.py`)
+- Claude/Antigravity hook은 `docs/skills/rp-*.md` 변경 시 `.claude/commands/`·`.codex/skills/`·`.agents/skills/`를 함께 갱신
+- 직접 수정했다면 `python3 scripts/sync-skills.py --check`(또는 `sync-codex-skills.py --check`)로 동기화 확인
 - 로컬 Codex discovery가 필요하면 `python3 scripts/sync-codex-skills.py --install-user`로 `$CODEX_HOME/skills`에 심링크 설치
 
 ## 기준 문서
@@ -189,9 +192,9 @@ Codex-Lead Mode의 리뷰 결과에는 독립성을 명시한다.
 ## 기본 판단
 
 사용자가 "Codex도 이 레포를 쓸 수 있나"라고 묻는 경우:
-- 메인 런타임 선택 시점에 작성 모드 결정 (Claude Code → Claude-Lead / Codex CLI → Codex-Lead)
-- 양쪽 모두 동일 12단계 워크플로우·동일 게이트·동일 SSOT 규칙 적용
-- 차이는 채점 서브에이전트 종류뿐 — 양쪽 모두 외부 추가 리뷰 없음
+- 메인 런타임 선택 시점에 작성 모드 결정 (Claude Code → Claude-Lead / Codex CLI → Codex-Lead / Antigravity → Antigravity-Lead)
+- 세 런타임 모두 동일 12단계 워크플로우·동일 게이트·동일 SSOT 규칙 적용
+- 차이는 채점 서브에이전트 종류뿐 — 세 런타임 모두 외부 추가 리뷰 없음
 
 사용자가 Claude 없이 Codex로 진행하라고 하면:
 - Codex가 변경 작성, Codex 서브에이전트가 plan / engineering / code / infra 네 관점으로 분리 채점

@@ -12,6 +12,7 @@ import os
 import re
 import sys
 import tempfile
+from collections import deque
 from pathlib import Path
 
 
@@ -19,6 +20,14 @@ LABEL = r"[0-9][0-9A-Za-z.\-]*"
 START = re.compile(rf"(?:^|&&|;)\s*(?:python3\s+)?\S*token-usage\.py\s+--start\s+({LABEL})(?=\s|$|;|&)", re.M)
 CLAUDE_ROOT = Path.home() / ".claude" / "projects"
 CODEX_ROOT = Path(os.environ.get("CODEX_HOME", Path.home() / ".codex")) / "sessions"
+AGY_DEFAULT_APP_DIRS = (
+    Path.home() / ".gemini" / "antigravity-cli",
+    Path.home() / ".gemini" / "antigravity",
+    Path.home() / ".gemini" / "antigravity-ide",
+)
+AGY_CID_RE = re.compile(r"^[A-Za-z0-9-]+$")
+AGY_SUBAGENT_RE = re.compile(r'Created the following subagent:\s*\{\s*"conversationId"\s*:\s*"([^"]+)"')
+COMMON_LABELS = ("in", "out", "cache_r")
 CLAUDE_KEYS = {
     "in": "input_tokens",
     "out": "output_tokens",
@@ -26,6 +35,7 @@ CLAUDE_KEYS = {
     "cache_w": "cache_creation_input_tokens",
 }
 CODEX_KEYS = {"in": "input_tokens", "out": "output_tokens", "cache_r": "cached_input_tokens"}
+AGY_KEYS = {"in": "input_tokens", "out": "output_tokens", "cache_r": "cache_read_tokens"}
 
 
 class Fail(Exception):
@@ -140,15 +150,255 @@ def codex_usage(root: Path, cwd: str, harness_root: Path) -> tuple[str, dict[str
     return stage, totals
 
 
-def format_line(stage: str, totals: dict[str, int], codex: bool) -> str:
-    parts = [f"{label} {totals[label]:,}" for label in CODEX_KEYS]
-    parts.append("cache_w n/a" if codex else f"cache_w {totals['cache_w']:,}")
-    return f"토큰 [{stage}]: {' · '.join(parts)}" + (" (메인만)" if codex else "")
+def agy_unwrap_command(raw) -> str:
+    if not isinstance(raw, str):
+        return ""
+    try:
+        decoded = json.loads(raw)
+        if isinstance(decoded, str):
+            return decoded
+    except json.JSONDecodeError:
+        pass
+    return raw
+
+
+def agy_row_commands(row: dict) -> list[str]:
+    calls = row.get("tool_calls")
+    if not isinstance(calls, list):
+        return []
+    commands: list[str] = []
+    for call in map(obj, calls):
+        if call.get("name") == "run_command":
+            commands.append(agy_unwrap_command(obj(call.get("args")).get("CommandLine")))
+    return commands
+
+
+def agy_transcript_path(brain_dir: Path, cid: str) -> Path | None:
+    if not isinstance(cid, str) or not AGY_CID_RE.fullmatch(cid):
+        return None
+    try:
+        base = brain_dir.resolve()
+        candidate = (base / cid / ".system_generated" / "logs" / "transcript.jsonl").resolve()
+    except OSError:
+        return None
+    if not candidate.is_relative_to(base) or not candidate.is_file():
+        return None
+    return candidate
+
+
+def agy_resolve_brain_dir(
+    cid: str,
+    env_dir: str = "",
+    defaults: tuple[Path, ...] = AGY_DEFAULT_APP_DIRS,
+) -> Path:
+    if not isinstance(cid, str) or not AGY_CID_RE.fullmatch(cid):
+        raise Fail("세션 식별 불가")
+    candidates = (Path(env_dir),) if env_dir else defaults
+    for app_dir in candidates:
+        brain_dir = app_dir / "brain"
+        if agy_transcript_path(brain_dir, cid) is not None:
+            return brain_dir
+    raise Fail("세션 식별 불가")
+
+
+def agy_extract_subagents(row: dict) -> list[str]:
+    if row.get("type") != "GENERIC":
+        return []
+    content = row.get("content")
+    if not isinstance(content, str):
+        return []
+    return AGY_SUBAGENT_RE.findall(content)
+
+
+def agy_explicit_step(row: dict) -> int | None:
+    val = row.get("step_index")
+    return val if isinstance(val, int) and not isinstance(val, bool) else None
+
+
+def _agy_row_in_stage(row: dict, idx: int, start_idx: int, start_step: int | None) -> bool:
+    step = agy_explicit_step(row)
+    if start_step is not None and step is not None:
+        return step >= start_step
+    return idx >= start_idx
+
+
+def agy_usage(brain_dir: Path, cid: str) -> tuple[str, dict[str, int], bool]:
+    main = agy_transcript_path(brain_dir, cid)
+    if main is None:
+        raise Fail("세션 식별 불가")
+
+    try:
+        rows = list(read_jsonl(main))
+    except (OSError, UnicodeDecodeError) as exc:
+        raise Fail("세션 식별 불가") from exc
+
+    stage: str | None = None
+    start_idx = -1
+    start_step: int | None = None
+    for idx, row in enumerate(rows):
+        if row.get("type") != "PLANNER_RESPONSE":
+            continue
+        for command in agy_row_commands(row):
+            found = start_stage(command)
+            if found:
+                stage, start_idx, start_step = found, idx, agy_explicit_step(row)
+    if stage is None:
+        raise Fail("경계 없음")
+
+    totals = {label: 0 for label in AGY_KEYS}
+    queue: deque[str] = deque()
+    for idx, row in enumerate(rows):
+        if not _agy_row_in_stage(row, idx, start_idx, start_step):
+            continue
+        if row.get("type") == "PLANNER_RESPONSE":
+            for label, key in AGY_KEYS.items():
+                totals[label] += num(row.get(key))
+        else:
+            queue.extend(agy_extract_subagents(row))
+
+    visited: set[str] = {cid}
+    missing_child = False
+    while queue:
+        child_cid = queue.popleft()
+        if not AGY_CID_RE.fullmatch(child_cid):
+            continue
+        if child_cid in visited:
+            continue
+        visited.add(child_cid)
+        child_path = agy_transcript_path(brain_dir, child_cid)
+        if child_path is None:
+            missing_child = True
+            continue
+        try:
+            for row in read_jsonl(child_path):
+                if row.get("type") == "PLANNER_RESPONSE":
+                    for label, key in AGY_KEYS.items():
+                        totals[label] += num(row.get(key))
+                else:
+                    queue.extend(agy_extract_subagents(row))
+        except (OSError, UnicodeDecodeError):
+            missing_child = True
+
+    return stage, totals, missing_child
+
+
+def format_line(
+    stage: str,
+    totals: dict[str, int],
+    *,
+    cache_w_na: bool,
+    main_only: bool,
+) -> str:
+    parts = [f"{label} {totals[label]:,}" for label in COMMON_LABELS]
+    parts.append("cache_w n/a" if cache_w_na else f"cache_w {totals['cache_w']:,}")
+    return f"토큰 [{stage}]: {' · '.join(parts)}" + (" (메인만)" if main_only else "")
 
 
 def write_jsonl(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n", encoding="utf-8")
+
+
+def _self_test_antigravity(tmp: Path) -> None:
+    brain = tmp / "agy" / "brain"
+    planner = lambda step, i, o, c, cmd="", raw_cmd=False: {
+        **({"step_index": step} if step is not None else {}),
+        "type": "PLANNER_RESPONSE",
+        "input_tokens": i,
+        "output_tokens": o,
+        "cache_read_tokens": c,
+        "tool_calls": [{"name": "run_command", "args": {"CommandLine": cmd if raw_cmd else json.dumps(cmd)}}] if cmd else [],
+    }
+    sub_out = lambda step, sub_id: {
+        "step_index": step,
+        "type": "GENERIC",
+        "content": f'Created the following subagent:\n{{\n  "conversationId":  "{sub_id}"\n}}',
+    }
+    main_path = brain / "main-1" / ".system_generated" / "logs" / "transcript.jsonl"
+    write_jsonl(main_path, [
+        planner(1, 500, 50, 100, "python3 scripts/token-usage.py --start 3"),
+        sub_out(2, "old-child"),
+        planner(50, 100, 10, 20, "python3 scripts/token-usage.py --start 8"),
+        sub_out(51, "child-a"),
+        sub_out(52, "child-a"),
+        sub_out(53, "../../etc/passwd"),
+        sub_out(54, "main-1"),
+        planner(None, 200, 30, 40),  # missing step_index after start_idx must still be included
+        {"step_index": 56, "type": "PLANNER_RESPONSE", "tool_calls": [{"name": "run_command", "args": {"CommandLine": 123}}]},
+        {"step_index": 57, "type": "GENERIC", "content": '"conversationId": "not-a-subagent"'},
+    ])
+    # Append malformed JSON line to ensure safe skipping
+    with main_path.open("a", encoding="utf-8") as fh:
+        fh.write("{corrupt-json\n")
+    write_jsonl(brain / "old-child" / ".system_generated" / "logs" / "transcript.jsonl", [
+        planner(1, 9999, 999, 999),
+    ])
+    write_jsonl(brain / "child-a" / ".system_generated" / "logs" / "transcript.jsonl", [
+        planner(1, 50, 5, 10),
+        sub_out(2, "child-b"),
+    ])
+    write_jsonl(brain / "child-b" / ".system_generated" / "logs" / "transcript.jsonl", [
+        planner(1, 25, 3, 4),
+    ])
+    stage, totals, main_only = agy_usage(brain, "main-1")
+    assert (stage, totals, main_only) == ("8", {"in": 375, "out": 48, "cache_r": 74}, False), (stage, totals, main_only)
+    assert format_line(stage, totals, cache_w_na=True, main_only=main_only) == (
+        "토큰 [8]: in 375 · out 48 · cache_r 74 · cache_w n/a"
+    )
+
+    # Single-encoded plain CommandLine + missing child -> main_only=True
+    write_jsonl(brain / "main-2" / ".system_generated" / "logs" / "transcript.jsonl", [
+        planner(1, 10, 2, 3, "python3 scripts/token-usage.py --start 9", raw_cmd=True),
+        sub_out(2, "missing-child"),
+    ])
+    stage2, totals2, main_only2 = agy_usage(brain, "main-2")
+    assert (stage2, totals2, main_only2) == ("9", {"in": 10, "out": 2, "cache_r": 3}, True)
+    assert format_line(stage2, totals2, cache_w_na=True, main_only=main_only2) == (
+        "토큰 [9]: in 10 · out 2 · cache_r 3 · cache_w n/a (메인만)"
+    )
+
+    # Corrupt UTF-8 child transcript degrades gracefully to main_only=True
+    write_jsonl(brain / "main-3" / ".system_generated" / "logs" / "transcript.jsonl", [
+        planner(1, 12, 4, 6, "python3 scripts/token-usage.py --start 4"),
+        sub_out(2, "bad-utf8-child"),
+    ])
+    bad_child = brain / "bad-utf8-child" / ".system_generated" / "logs" / "transcript.jsonl"
+    bad_child.parent.mkdir(parents=True, exist_ok=True)
+    bad_child.write_bytes(b"\xff\xfe\x00invalid-utf8\n")
+    assert agy_usage(brain, "main-3") == ("4", {"in": 12, "out": 4, "cache_r": 6}, True)
+
+    # Missing boundary -> Fail("경계 없음")
+    write_jsonl(brain / "main-nobound" / ".system_generated" / "logs" / "transcript.jsonl", [
+        planner(1, 10, 2, 3),
+    ])
+    try:
+        agy_usage(brain, "main-nobound")
+        raise AssertionError("missing boundary should fail")
+    except Fail as exc:
+        assert str(exc) == "경계 없음", str(exc)
+
+    # Corrupt UTF-8 main transcript -> Fail("세션 식별 불가")
+    bad_main = brain / "main-badutf8" / ".system_generated" / "logs" / "transcript.jsonl"
+    bad_main.parent.mkdir(parents=True, exist_ok=True)
+    bad_main.write_bytes(b"\xff\xfe\n")
+    try:
+        agy_usage(brain, "main-badutf8")
+        raise AssertionError("bad utf8 main should fail")
+    except Fail as exc:
+        assert str(exc) == "세션 식별 불가", str(exc)
+
+    # App data dir fallback order + runtime auto-detection priority
+    assert agy_resolve_brain_dir("main-1", defaults=(tmp / "none", tmp / "agy")) == brain
+    for bad_cid in ("", "../escape", "unknown-id"):
+        try:
+            agy_resolve_brain_dir(bad_cid, defaults=(tmp / "agy",))
+            raise AssertionError(f"bad cid should fail: {bad_cid}")
+        except Fail:
+            pass
+    assert detect_runtime("auto", "c1", "a1") == "claude"
+    assert detect_runtime("auto", "", "a1") == "antigravity"
+    assert detect_runtime("auto", "", "") == "codex"
+    assert detect_runtime("antigravity", "c1", "") == "antigravity"
 
 
 def self_test() -> None:
@@ -230,20 +480,38 @@ def self_test() -> None:
         assert seen == ["rollout-new.jsonl"], seen  # older file never parsed: early exit
         assert re.fullmatch(LABEL, "9") and not re.fullmatch(LABEL, "9-코드")
         assert not START.findall("python3 scripts/token-usage.py --start 9-코드")
-        assert format_line(stage, totals, True) == "토큰 [5]: in 60 · out 15 · cache_r 30 · cache_w n/a (메인만)"
+        assert format_line(stage, totals, cache_w_na=True, main_only=True) == (
+            "토큰 [5]: in 60 · out 15 · cache_r 30 · cache_w n/a (메인만)"
+        )
 
-        for fn, args in ((claude_usage, (root, "none")), (codex_usage, (croot, "/elsewhere", home)), (codex_usage, (croot, "/", home))):
+        for fn, args in (
+            (claude_usage, (root, "none")),
+            (codex_usage, (croot, "/elsewhere", home)),
+            (codex_usage, (croot, "/", home)),
+        ):
             try:
                 fn(*args)
                 raise AssertionError(f"{fn.__name__} should fail")
             except Fail:
                 pass
+
+        _self_test_antigravity(Path(tmp))
     print("self-test OK")
+
+
+def detect_runtime(requested: str, claude_sid: str, agy_cid: str) -> str:
+    if requested != "auto":
+        return requested
+    if claude_sid:
+        return "claude"
+    if agy_cid:
+        return "antigravity"
+    return "codex"
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--runtime", choices=["auto", "claude", "codex"], default="auto")
+    parser.add_argument("--runtime", choices=["auto", "claude", "codex", "antigravity"], default="auto")
     parser.add_argument("--start", metavar="N", help="mark the stage boundary (the call itself is the marker)")
     parser.add_argument("--self-test", action="store_true", help="run built-in fixture checks")
     args = parser.parse_args()
@@ -257,19 +525,26 @@ def main() -> int:
         self_test()
         return 0
 
-    session_id = os.environ.get("CLAUDE_CODE_SESSION_ID", "")
-    runtime = args.runtime if args.runtime != "auto" else ("claude" if session_id else "codex")
+    claude_sid = os.environ.get("CLAUDE_CODE_SESSION_ID", "")
+    agy_cid = os.environ.get("ANTIGRAVITY_CONVERSATION_ID", "")
+    runtime = detect_runtime(args.runtime, claude_sid, agy_cid)
     try:
         if runtime == "claude":
-            if not session_id:
+            if not claude_sid:
                 raise Fail("세션 식별 불가")
-            stage, totals = claude_usage(CLAUDE_ROOT, session_id)
+            stage, totals = claude_usage(CLAUDE_ROOT, claude_sid)
+            cache_w_na, main_only = False, False
+        elif runtime == "antigravity":
+            brain_dir = agy_resolve_brain_dir(agy_cid, os.environ.get("ANTIGRAVITY_APP_DATA_DIR", ""))
+            stage, totals, main_only = agy_usage(brain_dir, agy_cid)
+            cache_w_na = True
         else:
             stage, totals = codex_usage(CODEX_ROOT, os.getcwd(), Path(__file__).resolve().parents[1])
+            cache_w_na, main_only = True, True
     except Fail as exc:
         print(f"토큰: 집계 실패 — {exc}")
         return 1
-    print(format_line(stage, totals, runtime == "codex"))
+    print(format_line(stage, totals, cache_w_na=cache_w_na, main_only=main_only))
     return 0
 
 

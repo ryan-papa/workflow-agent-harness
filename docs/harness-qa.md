@@ -6,7 +6,7 @@
 |------|----------|---------|---------|
 | 코드 프로젝트 | src/ 또는 실행 코드 존재 | 기능 QA + E2E + 디자인 QA | 7항목 전체 ([`harness-code-review.md`](harness-code-review.md)) |
 | 콘텐츠 프로젝트 | MDX/MD 콘텐츠 중심 | 빌드 + 렌더링 + 내용 품질 검수 | 빌드 검증만 |
-| 하네스 메타 | 하네스 루트 `docs/`·`CLAUDE.md`·`AGENTS.md`·스킬·`scripts/`·`.codex/`·`.claude/settings.json` 변경 | 로컬 CI 동등 검사(필수 파일·500줄·내부 링크) + `sync-codex-skills.py --check` + 변경 스크립트 `--self-test`(있을 때) | 7항목 전체 (인프라 축 skip) |
+| 하네스 메타 | 하네스 루트 `docs/`·`CLAUDE.md`·`AGENTS.md`·`GEMINI.md`·스킬·`scripts/`·`.codex/`·`.agents/`·`.claude/settings.json` 변경 | 로컬 CI 동등 검사(필수 파일·500줄·규칙 바이트 상한·내부 링크) + `sync-skills.py --check` + 변경 스크립트 `--self-test`(있을 때) | 7항목 전체 (인프라 축 skip) |
 
 ## QA 사전 검증 (필수 — 하네스 메타 제외)
 

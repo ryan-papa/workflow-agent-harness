@@ -73,7 +73,7 @@ repositories/[project]/docs/prd/YYYYMMDD_HHMMSS_[feature]_[8자리랜덤].md
 
 ### 간소 PRD (하네스 메타 변경용)
 
-하네스 자체 문서(`docs/`, `CLAUDE.md`, `AGENTS.md`, 스킬, `scripts/`, `.codex/`, `.claude/settings.json`) 변경은 **간소 PRD** 허용 (완전 생략 금지).
+하네스 자체 문서(`docs/`, `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, 스킬, `scripts/`, `.codex/`, `.agents/`, `.claude/settings.json`) 변경은 **간소 PRD** 허용 (완전 생략 금지).
 
 | 필수 섹션 | 내용 |
 |---------|------|
@@ -104,7 +104,7 @@ Doc Agent 작성 완료
 
 한 축만 미달이면 **미달 축만 재실행**(축별 독립 카운터 3회). 수정이 상대 관점 영역을 건드리거나 PRD 전면 개작 시 통과한 축도 재검증 — SSOT: [`harness-absolute-rules.md`](harness-absolute-rules.md) "리뷰 단계 = 관점 분리".
 
-**⛔ 실행 주체**: 각 리뷰 단계는 **반드시 메인 런타임의 서브에이전트(Claude-Lead=Agent 툴 / Codex-Lead=`spawn_agent`)** 가 수행한다. 메인 에이전트의 셀프 채점 금지. SSOT: [`harness-absolute-rules.md`](harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
+**⛔ 실행 주체**: 각 리뷰 단계는 **반드시 메인 런타임의 서브에이전트(Claude-Lead=Agent 툴 / Codex-Lead=`spawn_agent` / Antigravity-Lead=`invoke_subagent`)** 가 수행한다. 메인 에이전트의 셀프 채점 금지. SSOT: [`harness-absolute-rules.md`](harness-absolute-rules.md) "작성 모드 및 리뷰 매트릭스".
 
 Lite track은 [`harness-workflow.md`](harness-workflow.md) 의 간이 PRD + 통합 plan/engineering 리뷰 예외를 따른다.
 

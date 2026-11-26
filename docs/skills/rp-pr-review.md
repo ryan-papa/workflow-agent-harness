@@ -43,8 +43,9 @@ argument-hint: '[PR URL]'
 |-------------|-----------|-----------|
 | Claude Code | Agent 툴, `subagent_type=general-purpose` | 툴에 타임아웃 인자가 없으므로 **프롬프트에 "30분 내 반환" 상한을 명시**. 메인이 초과 판단 시 결과 없이 진행 |
 | Codex CLI | `spawn_agent` | 동일하게 **프롬프트에 "30분 내 반환" 상한을 명시** |
+| Antigravity | `invoke_subagent`, `TypeName: "self"` | 동일하게 **프롬프트에 "30분 내 반환" 상한을 명시** (`send_message` 텍스트 회신, 파일·artifact 금지) |
 
-⛔ **교차 런타임 호출 금지** — Claude Code에서 `codex`·`codex exec`를, Codex CLI에서 Claude를 부르지 않는다. 리뷰어 런타임은 항상 진입 런타임과 같다.
+⛔ **교차 런타임 호출 금지** — Claude Code · Codex CLI · Antigravity 간 교차 호출 금지. 리뷰어 런타임은 항상 진입 런타임과 같다.
 
 리뷰 기준은 주입하지 않는다 — 반환 형식만 고정한다.
 
