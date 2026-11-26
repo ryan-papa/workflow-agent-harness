@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import importlib.util
 import sys
 from pathlib import Path
@@ -20,9 +21,25 @@ def _load_sync_skills():
 
 
 def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        description="Generate project-local Codex skills from harness rp skill docs."
+    )
+    parser.add_argument("--check", action="store_true", help="verify generated skills are current")
+    parser.add_argument(
+        "--install-user",
+        action="store_true",
+        help="symlink generated rp-* skills into $CODEX_HOME/skills for Codex discovery",
+    )
+    args = parser.parse_args(argv)
+
+    forwarded = ["--target", "codex"]
+    if args.check:
+        forwarded.append("--check")
+    if args.install_user:
+        forwarded.append("--install-user")
+
     sync_skills = _load_sync_skills()
-    forwarded = list(sys.argv[1:] if argv is None else argv)
-    return sync_skills.main(["--target", "codex", *forwarded])
+    return sync_skills.main(forwarded)
 
 
 if __name__ == "__main__":

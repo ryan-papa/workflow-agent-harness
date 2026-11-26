@@ -26,7 +26,10 @@ AGY_DEFAULT_APP_DIRS = (
     Path.home() / ".gemini" / "antigravity-ide",
 )
 AGY_CID_RE = re.compile(r"^[A-Za-z0-9-]+$")
-AGY_SUBAGENT_RE = re.compile(r'Created the following subagent:\s*\{\s*"conversationId"\s*:\s*"([^"]+)"')
+AGY_SUBAGENT_RE = re.compile(
+    r'^(?:(?:Created|Completed) At:[^\r\n]*\r?\n|[ \t]*\r?\n)*'
+    r'Created the following subagent:\s*\{\s*"conversationId"\s*:\s*"([^"]+)"'
+)
 COMMON_LABELS = ("in", "out", "cache_r")
 CLAUDE_KEYS = {
     "in": "input_tokens",
@@ -207,7 +210,8 @@ def agy_extract_subagents(row: dict) -> list[str]:
     content = row.get("content")
     if not isinstance(content, str):
         return []
-    return AGY_SUBAGENT_RE.findall(content)
+    match = AGY_SUBAGENT_RE.match(content)
+    return [match.group(1)] if match else []
 
 
 def agy_explicit_step(row: dict) -> int | None:
@@ -245,17 +249,18 @@ def agy_usage(brain_dir: Path, cid: str) -> tuple[str, dict[str, int], bool]:
     if stage is None:
         raise Fail("경계 없음")
 
-    totals = {label: 0 for label in AGY_KEYS}
+    main_totals = {label: 0 for label in AGY_KEYS}
     queue: deque[str] = deque()
     for idx, row in enumerate(rows):
         if not _agy_row_in_stage(row, idx, start_idx, start_step):
             continue
         if row.get("type") == "PLANNER_RESPONSE":
             for label, key in AGY_KEYS.items():
-                totals[label] += num(row.get(key))
+                main_totals[label] += num(row.get(key))
         else:
             queue.extend(agy_extract_subagents(row))
 
+    children_totals = {label: 0 for label in AGY_KEYS}
     visited: set[str] = {cid}
     missing_child = False
     while queue:
@@ -268,18 +273,27 @@ def agy_usage(brain_dir: Path, cid: str) -> tuple[str, dict[str, int], bool]:
         child_path = agy_transcript_path(brain_dir, child_cid)
         if child_path is None:
             missing_child = True
-            continue
+            break
+        child_totals = {label: 0 for label in AGY_KEYS}
+        child_subs: list[str] = []
         try:
             for row in read_jsonl(child_path):
                 if row.get("type") == "PLANNER_RESPONSE":
                     for label, key in AGY_KEYS.items():
-                        totals[label] += num(row.get(key))
+                        child_totals[label] += num(row.get(key))
                 else:
-                    queue.extend(agy_extract_subagents(row))
+                    child_subs.extend(agy_extract_subagents(row))
         except (OSError, UnicodeDecodeError):
             missing_child = True
+            break
+        for label in AGY_KEYS:
+            children_totals[label] += child_totals[label]
+        queue.extend(child_subs)
 
-    return stage, totals, missing_child
+    if missing_child:
+        return stage, main_totals, True
+    combined = {label: main_totals[label] + children_totals[label] for label in AGY_KEYS}
+    return stage, combined, False
 
 
 def format_line(
@@ -309,23 +323,48 @@ def _self_test_antigravity(tmp: Path) -> None:
         "cache_read_tokens": c,
         "tool_calls": [{"name": "run_command", "args": {"CommandLine": cmd if raw_cmd else json.dumps(cmd)}}] if cmd else [],
     }
-    sub_out = lambda step, sub_id: {
+    sub_out = lambda step, sub_id, header="": {
         "step_index": step,
         "type": "GENERIC",
-        "content": f'Created the following subagent:\n{{\n  "conversationId":  "{sub_id}"\n}}',
+        "content": f'{header}Created the following subagent:\n{{\n  "conversationId":  "{sub_id}"\n}}',
     }
+    real_header = (
+        "Created At: 2026-11-26T09:08:43+09:00\r\n"
+        "Completed At: 2026-11-26T09:08:51+09:00\n"
+        "\n"
+    )
     main_path = brain / "main-1" / ".system_generated" / "logs" / "transcript.jsonl"
     write_jsonl(main_path, [
         planner(1, 500, 50, 100, "python3 scripts/token-usage.py --start 3"),
         sub_out(2, "old-child"),
         planner(50, 100, 10, 20, "python3 scripts/token-usage.py --start 8"),
-        sub_out(51, "child-a"),
+        sub_out(51, "child-a", header=real_header),
         sub_out(52, "child-a"),
         sub_out(53, "../../etc/passwd"),
         sub_out(54, "main-1"),
         planner(None, 200, 30, 40),  # missing step_index after start_idx must still be included
         {"step_index": 56, "type": "PLANNER_RESPONSE", "tool_calls": [{"name": "run_command", "args": {"CommandLine": 123}}]},
         {"step_index": 57, "type": "GENERIC", "content": '"conversationId": "not-a-subagent"'},
+        # Non-subagent tool outputs containing subagent text must NOT match
+        {
+            "step_index": 58,
+            "type": "GENERIC",
+            "content": (
+                "Created At: 2026-11-26T09:10:00+09:00\n"
+                "Completed At: 2026-11-26T09:10:01+09:00\n"
+                "Command exited with code 0.\n\nCommand output:\n"
+                'Created the following subagent:\n{\n  "conversationId": "old-child"\n}'
+            ),
+        },
+        {
+            "step_index": 59,
+            "type": "GENERIC",
+            "content": (
+                "Created At: 2026-11-26T09:10:02+09:00\n"
+                "Showing lines 1-10 of 10\n"
+                '1: Created the following subagent:\n{\n  "conversationId": "missing-fake"\n}'
+            ),
+        },
     ])
     # Append malformed JSON line to ensure safe skipping
     with main_path.open("a", encoding="utf-8") as fh:
@@ -346,26 +385,42 @@ def _self_test_antigravity(tmp: Path) -> None:
         "토큰 [8]: in 375 · out 48 · cache_r 74 · cache_w n/a"
     )
 
-    # Single-encoded plain CommandLine + missing child -> main_only=True
+    # Single-encoded plain CommandLine + valid child + missing child -> main_totals only (no mixed child tokens)
     write_jsonl(brain / "main-2" / ".system_generated" / "logs" / "transcript.jsonl", [
         planner(1, 10, 2, 3, "python3 scripts/token-usage.py --start 9", raw_cmd=True),
-        sub_out(2, "missing-child"),
+        sub_out(2, "child-a"),
+        sub_out(3, "missing-child"),
     ])
     stage2, totals2, main_only2 = agy_usage(brain, "main-2")
-    assert (stage2, totals2, main_only2) == ("9", {"in": 10, "out": 2, "cache_r": 3}, True)
+    assert (stage2, totals2, main_only2) == ("9", {"in": 10, "out": 2, "cache_r": 3}, True), (stage2, totals2, main_only2)
     assert format_line(stage2, totals2, cache_w_na=True, main_only=main_only2) == (
         "토큰 [9]: in 10 · out 2 · cache_r 3 · cache_w n/a (메인만)"
     )
 
-    # Corrupt UTF-8 child transcript degrades gracefully to main_only=True
+    # Partial UTF-8 corrupt child (valid line followed by corrupt bytes) + prior valid child -> main_totals only
     write_jsonl(brain / "main-3" / ".system_generated" / "logs" / "transcript.jsonl", [
         planner(1, 12, 4, 6, "python3 scripts/token-usage.py --start 4"),
-        sub_out(2, "bad-utf8-child"),
+        sub_out(2, "child-a"),
+        sub_out(3, "bad-utf8-child"),
     ])
     bad_child = brain / "bad-utf8-child" / ".system_generated" / "logs" / "transcript.jsonl"
     bad_child.parent.mkdir(parents=True, exist_ok=True)
-    bad_child.write_bytes(b"\xff\xfe\x00invalid-utf8\n")
+    bad_child.write_bytes((json.dumps(planner(1, 777, 77, 77)) + "\n").encode("utf-8") + b"\xff\xfe\x00invalid-utf8\n")
     assert agy_usage(brain, "main-3") == ("4", {"in": 12, "out": 4, "cache_r": 6}, True)
+
+    # Early break on missing_child skips reading subsequent sibling transcripts
+    write_jsonl(brain / "main-early" / ".system_generated" / "logs" / "transcript.jsonl", [
+        planner(1, 7, 1, 2, "python3 scripts/token-usage.py --start 6"),
+        sub_out(2, "missing-first"),
+        sub_out(3, "child-b"),
+    ])
+    real_reader, seen_children = read_jsonl, []
+    globals()["read_jsonl"] = lambda path: seen_children.append(path.parent.parent.parent.name) or real_reader(path)
+    try:
+        assert agy_usage(brain, "main-early") == ("6", {"in": 7, "out": 1, "cache_r": 2}, True)
+    finally:
+        globals()["read_jsonl"] = real_reader
+    assert seen_children == ["main-early"], seen_children
 
     # Missing boundary -> Fail("경계 없음")
     write_jsonl(brain / "main-nobound" / ".system_generated" / "logs" / "transcript.jsonl", [
@@ -386,6 +441,10 @@ def _self_test_antigravity(tmp: Path) -> None:
         raise AssertionError("bad utf8 main should fail")
     except Fail as exc:
         assert str(exc) == "세션 식별 불가", str(exc)
+
+    # ReDoS regression guard: many leading blank lines must fail fast without backtracking
+    assert AGY_SUBAGENT_RE.match("\n" * 200 + "a" * 60) is None
+    assert AGY_SUBAGENT_RE.match(" \t\r\n" * 200 + "a" * 60) is None
 
     # App data dir fallback order + runtime auto-detection priority
     assert agy_resolve_brain_dir("main-1", defaults=(tmp / "none", tmp / "agy")) == brain

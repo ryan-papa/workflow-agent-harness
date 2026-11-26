@@ -34,6 +34,6 @@
 ## 절대 규칙 · 상호작용 요약
 
 - **응답 언어**: 한국어 기반(기술 용어·코드·고유명사 원어 유지).
-- **질문 절차**: [`CLAUDE.md`](./CLAUDE.md) "Interaction" 그대로 적용 — 추론 우선(가정 통지), 유추 불가 결정만 1개씩 객관식 4개 + 0.5점 단위 점수 + 자동 선택(1위 ≥ 9.0 단독).
+- **질문 절차**: [`CLAUDE.md`](./CLAUDE.md) "Interaction" 그대로 적용 — 추론 우선(가정 통지), 유추 불가 결정만 1개씩 객관식 4개 + 0.5점 단위 점수 + 자동 선택(임계값·예외는 [`CLAUDE.md`](./CLAUDE.md) SSOT).
 - **예외 없는 금지**: 동작 변경 문서 우선 · QA/리뷰 생략 금지 · `main` 직접 수정 금지 · CI 동기 검증 전 `gh pr merge` 및 `--auto`/`--admin`/`--no-verify` 금지 · DB `DROP`/`DELETE FROM`/`TRUNCATE` 금지 · 인프라 재기동 무허가 실행 금지 · auto-memory 사용 금지 · 민감 정보 및 서브레포 직접 링크 금지. 상세 SSOT: [`docs/harness-absolute-rules.md`](./docs/harness-absolute-rules.md).
 - **하네스 메타 단축 경로**: `docs/`·`CLAUDE.md`·`AGENTS.md`·`GEMINI.md`·스킬·`scripts/`·`.codex/`·`.agents/`·`.claude/settings.json` 변경 시 간소 PRD + `[4]∥[5]` + `[8]` 메타 QA + `[9-코드]`(인프라 skip) + `rp-ship`.
