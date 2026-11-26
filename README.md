@@ -157,7 +157,7 @@ claude  # Claude Code 실행 — CLAUDE.md 자동 로드
 하네스 기능·규칙·스킬을 추가하거나 수정할 때는 **Claude Code · Codex CLI · Antigravity 세 런타임이 어긋나지 않도록** 아래 항목을 함께 점검합니다:
 
 - **루트 어댑터 3종:** [`CLAUDE.md`](CLAUDE.md) · [`AGENTS.md`](AGENTS.md) · [`GEMINI.md`](GEMINI.md) (공통 규칙 변경 시 3개 파일에 반영, 수치·세부 기준은 SSOT 링크 참조)
-- **스킬 동기화:** 원본 `docs/skills/rp-*.md` 수정 후 `python3 scripts/sync-skills.py` 실행 → `.claude/commands/` · `.codex/skills/` · `.agents/skills/` 동시 반영 (`python3 scripts/sync-skills.py --check`로 검증)
+- **스킬 동기화:** 원본 `docs/skills/rp-*.md` 추가·수정 후 `python3 scripts/sync-skills.py --sync-claude-links` 실행 → `.claude/commands/` 심링크(신규 누락분 생성)와 `.codex/skills/` · `.agents/skills/` 변환본 동시 반영 (`python3 scripts/sync-skills.py --check`는 `.codex/skills/` · `.agents/skills/` 변환본만 검증하므로 동기화와 분리 실행)
 - **훅 · 스크립트 · CI:** `.claude/settings.json` · `.claude/hooks/` · `.agents/hooks.json` · `.agents/hooks/` · `scripts/token-usage.py` · `.github/workflows/ci.yml`에 런타임별 누락이나 불일치가 없는지 확인
 
 ---

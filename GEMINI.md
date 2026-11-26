@@ -40,7 +40,7 @@
 - 원본은 `docs/skills/rp-*.md`
 - 변환본은 `scripts/sync-skills.py`로 생성(`.codex/skills/`·`.agents/skills/` 동시 동기화)
 - `.agents/hooks.json`(`PostToolUse` 전용)이 `docs/skills/rp-*.md` 변경 시 `.claude/commands/`·`.codex/skills/`·`.agents/skills/`를 자동 갱신한다 (`PreToolUse` 훅은 권한 정책 우회 및 실행 지연 방지를 위해 미등록)
-- 수동 동기화는 `python3 scripts/sync-skills.py`, 검증은 `python3 scripts/sync-skills.py --check`
+- 수동 동기화는 `python3 scripts/sync-skills.py --sync-claude-links`(신규 스킬의 `.claude/commands/` 심링크 생성 포함), 변환본 검증은 `python3 scripts/sync-skills.py --check`(`.codex/skills/`·`.agents/skills/` 대상, 동기화와 분리 실행)
 - 글로벌 스킬 설치는 `python3 scripts/sync-skills.py --target antigravity --install-user` (`~/.gemini/config/skills/` 심링크 설치, `$ANTIGRAVITY_CONFIG_DIR`로 경로 오버라이드 가능)
 - **서브레포 경계**: Antigravity는 `.git` 경계까지만 상위 규칙·훅·스킬을 탐색하므로 **하네스 루트(`workflow-agent-harness/`)를 워크스페이스로 여는 것을 권장**한다. `repositories/[project]/` 단독 오픈 시 `--install-user`로 스킬을 전역 노출하고 루트 `GEMINI.md`·`CLAUDE.md`를 직접 Read한다
 
