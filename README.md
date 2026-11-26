@@ -52,7 +52,7 @@ workflow-agent-harness/
 ├── scripts/sync-codex-skills.py       # Codex 스킬 동기화 호환 래퍼
 ├── scripts/token-usage.py             # 단계별 토큰 1줄 출력 (Claude · Codex · Antigravity)
 ├── AGENTS.md                          # Codex용 하네스 어댑터
-├── GEMINI.md                          # Antigravity용 경량 하네스 어댑터
+├── GEMINI.md                          # Antigravity용 하네스 어댑터
 ├── CLAUDE.md                          # Claude Code 진입점
 └── README.md
 ```
@@ -125,7 +125,7 @@ claude  # Claude Code 실행 — CLAUDE.md 자동 로드
 
 **Codex CLI에서 직접 진입할 경우** 루트 [`AGENTS.md`](AGENTS.md)가 Claude 중심 규칙을 Codex 실행 규칙으로 번역합니다. 로컬 Codex 스킬 설치는 `python3 scripts/sync-codex-skills.py --install-user`.
 
-**Antigravity(CLI · 2.0 · IDE)에서 직접 진입할 경우** 루트 [`GEMINI.md`](GEMINI.md) 경량 어댑터와 `.agents/skills/rp-*/SKILL.md`가 자동 로드됩니다. 하네스 루트(`workflow-agent-harness/`)를 워크스페이스로 여는 것을 권장하며, 서브레포(`repositories/{프로젝트명}/`)를 단독으로 열 때는 `python3 scripts/sync-skills.py --target antigravity --install-user`로 스킬을 전역 노출하고 루트 `GEMINI.md`·`CLAUDE.md`를 직접 읽습니다.
+**Antigravity(CLI · 2.0 · IDE)에서 직접 진입할 경우** 루트 [`GEMINI.md`](GEMINI.md) 어댑터와 `.agents/skills/rp-*/SKILL.md`가 자동 로드됩니다. 하네스 루트(`workflow-agent-harness/`)를 워크스페이스로 여는 것을 권장하며, 서브레포(`repositories/{프로젝트명}/`)를 단독으로 열 때는 `python3 scripts/sync-skills.py --target antigravity --install-user`로 스킬을 전역 노출하고 루트 `GEMINI.md`·`CLAUDE.md`를 직접 읽습니다.
 
 ---
 
@@ -151,6 +151,14 @@ claude  # Claude Code 실행 — CLAUDE.md 자동 로드
 4. Push → PR 생성
 
 하네스 규칙·문서·스킬 변경은 **메타 변경 단축 경로** 적용: `rp-init`·`rp-specify`·`rp-task`·`rp-dev` 스킵 + `rp-prd` 간소(변경 이유·영향 파일·롤백 전략·검증 4섹션) + 리뷰[4·5·9] + `rp-ship`. 상세: [`harness-absolute-rules.md`](docs/harness-absolute-rules.md) "단축 경로·예외".
+
+### 3런타임(Claude · Codex · Antigravity) 정합성 유지
+
+하네스 기능·규칙·스킬을 추가하거나 수정할 때는 **Claude Code · Codex CLI · Antigravity 세 런타임이 어긋나지 않도록** 아래 항목을 함께 점검합니다:
+
+- **루트 어댑터 3종:** [`CLAUDE.md`](CLAUDE.md) · [`AGENTS.md`](AGENTS.md) · [`GEMINI.md`](GEMINI.md) (공통 규칙 변경 시 3개 파일에 반영, 수치·세부 기준은 SSOT 링크 참조)
+- **스킬 동기화:** 원본 `docs/skills/rp-*.md` 수정 후 `python3 scripts/sync-skills.py` 실행 → `.claude/commands/` · `.codex/skills/` · `.agents/skills/` 동시 반영 (`python3 scripts/sync-skills.py --check`로 검증)
+- **훅 · 스크립트 · CI:** `.claude/settings.json` · `.claude/hooks/` · `.agents/hooks.json` · `.agents/hooks/` · `scripts/token-usage.py` · `.github/workflows/ci.yml`에 런타임별 누락이나 불일치가 없는지 확인
 
 ---
 

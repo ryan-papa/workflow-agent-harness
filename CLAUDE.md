@@ -114,7 +114,7 @@ workflow-agent-harness/
 │   ├── sync-codex-skills.py   # Codex 호환 래퍼
 │   └── token-usage.py         # 단계별 토큰 1줄 출력 (Claude · Codex · Antigravity)
 ├── AGENTS.md                  # Codex용 하네스 어댑터
-├── GEMINI.md                  # Antigravity용 경량 하네스 어댑터
+├── GEMINI.md                  # Antigravity용 하네스 어댑터
 ├── DB-GUIDE.md                # DB 연결 가이드 (절대 규칙은 SSOT §DB 파괴적 작업 금지)
 └── CLAUDE.md
 ```
